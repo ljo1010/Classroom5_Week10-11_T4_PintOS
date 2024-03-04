@@ -11,6 +11,7 @@
 #include "threads/synch.h"
 #include "threads/vaddr.h"
 #include "intrinsic.h"
+#include "devices/timer.h"
 #ifdef USERPROG
 #include "userprog/process.h"
 #endif
@@ -40,6 +41,9 @@ static struct lock tid_lock;
 /* Thread destruction requests */
 static struct list destruction_req;
 
+// sleep 함수용 리스트.
+static struct list sleep_list;
+
 /* Statistics. */
 static long long idle_ticks;    /* # of timer ticks spent idle. */
 static long long kernel_ticks;  /* # of timer ticks in kernel threads. */
@@ -62,6 +66,7 @@ static void init_thread (struct thread *, const char *name, int priority);
 static void do_schedule(int status);
 static void schedule (void);
 static tid_t allocate_tid (void);
+
 
 /* Returns true if T appears to point to a valid thread. */
 #define is_thread(t) ((t) != NULL && (t)->magic == THREAD_MAGIC)
@@ -109,12 +114,14 @@ thread_init (void) {
 	lock_init (&tid_lock);
 	list_init (&ready_list);
 	list_init (&destruction_req);
+	list_init (&sleep_list);
 
 	/* Set up a thread structure for the running thread. */
 	initial_thread = running_thread ();
 	init_thread (initial_thread, "main", PRI_DEFAULT);
 	initial_thread->status = THREAD_RUNNING;
 	initial_thread->tid = allocate_tid ();
+	// initial_thread의 tick은 뭘로 설정하지?
 }
 
 /* Starts preemptive thread scheduling by enabling interrupts.
@@ -207,6 +214,17 @@ thread_create (const char *name, int priority,
 	/* Add to run queue. */
 	thread_unblock (t);
 
+	// 생성시 선점형 구현
+
+	struct thread *curr = thread_current();
+
+	if (curr->priority > t->priority){
+		thread_unblock (t);
+	}
+	else{
+		thread_yield();
+	}
+
 	return tid;
 }
 
@@ -240,7 +258,8 @@ thread_unblock (struct thread *t) {
 
 	old_level = intr_disable ();
 	ASSERT (t->status == THREAD_BLOCKED);
-	list_push_back (&ready_list, &t->elem);
+	//list_push_back (&ready_list, &t->elem);
+	list_insert_ordered(&ready_list, &t->elem, t->priority ,NULL);
 	t->status = THREAD_READY;
 	intr_set_level (old_level);
 }
@@ -409,6 +428,7 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->tf.rsp = (uint64_t) t + PGSIZE - sizeof (void *);
 	t->priority = priority;
 	t->magic = THREAD_MAGIC;
+	// 생성한 thread의 tick은 뭘로 설정하지?
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should
@@ -587,4 +607,40 @@ allocate_tid (void) {
 	lock_release (&tid_lock);
 
 	return tid;
+}
+
+
+void
+thread_sleep(int64_t tick) {
+
+	enum intr_level old_level = intr_disable();
+	struct thread *curr = thread_current ();
+
+	if (curr != idle_thread) {
+		curr->status = THREAD_BLOCKED;
+		curr->ticks = tick;
+		list_push_back (&sleep_list, &curr->elem);
+		schedule();
+	}
+
+	intr_set_level(old_level);
+
+}
+
+void
+thread_wake_up(void){
+
+	if(list_empty(&sleep_list))
+		return;
+	enum intr_level old_level = intr_disable();
+	
+	struct thread *next = list_entry(list_pop_front(&sleep_list), struct thread, elem);
+	if(timer_elapsed(next->ticks) > 0){
+		next->status = THREAD_READY;
+		list_push_back (&ready_list, &next->elem);
+	}
+	else{
+		list_push_back (&sleep_list, &next->elem);
+	}
+	intr_set_level(old_level);
 }

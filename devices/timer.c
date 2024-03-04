@@ -8,6 +8,7 @@
 #include "threads/synch.h"
 #include "threads/thread.h"
 
+
 /* See [8254] for hardware details of the 8254 timer chip. */
 
 #if TIMER_FREQ < 19
@@ -16,6 +17,8 @@
 #if TIMER_FREQ > 1000
 #error TIMER_FREQ <= 1000 recommended
 #endif
+
+// static struct semaphore *sleep; // sleep 타이머용 세마포어.
 
 /* Number of timer ticks since OS booted. */
 static int64_t ticks;
@@ -43,6 +46,8 @@ timer_init (void) {
 	outb (0x40, count >> 8);
 
 	intr_register_ext (0x20, timer_interrupt, "8254 Timer");
+	// 맨처음 아이디어용.
+	// sema_init(&sleep, 0); //slee 타이머용 sema.
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -93,8 +98,24 @@ timer_sleep (int64_t ticks) {
 	int64_t start = timer_ticks ();
 
 	ASSERT (intr_get_level () == INTR_ON);
-	while (timer_elapsed (start) < ticks)
-		thread_yield ();
+	
+	// 맨처음 아이디어용.
+	// while(1){
+	// 	sema_down(&sleep);
+	// 	if (timer_elapsed (start) >= ticks){
+	// 		sema_up(&sleep);
+	// 		thread_yield();}
+	// 	else {
+	// 		sema_up(&sleep);
+	// 		}
+	// }
+
+	// 본래 함수.
+	// while (timer_elapsed (start) < ticks)
+	// 	thread_yield ();
+
+	if (timer_elapsed (start) < ticks)
+		thread_sleep(timer_ticks() + ticks);
 }
 
 /* Suspends execution for approximately MS milliseconds. */
@@ -126,6 +147,13 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED) {
 	ticks++;
 	thread_tick ();
+	
+
+	thread_wake_up();
+
+//	sema_up(&sleep); // 맨처음 아이디어용.
+
+
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
