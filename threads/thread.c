@@ -259,7 +259,7 @@ thread_unblock (struct thread *t) {
 	old_level = intr_disable ();
 	ASSERT (t->status == THREAD_BLOCKED);
 	//list_push_back (&ready_list, &t->elem);
-	list_insert_ordered(&ready_list, &t->elem, t->priority ,NULL);
+	list_insert_ordered(&ready_list, &t->elem, t->priority ,NULL); // priority 순으로 삽입
 	t->status = THREAD_READY;
 	intr_set_level (old_level);
 }
@@ -322,7 +322,8 @@ thread_yield (void) {
 
 	old_level = intr_disable ();
 	if (curr != idle_thread)
-		list_push_back (&ready_list, &curr->elem);
+		// list_push_back (&ready_list, &curr->elem);
+		list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
 	do_schedule (THREAD_READY);
 	intr_set_level (old_level);
 }
@@ -331,6 +332,23 @@ thread_yield (void) {
 void
 thread_set_priority (int new_priority) {
 	thread_current ()->priority = new_priority;
+
+	// ready list를 세팅에 따라 priority 순으로 정렬 
+	struct thread *curr = thread_current();
+
+	if(curr->status == THREAD_READY){
+		list_sort(&ready_list, thread_priority_less, NULL);
+	}
+
+
+}
+
+bool
+thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux){
+	struct thread *thread_a = list_entry(a, struct thread, elem);
+    struct thread *thread_b = list_entry(b, struct thread, elem);
+
+    return thread_a->priority < thread_b->priority;
 }
 
 /* Returns the current thread's priority. */
