@@ -192,6 +192,16 @@ lock_acquire (struct lock *lock) {
 
 	sema_down (&lock->semaphore);
 	lock->holder = thread_current ();
+	
+	// Donation 용
+	thread_current()->wait_on_lock = lock;
+	int cur_pri = thread_current()->priority;
+	int befo_pri = thread_current()->wait_on_lock->holder->priority;
+	thread_current()->wait_on_lock->holder->priority = cur_pri;
+	thread_current()->priority = befo_pri;
+	// donation 리스트에 추가하기
+	thread_push_donation(&thread_current()->d_elem);
+	thread_push_donation(&thread_current()->wait_on_lock->holder->d_elem);
 }
 
 /* Tries to acquires LOCK and returns true if successful or false
@@ -211,6 +221,8 @@ lock_try_acquire (struct lock *lock) {
 	if (success)
 		lock->holder = thread_current ();
 	return success;
+
+	// donation 용을 추가해야하나?
 }
 
 /* Releases LOCK, which must be owned by the current thread.
@@ -224,8 +236,16 @@ lock_release (struct lock *lock) {
 	ASSERT (lock != NULL);
 	ASSERT (lock_held_by_current_thread (lock));
 
+	// Donation 용 추가
+	
+	thread_remove_donation(&lock->holder->d_elem);
+	// donation list를 순회하며 해당하는 lock을 가진 thread list에서 제거
+	// pritority를 교환한 후(thread_set_priority) 해당 thread에게 yield
+	// Donation 용 추가 (여기까지)
 	lock->holder = NULL;
 	sema_up (&lock->semaphore);
+
+	
 }
 
 /* Returns true if the current thread holds LOCK, false

@@ -44,6 +44,9 @@ static struct list destruction_req;
 // sleep 함수용 리스트.
 static struct list sleep_list;
 
+// donation 용 리스트
+static struct list donation_list;
+
 /* Statistics. */
 static long long idle_ticks;    /* # of timer ticks spent idle. */
 static long long kernel_ticks;  /* # of timer ticks in kernel threads. */
@@ -114,7 +117,11 @@ thread_init (void) {
 	lock_init (&tid_lock);
 	list_init (&ready_list);
 	list_init (&destruction_req);
+	// sleep list 용
 	list_init (&sleep_list);
+
+	// donation list 용
+	list_init (&donation_list);
 
 	/* Set up a thread structure for the running thread. */
 	initial_thread = running_thread ();
@@ -339,7 +346,7 @@ thread_set_priority (int new_priority) {
 	if(curr->status == THREAD_READY){
 		list_sort(&ready_list, thread_priority_less, NULL);
 	}
-
+	// donation에 따라 priority set.
 
 }
 
@@ -447,6 +454,8 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->priority = priority;
 	t->magic = THREAD_MAGIC;
 	// 생성한 thread의 tick은 뭘로 설정하지?
+
+	// priority donaiton 데이터 구조를 init 할게 있나?
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should
@@ -660,5 +669,33 @@ thread_wake_up(void){
 	else{
 		list_push_back (&sleep_list, &next->elem);
 	}
+	intr_set_level(old_level);
+}
+
+
+void
+thread_push_donation(struct list_elem *elem){
+	enum intr_level old_level = intr_disable();
+	list_push_back(&donation_list, &elem);
+	intr_set_level(old_level);
+}
+
+void
+thread_remove_donation(struct list_elem *curr){
+	
+	enum intr_level old_level = intr_disable();
+
+	struct thread *befo =list_entry(curr, struct thread, elem);
+	list_remove(curr);
+	struct thread *top =list_entry(list_pop_back(&donation_list),struct thread, elem);
+
+	int befo_pri = top->priority;
+	int new_pri = befo->priority;
+
+	top->priority = new_pri;
+	befo->priority = befo_pri;
+
+	list_sort(&ready_list, thread_priority_less, NULL);
+
 	intr_set_level(old_level);
 }

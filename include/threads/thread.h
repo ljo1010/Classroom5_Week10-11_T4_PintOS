@@ -98,6 +98,10 @@ struct thread {
 	// 쓰레드 tick. sleep 함수 용.
 	int64_t ticks;
 
+	//Donation용
+	struct lock *wait_on_lock; // 현재 기다리는 lock 포인터
+	struct list_elem d_elem; // 현재 이 스레드가 기부 중인 리스트
+
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
 	uint64_t *pml4;                     /* Page map level 4 */
@@ -150,5 +154,8 @@ void thread_wake_up(void);
 void thread_sleep(int64_t tick); 
 
 bool thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux);
+void thread_push_donation(struct list_elem *elem);
+
+void thread_remove_donation(struct list_elem *elem);
 
 #endif /* threads/thread.h */
