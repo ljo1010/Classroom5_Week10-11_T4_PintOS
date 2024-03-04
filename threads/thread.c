@@ -121,7 +121,7 @@ thread_init (void) {
 	list_init (&sleep_list);
 
 	// donation list 용
-	list_init (&donation_list);
+	// list_init (&donation_list);
 
 	/* Set up a thread structure for the running thread. */
 	initial_thread = running_thread ();
@@ -224,11 +224,7 @@ thread_create (const char *name, int priority,
 	// 생성시 선점형 구현
 
 	struct thread *curr = thread_current();
-
-	if (curr->priority > t->priority){
-		thread_unblock (t);
-	}
-	else{
+	if (curr->priority < t->priority){
 		thread_yield();
 	}
 
@@ -266,7 +262,7 @@ thread_unblock (struct thread *t) {
 	old_level = intr_disable ();
 	ASSERT (t->status == THREAD_BLOCKED);
 	//list_push_back (&ready_list, &t->elem);
-	list_insert_ordered(&ready_list, &t->elem, t->priority ,NULL); // priority 순으로 삽입
+	list_insert_ordered(&ready_list, &t->elem, thread_priority_less ,NULL); // priority 순으로 삽입
 	t->status = THREAD_READY;
 	intr_set_level (old_level);
 }
@@ -338,14 +334,21 @@ thread_yield (void) {
 /* Sets the current thread's priority to NEW_PRIORITY. */
 void
 thread_set_priority (int new_priority) {
-	thread_current ()->priority = new_priority;
+	struct thread *curr = thread_current();
+	enum intr_level old_level = intr_disable();
+	curr->priority = new_priority;
 
 	// ready list를 세팅에 따라 priority 순으로 정렬 
-	struct thread *curr = thread_current();
-
 	if(curr->status == THREAD_READY){
 		list_sort(&ready_list, thread_priority_less, NULL);
 	}
+	else{
+		curr->status = THREAD_READY;
+		list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
+		schedule();
+	}
+	intr_set_level (old_level);
+
 	// donation에 따라 priority set.
 
 }
@@ -355,7 +358,7 @@ thread_priority_less(const struct list_elem *a, const struct list_elem *b, void 
 	struct thread *thread_a = list_entry(a, struct thread, elem);
     struct thread *thread_b = list_entry(b, struct thread, elem);
 
-    return thread_a->priority < thread_b->priority;
+    return thread_a->priority > thread_b->priority;
 }
 
 /* Returns the current thread's priority. */

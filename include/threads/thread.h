@@ -99,8 +99,8 @@ struct thread {
 	int64_t ticks;
 
 	//Donation용
-	struct lock *wait_on_lock; // 현재 기다리는 lock 포인터
-	struct list_elem d_elem; // 현재 이 스레드가 기부 중인 리스트
+//	struct lock *wait_on_lock; // 현재 기다리는 lock 포인터
+//	struct list_elem d_elem; // 현재 이 스레드가 기부 중인 리스트
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
