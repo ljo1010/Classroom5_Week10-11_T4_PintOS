@@ -146,7 +146,7 @@ timer_print_stats (void) {
 static void
 timer_interrupt (struct intr_frame *args UNUSED) {
 	ticks++;
-	thread_wake_up();
+	thread_wake_up(ticks);
 	thread_tick ();
 //	sema_up(&sleep); // 맨처음 아이디어용.
 

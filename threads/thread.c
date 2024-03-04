@@ -243,6 +243,7 @@ thread_block (void) {
 	ASSERT (intr_get_level () == INTR_OFF);
 	thread_current ()->status = THREAD_BLOCKED;
 	schedule ();
+
 }
 
 /* Transitions a blocked thread T to the ready-to-run state.
@@ -265,6 +266,7 @@ thread_unblock (struct thread *t) {
 	list_insert_ordered(&ready_list, &t->elem, thread_priority_less ,NULL); // priority 순으로 삽입
 	t->status = THREAD_READY;
 	intr_set_level (old_level);
+	
 }
 
 /* Returns the name of the running thread. */
@@ -658,20 +660,37 @@ thread_sleep(int64_t tick) {
 }
 
 void
-thread_wake_up(void){
+thread_wake_up(int64_t ticks){
 
 	if(list_empty(&sleep_list))
 		return;
 	enum intr_level old_level = intr_disable();
 	
-	struct thread *next = list_entry(list_pop_front(&sleep_list), struct thread, elem);
-	if(timer_elapsed(next->ticks) > 0){
-		next->status = THREAD_READY;
-		list_push_back (&ready_list, &next->elem);
-	}
-	else{
-		list_push_back (&sleep_list, &next->elem);
-	}
+	// struct thread *next = list_entry(list_pop_front(&sleep_list), struct thread, elem);
+	// if(timer_elapsed(next->ticks) > 0){
+	// 	next->status = THREAD_READY;
+	// 	list_push_back (&ready_list, &next->elem);
+	// }
+	// else{
+	// 	list_push_back (&sleep_list, &next->elem);
+	// }
+
+
+    struct list_elem *e;
+    for (e = list_begin(&sleep_list); e != list_end(&sleep_list); )
+    {
+        struct thread *t = list_entry(e, struct thread, elem);
+        
+        if (ticks >= t->ticks)
+        {
+			e = list_remove(e);
+            thread_unblock(t);
+        }
+		else
+		{
+			e = list_next(e);
+		}
+    }
 	intr_set_level(old_level);
 }
 

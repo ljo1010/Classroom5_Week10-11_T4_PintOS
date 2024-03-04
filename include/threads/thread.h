@@ -150,7 +150,7 @@ int thread_get_load_avg (void);
 
 void do_iret (struct intr_frame *tf);
 
-void thread_wake_up(void);
+void thread_wake_up(int64_t ticks);
 void thread_sleep(int64_t tick); 
 
 bool thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux);
