@@ -193,23 +193,19 @@ lock_acquire (struct lock *lock) {
 	ASSERT (lock != NULL);
 	ASSERT (!intr_context ());
 	ASSERT (!lock_held_by_current_thread (lock));
+	struct thread *curr = thread_current ();
+	curr->wait_on_lock = lock; // lock을 필요로 하는 thread의 address 저장
+	// priority 순으로 donation 리스트 넣는법....
+	list_insert_ordered(&curr->wait_on_lock->holder->donation, &curr->d_elem, donation_priority_less,NULL); // donation 리스트에 넣기.
 
 	sema_down (&lock->semaphore);
+
 	lock->holder = thread_current ();
-	
-	struct thread *hold_th = thread_current()->wait_on_lock->holder;
-	// 교체해야하는, 낮은 priority를 가진 애.
-	struct thread *cur = thread_current();
-	// 현재 쓰레드..	
+	curr->wait_on_lock = NULL;
 
-	cur->wait_on_lock = lock; // lock을 얻었으므로 lock address 저장
+	// 순회하면서 donation에 따라 업데이트하기
+	thread_set_priority(curr->init_pri);
 
-	list_push_back(&hold_th->donation, &cur->d_elem); // donation 리스트에 넣기.
-
-	// hold_th의 priority를 업데이트해야하는데 그건 실행중이 아니야...
-	 // 어떻게 하지...??
-	hold_th->priority = cur->priority;
-	thread_yield();
 }
 
 /* Tries to acquires LOCK and returns true if successful or false
@@ -244,31 +240,31 @@ lock_release (struct lock *lock) {
 	ASSERT (lock != NULL);
 	ASSERT (lock_held_by_current_thread (lock));
 
-
-	struct thread *holder_th = lock->holder;
-
 	struct list_elem *e;
-	// donation list를 순회하며 해당하는 lock을 가진 thread list에서 제거	
-	for(e = list_begin(&holder_th->donation); e != list_end(&holder_th->donation);)
-	{
-			struct thread *t = list_entry(e, struct thread, elem);
 
-			if(t->wait_on_lock == lock){
-				list_remove(e);
-				break;
-				}
-			else{
+	struct thread *holde = lock->holder;
+	// donation list를 순회하며 해당하는 lock을 가진 thread list에서 제거
+	if (!list_empty(&holde->donation)){	
+		for(e = list_begin(&holde->donation); e != list_end(&holde->donation);)
+		{
+				if(list_entry(e, struct thread, d_elem)->wait_on_lock == lock){
+
+					// 근데 만약 lock을 가진 애가 많아! 그러면 priority 순으로 처리...
+					// 하기느 까다로워서 넣을때부터 priority 순으로 넣었었으면 좋겠따.
+					list_remove(e);
+					break;
+					}
+				else{
 					e = list_next(e);
 					}
+			}
 		}
 
-	thread_set_priority(holder_th->init_pri);
-
-	
-	// pritority를 교환한 후(thread_set_priority) 해당 thread에게 yield
-	// (근데 thread_set_priority에서 스케줄하니 괜찮을듯)
 	// Donation 용 추가 (여기까지)
 	lock->holder = NULL;
+	
+	thread_just_set_priority(holde->init_pri);
+
 	sema_up (&lock->semaphore);
 
 	
@@ -351,15 +347,11 @@ cond_signal (struct condition *cond, struct lock *lock UNUSED) {
 	ASSERT (!intr_context ());
 	ASSERT (lock_held_by_current_thread (lock));
 	
-	if (!list_empty (&cond->waiters))
+	if (!list_empty (&cond->waiters)){
 		list_sort(&cond->waiters,semaphore_priority_less , NULL);
 		sema_up (&list_entry (list_pop_front (&cond->waiters),
 					struct semaphore_elem, elem)->semaphore);
-	
-	
-	
-	
-	
+	}
 }
 
 /* Wakes up all threads, if any, waiting on COND (protected by
@@ -398,3 +390,4 @@ bool semaphore_priority_less(const struct list_elem *a,
 
     return thread_a->priority > thread_b->priority;
 }
+

@@ -339,17 +339,17 @@ thread_set_priority (int new_priority) {
 
 	struct list_elem *e;
 	int big_pri = -1;
-	// donation에 따라 priority set.
-	for(e = list_begin(&curr->donation); e != list_end(&curr->donation);)
+	//donation에 따라 priority set.
+	
+	for(e = list_front(&curr->donation); e != list_end(&curr->donation);)
 	{
-			struct thread *t = list_entry(e, struct thread, elem);
 
-			if(t->priority > big_pri){
-				big_pri = t->priority;
+			if(list_entry(e, struct thread, d_elem)->priority > big_pri){
+				big_pri = list_entry(e, struct thread, d_elem)->priority;
 				}
-			else{
-					e = list_next(e);
-					}
+			 else{
+        		e = list_next(e);
+        }
 		}
 	if(big_pri != -1){
 		curr->priority = big_pri;
@@ -370,10 +370,49 @@ thread_set_priority (int new_priority) {
 
 }
 
+void
+thread_just_set_priority(int new_priority){
+
+	struct thread *curr = thread_current();
+	enum intr_level old_level = intr_disable();
+	curr->priority = new_priority;
+
+	struct list_elem *e;
+	int big_pri = -1;
+	// donation에 따라 priority set.
+	
+	for(e = list_front(&curr->donation); e != list_end(&curr->donation);)
+	{
+
+			if(list_entry(e, struct thread, d_elem)->priority > big_pri){
+				big_pri = list_entry(e, struct thread, d_elem)->priority;
+				}
+			 else{
+        		e = list_next(e);
+        }
+		}
+	if(big_pri != -1){
+		curr->priority = big_pri;
+	}
+
+	curr->status = THREAD_READY;
+	list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
+
+	intr_set_level (old_level);
+}
+
 bool
 thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux){
 	struct thread *thread_a = list_entry(a, struct thread, elem);
     struct thread *thread_b = list_entry(b, struct thread, elem);
+
+    return thread_a->priority > thread_b->priority;
+}
+
+bool
+donation_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux){
+	struct thread *thread_a = list_entry(a, struct thread, d_elem);
+    struct thread *thread_b = list_entry(b, struct thread, d_elem);
 
     return thread_a->priority > thread_b->priority;
 }
@@ -695,7 +734,7 @@ thread_wake_up(int64_t ticks){
 
 
     struct list_elem *e;
-    for (e = list_begin(&sleep_list); e != list_end(&sleep_list); )
+    for (e = list_begin(&sleep_list); e != list_end(&sleep_list); e = list_next(e))
     {
         struct thread *t = list_entry(e, struct thread, elem);
         
@@ -704,10 +743,6 @@ thread_wake_up(int64_t ticks){
 			e = list_remove(e);
             thread_unblock(t);
         }
-		else
-		{
-			e = list_next(e);
-		}
     }
 	intr_set_level(old_level);
 }

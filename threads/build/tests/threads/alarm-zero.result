@@ -1,1 +1,13 @@
-PASS
+FAIL
+Kernel panic in run: PANIC at ../../threads/thread.c:287 in thread_current(): assertion `t->status == THREAD_RUNNING' failed.
+Call stack: 0x8004213744 0x8004206f17 0x800420a232 0x80042167d2 0x80042168f0 0x8004210c47 0x800420a8bf 0x800420afe6 0x8004206080
+Translation of call stack:
+0x0000008004213744: debug_panic (lib/kernel/debug.c:32)
+0x0000008004206f17: thread_current (threads/thread.c:289)
+0x000000800420a232: lock_held_by_current_thread (threads/synch.c:280)
+0x00000080042167d2: acquire_console (lib/kernel/console.c:87)
+0x00000080042168f0: vprintf (lib/kernel/console.c:122)
+0x0000008004210c47: printf (lib/stdio.c:80)
+0x000000800420a8bf: resolve_area_info (threads/palloc.c:93)
+0x000000800420afe6: palloc_init (threads/palloc.c:247)
+0x0000008004206080: main (threads/init.c:86)

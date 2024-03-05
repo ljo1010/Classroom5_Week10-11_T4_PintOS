@@ -100,8 +100,8 @@ struct thread {
 
 	//Donation용
 	struct lock *wait_on_lock; // 현재 기다리는 lock 포인터
-	struct list_elem d_elem; // 현재 이 스레드가 기부 중인 리스트에 속할 경우
 	struct list donation; // 현재 이 스레드가 받는 기부리스트가 있을 경우.
+	struct list_elem d_elem;
 	int init_pri; //맨처음에 선언된 priority
 
 #ifdef USERPROG
@@ -156,8 +156,8 @@ void thread_wake_up(int64_t ticks);
 void thread_sleep(int64_t tick); 
 
 bool thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux);
-void thread_push_donation(struct list_elem *elem);
+bool donation_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux);
 
-void thread_remove_donation(struct list_elem *elem);
+void thread_just_set_priority(int new_priority);
 
 #endif /* threads/thread.h */

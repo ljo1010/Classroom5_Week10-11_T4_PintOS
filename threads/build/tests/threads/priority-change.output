@@ -1,20 +1,11 @@
 Kernel command line: -q run priority-change
-0 ~ 9fc00 1
-100000 ~ 13e0000 1
-Pintos booting with: 
-	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
-	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  157,081,600 loops/s.
-Boot complete.
-Executing 'priority-change':
-(priority-change) begin
-(priority-change) Creating a high-priority thread 2.
-(priority-change) Thread 2 should have just lowered its priority.
-(priority-change) Thread 2 should have just exited.
-(priority-change) end
-Execution of 'priority-change' complete.
-Timer: 23 ticks
-Thread: 0 idle ticks, 23 kernel ticks, 0 user ticks
-Console: 603 characters output
+Kernel PANIC at ../../threads/thread.c:287 in thread_current(): assertion `t->status == THREAD_RUNNING' failed.
+Call stack: 0x8004213744 0x8004206f17 0x800420a232 0x80042167d2 0x80042168f0 0x8004210c47 0x800420a8bf 0x800420afe6 0x8004206080.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 0 ticks
+Thread: 0 idle ticks, 0 kernel ticks, 0 user ticks
+Console: 506 characters output
 Keyboard: 0 keys pressed
 Powering off...
