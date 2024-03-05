@@ -102,6 +102,7 @@ struct thread {
 	struct lock *wait_on_lock; // 현재 기다리는 lock 포인터
 	struct list_elem d_elem; // 현재 이 스레드가 기부 중인 리스트에 속할 경우
 	struct list donation; // 현재 이 스레드가 받는 기부리스트가 있을 경우.
+	int init_pri; //맨처음에 선언된 priority
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */

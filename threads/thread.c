@@ -325,6 +325,7 @@ thread_yield (void) {
 	if (curr != idle_thread)
 		// list_push_back (&ready_list, &curr->elem);
 		list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
+	list_sort(&ready_list, thread_priority_less, NULL);
 	do_schedule (THREAD_READY);
 	intr_set_level (old_level);
 }
@@ -353,7 +354,7 @@ thread_set_priority (int new_priority) {
 	if(big_pri != -1){
 		curr->priority = big_pri;
 	}
-	
+
 	// ready list를 세팅에 따라 priority 순으로 정렬 
 	if(curr->status == THREAD_READY){
 		list_sort(&ready_list, thread_priority_less, NULL);
@@ -477,6 +478,7 @@ init_thread (struct thread *t, const char *name, int priority) {
 	// priority donaiton 데이터 구조를 init 할게 있나?
 	// donation list 용
  	list_init (&t->donation);
+	t->init_pri = priority;
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should

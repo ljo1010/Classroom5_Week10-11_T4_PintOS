@@ -205,8 +205,11 @@ lock_acquire (struct lock *lock) {
 	cur->wait_on_lock = lock; // lock을 얻었으므로 lock address 저장
 
 	list_push_back(&hold_th->donation, &cur->d_elem); // donation 리스트에 넣기.
-	thread_set_priority(cur->priority); // donation에 따라 priority 세팅.
 
+	// hold_th의 priority를 업데이트해야하는데 그건 실행중이 아니야...
+	 // 어떻게 하지...??
+	hold_th->priority = cur->priority;
+	thread_yield();
 }
 
 /* Tries to acquires LOCK and returns true if successful or false
@@ -243,7 +246,7 @@ lock_release (struct lock *lock) {
 
 
 	struct thread *holder_th = lock->holder;
-	int change = -1;
+
 	struct list_elem *e;
 	// donation list를 순회하며 해당하는 lock을 가진 thread list에서 제거	
 	for(e = list_begin(&holder_th->donation); e != list_end(&holder_th->donation);)
@@ -251,7 +254,6 @@ lock_release (struct lock *lock) {
 			struct thread *t = list_entry(e, struct thread, elem);
 
 			if(t->wait_on_lock == lock){
-				change = t->priority;
 				list_remove(e);
 				break;
 				}
@@ -259,9 +261,9 @@ lock_release (struct lock *lock) {
 					e = list_next(e);
 					}
 		}
-	if(change != -1){
-		thread_set_priority(change);
-	}
+
+	thread_set_priority(holder_th->init_pri);
+
 	
 	// pritority를 교환한 후(thread_set_priority) 해당 thread에게 yield
 	// (근데 thread_set_priority에서 스케줄하니 괜찮을듯)
