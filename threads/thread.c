@@ -44,8 +44,6 @@ static struct list destruction_req;
 // sleep 함수용 리스트.
 static struct list sleep_list;
 
-// donation 용 리스트
-static struct list donation_list;
 
 /* Statistics. */
 static long long idle_ticks;    /* # of timer ticks spent idle. */
@@ -120,8 +118,6 @@ thread_init (void) {
 	// sleep list 용
 	list_init (&sleep_list);
 
-	// donation list 용
-	// list_init (&donation_list);
 
 	/* Set up a thread structure for the running thread. */
 	initial_thread = running_thread ();
@@ -340,6 +336,24 @@ thread_set_priority (int new_priority) {
 	enum intr_level old_level = intr_disable();
 	curr->priority = new_priority;
 
+	struct list_elem *e;
+	int big_pri = -1;
+	// donation에 따라 priority set.
+	for(e = list_begin(&curr->donation); e != list_end(&curr->donation);)
+	{
+			struct thread *t = list_entry(e, struct thread, elem);
+
+			if(t->priority > big_pri){
+				big_pri = t->priority;
+				}
+			else{
+					e = list_next(e);
+					}
+		}
+	if(big_pri != -1){
+		curr->priority = big_pri;
+	}
+	
 	// ready list를 세팅에 따라 priority 순으로 정렬 
 	if(curr->status == THREAD_READY){
 		list_sort(&ready_list, thread_priority_less, NULL);
@@ -461,6 +475,8 @@ init_thread (struct thread *t, const char *name, int priority) {
 	// 생성한 thread의 tick은 뭘로 설정하지?
 
 	// priority donaiton 데이터 구조를 init 할게 있나?
+	// donation list 용
+ 	list_init (&t->donation);
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should
@@ -695,29 +711,3 @@ thread_wake_up(int64_t ticks){
 }
 
 
-void
-thread_push_donation(struct list_elem *elem){
-	enum intr_level old_level = intr_disable();
-	list_push_back(&donation_list, &elem);
-	intr_set_level(old_level);
-}
-
-void
-thread_remove_donation(struct list_elem *curr){
-	
-	enum intr_level old_level = intr_disable();
-
-	struct thread *befo =list_entry(curr, struct thread, elem);
-	list_remove(curr);
-	struct thread *top =list_entry(list_pop_back(&donation_list),struct thread, elem);
-
-	int befo_pri = top->priority;
-	int new_pri = befo->priority;
-
-	top->priority = new_pri;
-	befo->priority = befo_pri;
-
-	list_sort(&ready_list, thread_priority_less, NULL);
-
-	intr_set_level(old_level);
-}
