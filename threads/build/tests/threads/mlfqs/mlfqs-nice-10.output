@@ -1,6 +1,6 @@
 Kernel command line: -q -mlfqs run mlfqs-nice-10
 Kernel PANIC at ../../threads/thread.c:287 in thread_current(): assertion `t->status == THREAD_RUNNING' failed.
-Call stack: 0x8004213744 0x8004206f17 0x800420a232 0x80042167d2 0x80042168f0 0x8004210c47 0x800420a8bf 0x800420afe6 0x8004206080.
+Call stack: 0x80042139c2 0x8004206f17 0x800420a4b0 0x8004216a50 0x8004216b6e 0x8004210ec5 0x800420ab3d 0x800420b264 0x8004206080.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.

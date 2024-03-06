@@ -341,16 +341,18 @@ thread_set_priority (int new_priority) {
 	int big_pri = -1;
 	//donation에 따라 priority set.
 	
-	for(e = list_front(&curr->donation); e != list_end(&curr->donation);)
-	{
+	if(!list_empty(&curr->donation)){
+		for(e = list_front(&curr->donation); e != list_end(&curr->donation);)
+		{
 
-			if(list_entry(e, struct thread, d_elem)->priority > big_pri){
-				big_pri = list_entry(e, struct thread, d_elem)->priority;
-				}
-			 else{
-        		e = list_next(e);
-        }
-		}
+				if(list_entry(e, struct thread, d_elem)->priority > big_pri){
+					big_pri = list_entry(e, struct thread, d_elem)->priority;
+					}
+				else{
+					e = list_next(e);
+			}
+			}
+	}
 	if(big_pri != -1){
 		curr->priority = big_pri;
 	}
@@ -371,34 +373,20 @@ thread_set_priority (int new_priority) {
 }
 
 void
-thread_just_set_priority(int new_priority){
-
+donate_priority(void)
+{
 	struct thread *curr = thread_current();
-	enum intr_level old_level = intr_disable();
-	curr->priority = new_priority;
-
-	struct list_elem *e;
-	int big_pri = -1;
-	// donation에 따라 priority set.
 	
-	for(e = list_front(&curr->donation); e != list_end(&curr->donation);)
-	{
+	struct list_elem *head = &curr->donation.head;
+	for(int depth = 0; depth < 8;depth++){ // 왜 최대 depth가 8이지...
+		if(curr->wait_on_lock){
+			struct thread *t = curr->wait_on_lock->holder;
 
-			if(list_entry(e, struct thread, d_elem)->priority > big_pri){
-				big_pri = list_entry(e, struct thread, d_elem)->priority;
-				}
-			 else{
-        		e = list_next(e);
-        }
+			t->priority = curr->priority;
+			curr = t;
 		}
-	if(big_pri != -1){
-		curr->priority = big_pri;
 	}
 
-	curr->status = THREAD_READY;
-	list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
-
-	intr_set_level (old_level);
 }
 
 bool
@@ -506,6 +494,8 @@ init_thread (struct thread *t, const char *name, int priority) {
 	ASSERT (PRI_MIN <= priority && priority <= PRI_MAX);
 	ASSERT (name != NULL);
 
+	// struct lock wait_lock;
+
 	memset (t, 0, sizeof *t);
 	t->status = THREAD_BLOCKED;
 	strlcpy (t->name, name, sizeof t->name);
@@ -516,8 +506,11 @@ init_thread (struct thread *t, const char *name, int priority) {
 
 	// priority donaiton 데이터 구조를 init 할게 있나?
 	// donation list 용
- 	list_init (&t->donation);
 	t->init_pri = priority;
+	t->wait_on_lock = NULL;
+	list_init (&t->donation);
+	// lock_init(&wait_lock);
+	// t->wait_on_lock = &wait_lock;
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should

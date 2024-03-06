@@ -194,10 +194,12 @@ lock_acquire (struct lock *lock) {
 	ASSERT (!intr_context ());
 	ASSERT (!lock_held_by_current_thread (lock));
 	struct thread *curr = thread_current ();
-	curr->wait_on_lock = lock; // lock을 필요로 하는 thread의 address 저장
 	// priority 순으로 donation 리스트 넣는법....
-	list_insert_ordered(&curr->wait_on_lock->holder->donation, &curr->d_elem, donation_priority_less,NULL); // donation 리스트에 넣기.
-
+	if(lock->holder){
+		curr->wait_on_lock = lock; // lock을 필요로 하는 thread의 address 저장
+		list_insert_ordered(&curr->wait_on_lock->holder->donation, &curr->d_elem, donation_priority_less,NULL); // donation 리스트에 넣기.
+	
+	}
 	sema_down (&lock->semaphore);
 
 	lock->holder = thread_current ();
