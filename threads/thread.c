@@ -335,7 +335,7 @@ void
 thread_set_priority (int new_priority) {
 	struct thread *curr = thread_current();
 	enum intr_level old_level = intr_disable();
-	curr->priority = new_priority;
+	curr->init_pri = new_priority;
 
 	// ready list를 세팅에 따라 priority 순으로 정렬 
 
