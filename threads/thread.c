@@ -338,7 +338,7 @@ thread_set_priority (int new_priority) {
 	curr->init_pri = new_priority;
 
 	// ready list를 세팅에 따라 priority 순으로 정렬 
-
+	donate_set_priority(curr);
 	list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
 	do_schedule(THREAD_READY);
 
