@@ -1,13 +1,14 @@
 FAIL
-Kernel panic in run: PANIC at ../../threads/thread.c:287 in thread_current(): assertion `t->status == THREAD_RUNNING' failed.
-Call stack: 0x80042139c2 0x8004206f17 0x800420a4b0 0x8004216a50 0x8004216b6e 0x8004210ec5 0x800420ab3d 0x800420b264 0x8004206080
-Translation of call stack:
-0x00000080042139c2: debug_panic (lib/kernel/debug.c:32)
-0x0000008004206f17: thread_current (threads/thread.c:289)
-0x000000800420a4b0: lock_held_by_current_thread (threads/synch.c:281)
-0x0000008004216a50: acquire_console (lib/kernel/console.c:87)
-0x0000008004216b6e: vprintf (lib/kernel/console.c:122)
-0x0000008004210ec5: printf (lib/stdio.c:80)
-0x000000800420ab3d: resolve_area_info (threads/palloc.c:93)
-0x000000800420b264: palloc_init (threads/palloc.c:247)
-0x0000008004206080: main (threads/init.c:86)
+Some tick counts were missing or differed from those expected by more than 25.
+thread   actual <-> expected explanation
+------ -------- --- -------- ----------------------------------------
+     0      300 <<< 672      Too small, by 347.
+     1      300 <<< 588      Too small, by 263.
+     2      300 <<< 492      Too small, by 167.
+     3      301 <<< 408      Too small, by 82.
+     4      301  =  316      
+     5      300 >>> 232      Too big, by 43.
+     6      300 >>> 152      Too big, by 123.
+     7      300 >>> 92       Too big, by 183.
+     8      301 >>> 40       Too big, by 236.
+     9      300 >>> 8        Too big, by 267.

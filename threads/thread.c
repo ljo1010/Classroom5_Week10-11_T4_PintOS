@@ -337,12 +337,28 @@ thread_set_priority (int new_priority) {
 	enum intr_level old_level = intr_disable();
 	curr->priority = new_priority;
 
+	// ready list를 세팅에 따라 priority 순으로 정렬 
+
+	list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
+	do_schedule(THREAD_READY);
+
+	intr_set_level (old_level);
+
+	// donation에 따라 priority set.
+
+}
+
+void
+donate_set_priority(struct thread *new){
+
+	enum intr_level old_level = intr_disable();
+	new->priority = new->init_pri;
 	struct list_elem *e;
 	int big_pri = -1;
 	//donation에 따라 priority set.
 	
-	if(!list_empty(&curr->donation)){
-		for(e = list_front(&curr->donation); e != list_end(&curr->donation);)
+	if(!list_empty(&new->donation)){
+		for(e = list_front(&new->donation); e != list_end(&new->donation);)
 		{
 
 				if(list_entry(e, struct thread, d_elem)->priority > big_pri){
@@ -354,21 +370,9 @@ thread_set_priority (int new_priority) {
 			}
 	}
 	if(big_pri != -1){
-		curr->priority = big_pri;
-	}
-
-	// ready list를 세팅에 따라 priority 순으로 정렬 
-	if(curr->status == THREAD_READY){
-		list_sort(&ready_list, thread_priority_less, NULL);
-	}
-	else{
-		curr->status = THREAD_READY;
-		list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
-		schedule();
+		new->priority = big_pri;
 	}
 	intr_set_level (old_level);
-
-	// donation에 따라 priority set.
 
 }
 
@@ -377,8 +381,7 @@ donate_priority(void)
 {
 	struct thread *curr = thread_current();
 	
-	struct list_elem *head = &curr->donation.head;
-	for(int depth = 0; depth < 8;depth++){ // 왜 최대 depth가 8이지...
+	for(int depth = 0; depth < 8;depth++){ // 왜 최대 depth가 8이지...(일종의 하드코딩인듯)
 		if(curr->wait_on_lock){
 			struct thread *t = curr->wait_on_lock->holder;
 
@@ -390,7 +393,7 @@ donate_priority(void)
 }
 
 bool
-thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux){
+thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED){
 	struct thread *thread_a = list_entry(a, struct thread, elem);
     struct thread *thread_b = list_entry(b, struct thread, elem);
 
@@ -398,7 +401,7 @@ thread_priority_less(const struct list_elem *a, const struct list_elem *b, void 
 }
 
 bool
-donation_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux){
+donation_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED){
 	struct thread *thread_a = list_entry(a, struct thread, d_elem);
     struct thread *thread_b = list_entry(b, struct thread, d_elem);
 
@@ -727,16 +730,20 @@ thread_wake_up(int64_t ticks){
 
 
     struct list_elem *e;
-    for (e = list_begin(&sleep_list); e != list_end(&sleep_list); e = list_next(e))
-    {
-        struct thread *t = list_entry(e, struct thread, elem);
-        
-        if (ticks >= t->ticks)
-        {
-			e = list_remove(e);
-            thread_unblock(t);
-        }
-    }
+
+		for (e = list_begin(&sleep_list); e != list_end(&sleep_list);)
+		{
+			struct thread *t = list_entry(e, struct thread, elem);
+			
+			if (ticks >= t->ticks)
+			{
+				e = list_remove(e);
+				thread_unblock(t);
+			}
+			else{
+				e = list_next(e);
+			}
+		}
 	intr_set_level(old_level);
 }
 

@@ -158,5 +158,7 @@ void thread_sleep(int64_t tick);
 bool thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux);
 bool donation_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux);
 
+void donate_priority(void);
+void donate_set_priority(struct thread *new);
 
 #endif /* threads/thread.h */

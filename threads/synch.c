@@ -198,15 +198,13 @@ lock_acquire (struct lock *lock) {
 	if(lock->holder){
 		curr->wait_on_lock = lock; // lock을 필요로 하는 thread의 address 저장
 		list_insert_ordered(&curr->wait_on_lock->holder->donation, &curr->d_elem, donation_priority_less,NULL); // donation 리스트에 넣기.
-	
+
+		donate_priority();
 	}
 	sema_down (&lock->semaphore);
 
 	lock->holder = thread_current ();
 	curr->wait_on_lock = NULL;
-
-	// 순회하면서 donation에 따라 업데이트하기
-	thread_set_priority(curr->init_pri);
 
 }
 
@@ -250,11 +248,10 @@ lock_release (struct lock *lock) {
 		for(e = list_begin(&holde->donation); e != list_end(&holde->donation);)
 		{
 				if(list_entry(e, struct thread, d_elem)->wait_on_lock == lock){
-
-					// 근데 만약 lock을 가진 애가 많아! 그러면 priority 순으로 처리...
-					// 하기느 까다로워서 넣을때부터 priority 순으로 넣었었으면 좋겠따.
-					list_remove(e);
-					break;
+					list_entry(e, struct thread, d_elem)->wait_on_lock = NULL; // wait_on_lock 초기화
+					// 해당하는 스레드의 priority 초기화
+					donate_set_priority(list_entry(e, struct thread, d_elem));
+					list_remove(e); // d_elem 제거
 					}
 				else{
 					e = list_next(e);
@@ -265,8 +262,8 @@ lock_release (struct lock *lock) {
 	// Donation 용 추가 (여기까지)
 	lock->holder = NULL;
 	
-	thread_just_set_priority(holde->init_pri);
-
+	// 현재 스레드의 priority를 init 값으로 초기화
+	donate_set_priority(thread_current());
 	sema_up (&lock->semaphore);
 
 	
