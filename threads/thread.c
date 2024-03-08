@@ -81,6 +81,8 @@ bool thread_mlfqs;
 #define ADD_X_N(x,n) ((x)+(n)*f)
 #define SUB_X_N(x,n) ((x)-(n)*f)
 
+#define SUB_N_X(n,x) ((n)*f-(x))
+
 #define MULTI_X_Y(x,y) (int)(((x))*(y)/f)
 #define MULTI_X_N(x,n) ((x)*n) 
 
@@ -154,9 +156,8 @@ thread_init (void) {
 	// mlfqs 용
 	list_init(&all_list);
 
-	
 	if (thread_mlfqs){
-	load_avg = 0; // load_avg 초기화
+		load_avg = 0; // load_avg 초기화
 	}
 
 	/* Set up a thread structure for the running thread. */
@@ -401,7 +402,10 @@ thread_set_priority (int new_priority) {
 	}
 	else{
 		curr->priority = new_priority;
+		list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
 	}
+
+
 	do_schedule(THREAD_READY);
 
 	intr_set_level (old_level);
@@ -489,39 +493,55 @@ void
 thread_set_nice (int nice UNUSED) {
 	/* TODO: Your implementation goes here */
 	struct thread *t = thread_current();
-	enum intr_level old_level = intr_disable();
 	t->nice = nice;
-	t->priority = calculating_therad_priority(t);
+	int priority = SUB_N_X(
+				(PRI_MAX), 
+				SUB_X_N(
+					(DIVI_X_N(
+						t->recent_cpu,4))
+							,(t->nice*2))
+			);
+
+	if(priority > PRI_MAX){
+		priority = PRI_MAX;
+	}
+	else if(priority <PRI_MIN){
+		priority = PRI_MIN;
+	}
+	thread_set_priority(priority);
 	// thread_yield();
 	
-	intr_set_level(old_level);
 }
 
 /* Returns the current thread's nice value. */
 int
 thread_get_nice (void) {
 	/* TODO: Your implementation goes here */
-	return thread_current()->nice;
+	enum intr_level old_level = intr_disable ();
+	int nice  = thread_current()->nice;
+	intr_set_level (old_level);
+	return nice;
 }
 
 /* Returns 100 times the system load average. */
 int
 thread_get_load_avg (void) {
-
+	enum intr_level old_level = intr_disable ();
 	int value;
-	value = MULTI_X_N((load_avg),(100));
-
-	return convert_x_n(value);
+	value = convert_x_n(load_avg*100);
+	intr_set_level (old_level);
+	return value;
 }
 
 /* Returns 100 times the current thread's recent_cpu value. */
 int
 thread_get_recent_cpu (void) {
 		/* TODO: Your implementation goes here */
+		enum intr_level old_level = intr_disable ();
 	int value;
-	value = MULTI_X_Y(CONVERT_N_X(thread_current()->recent_cpu),CONVERT_N_X(100));
-
-	return  convert_x_n(value);
+	value = convert_x_n((thread_current()->recent_cpu)*(100));
+	intr_set_level (old_level);
+	return  value;
 
 
 }
@@ -849,23 +869,20 @@ thread_wake_up(int64_t ticks){
 }
 
 
-int
+void
 calculating_therad_priority(struct thread *t){
 
 	if(t == idle_thread){
 		return ;
 	}
-	int value = 
-		convert_x_n(
-			SUB_X_Y(
-				CONVERT_N_X(PRI_MAX), 
-				SUB_X_Y(
-					(DIVI_X_Y(CONVERT_N_X(t->recent_cpu),CONVERT_N_X(4)))
-					,CONVERT_N_X(t->nice*2))
-			)
-		);
-
-	return value;
+	t->priority = 
+			SUB_N_X(
+				(PRI_MAX), 
+				SUB_X_N(
+					(DIVI_X_N(
+						t->recent_cpu,4))
+							,(t->nice*2))
+			);
 }
 
 
@@ -896,7 +913,7 @@ calculating_load_avg(void){
 
 }
 
-int32_t
+void
 calculating_recent_cpu(struct thread *t){
 
 	/* TODO: Your implementation goes here */
@@ -905,10 +922,15 @@ calculating_recent_cpu(struct thread *t){
 		return ;
 	}
 	// 실수화 하고 곱하기 vs 정수끼리 곱한다음 실수 나눗셈이 필요할때만 실수화하기
-	arg = DIVI_X_Y((MULTI_X_Y(CONVERT_N_X(2),CONVERT_N_X(load_avg))),(ADD_X_Y(MULTI_X_Y(CONVERT_N_X(2),CONVERT_N_X(load_avg)), CONVERT_N_X(1))));
-	t->recent_cpu = ADD_X_Y(MULTI_X_Y(arg,CONVERT_N_X(t->recent_cpu)),CONVERT_N_X(t->nice)); 
+	arg = DIVI_X_Y(
+		(MULTI_X_N(load_avg,2)),
+		(ADD_X_N(
+			MULTI_X_N(load_avg,2),1)
+			));
+	t->recent_cpu = 
+		ADD_X_N(
+			MULTI_X_Y(arg,t->recent_cpu),(t->nice)); 
 	
-	return t->recent_cpu;
 
 
 }
@@ -921,7 +943,7 @@ set_thread_recent_cpu(void){
 		for(e = list_begin(&all_list); e != list_end(&all_list);){
 
 			struct thread *t = list_entry(e, struct thread, all_elem);
-				t->recent_cpu = calculating_recent_cpu(t);
+			calculating_recent_cpu(t);
 			e = list_next(e);
 
 		}
@@ -934,22 +956,11 @@ set_thread_priority(void){
 
 	enum intr_level old_level = intr_disable();
 	struct list_elem *e;
-	int value;
 	if(!list_empty(&all_list)){
 		for(e = list_begin(&all_list); e != list_end(&all_list);){
 
 			struct thread *t = list_entry(e, struct thread, all_elem);
-			value = calculating_therad_priority(t);
-
-			if(value>PRI_MAX){
-				value = PRI_MAX;
-			}
-			else if(value<PRI_MIN)
-			{
-				value = 0;
-			}
-			
-			t->priority = value;
+			calculating_therad_priority(t);
 			e = list_next(e);
 
 		}

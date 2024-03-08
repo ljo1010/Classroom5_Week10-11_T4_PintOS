@@ -168,10 +168,10 @@ void donate_set_priority(struct thread *new);
 
 
 int convert_x_n(const signed int x);
-int32_t calculating_recent_cpu(struct thread *t);
+void calculating_recent_cpu(struct thread *t);
 void calculating_load_avg(void);
 void set_thread_recent_cpu(void);
-int calculating_therad_priority(struct thread *t);
+void calculating_therad_priority(struct thread *t);
 
 void set_thread_priority(void);
 int max_priority(void);

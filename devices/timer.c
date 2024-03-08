@@ -160,12 +160,11 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 		if(timer_ticks()%4 == 0){
 			set_thread_priority();
 		}
-
 		if(timer_ticks() %TIMER_FREQ == 0){
 			// load_avg 갱신
-			calculating_load_avg();
 			// ready list recent_cpu 갱신
 			set_thread_recent_cpu();
+			calculating_load_avg();
 		}
 	}
 
