@@ -150,6 +150,10 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 	thread_tick ();
 //	sema_up(&sleep); // 맨처음 아이디어용.
 
+	if(timer_ticks() %TIMER_FREQ == 0){
+		thread_get_load_avg();
+	}
+
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer

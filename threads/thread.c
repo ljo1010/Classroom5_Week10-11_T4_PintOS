@@ -44,6 +44,35 @@ static struct list destruction_req;
 // sleep 함수용 리스트.
 static struct list sleep_list;
 
+// mlfqs 용
+static int load_avg; // load_avg 전역 변수.
+
+
+#define f 1<<14
+#define f_2 1<<13
+
+#define CONVERT_N_X(n) (int)n*f
+#define CONVERT_X_N_ZERO(x) (int32_t)x/f
+#define CONVERT_X_N_PLUS(x) ((int32_t)x+f_2)/f
+#define CONVERT_X_N_MINUS(x) ((int32_t)x-f_2)/f
+
+#define ADD_X_Y(x,y) (int32_t)x+(int32_t)y 
+#define SUB_X_Y(x,y) (int32_t)x-(int32_t)y
+
+#define ADD_X_N(x,n) (int32_t)x+(int)n*f
+#define SUB_X_N(x,n) (int32_t)x-(int)n*f
+
+#define MULTI_X_Y(x,y) ((int64_t)x)*(int)y/f
+#define MULTI_X_N(x,n) (int32_t)x*n 
+
+#define DIVI_X_Y(x,y) ((int64_t)x)*f/y 
+#define DIVI_X_N(x,n) (int32_t)x/n 
+
+#define LOAD_AV_1 DIVI_X_Y(CONVERT_X_N_PLUS(59),CONVERT_X_N_PLUS(60))
+#define LOAD_AV_2 DIVI_X_Y(CONVERT_X_N_PLUS(1),CONVERT_X_N_PLUS(60))
+
+
+
 
 /* Statistics. */
 static long long idle_ticks;    /* # of timer ticks spent idle. */
@@ -118,12 +147,15 @@ thread_init (void) {
 	// sleep list 용
 	list_init (&sleep_list);
 
+	load_avg = 0; // load_avg 초기화
 
 	/* Set up a thread structure for the running thread. */
 	initial_thread = running_thread ();
+	initial_thread->recent_cpu = 0; // mlfqs용
 	init_thread (initial_thread, "main", PRI_DEFAULT);
 	initial_thread->status = THREAD_RUNNING;
 	initial_thread->tid = allocate_tid ();
+
 	// initial_thread의 tick은 뭘로 설정하지?
 }
 
@@ -202,6 +234,7 @@ thread_create (const char *name, int priority,
 	/* Initialize thread. */
 	init_thread (t, name, priority);
 	tid = t->tid = allocate_tid ();
+
 
 	/* Call the kernel_thread if it scheduled.
 	 * Note) rdi is 1st argument, and rsi is 2nd argument. */
@@ -438,15 +471,23 @@ thread_get_nice (void) {
 /* Returns 100 times the system load average. */
 int
 thread_get_load_avg (void) {
-	/* TODO: Your implementation goes here */
-	return 0;
+
+	int value;
+	value = MULTI_X_Y(CONVERT_N_X(load_avg),CONVERT_N_X(100));
+
+	return convert_x_n(value);
 }
 
 /* Returns 100 times the current thread's recent_cpu value. */
 int
 thread_get_recent_cpu (void) {
-	/* TODO: Your implementation goes here */
-	return 0;
+		/* TODO: Your implementation goes here */
+	int value;
+	value = MULTI_X_Y(CONVERT_N_X(thread_current()->recent_cpu),CONVERT_N_X(100));
+
+	return  convert_x_n(value);
+
+
 }
 
 /* Idle thread.  Executes when no other thread is ready to run.
@@ -522,6 +563,11 @@ init_thread (struct thread *t, const char *name, int priority) {
 	list_init (&t->donation);
 	// lock_init(&wait_lock);
 	// t->wait_on_lock = &wait_lock;
+	
+	// mlfqs용
+	t->recent_cpu = thread_current()->recent_cpu;
+
+	
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should
@@ -756,3 +802,40 @@ thread_wake_up(int64_t ticks){
 }
 
 
+int convert_x_n(const signed int x){
+    int value;
+    if(x> 0){
+        value = (x+f_2)/f;
+    }
+    else if(x<0){
+        value = (x-f_2)/f;
+    }
+    else{
+        value = x/f;
+    }
+    return value ;
+}
+
+
+void
+cauculating_load_avg(void){
+	
+	load_avg = ADD_X_Y(MULTI_X_Y ((LOAD_AV_1),CONVERT_N_X(load_avg)),MULTI_X_Y((LOAD_AV_2),CONVERT_N_X((strlen(&ready_list)+1))));
+	load_avg = convert_x_n(load_avg);
+
+}
+
+int32_t
+cauculating_recent_cpu(struct thread *t){
+
+	/* TODO: Your implementation goes here */
+	int32_t arg;
+
+	// 실수화 하고 곱하기 vs 정수끼리 곱한다음 실수 나눗셈이 필요할때만 실수화하기
+	arg = DIVI_X_Y((MULTI_X_Y(CONVERT_N_X(2),CONVERT_N_X(load_avg))),(ADD_X_Y(MULTI_X_Y(CONVERT_N_X(2),CONVERT_N_X(load_avg)), CONVERT_N_X(1))));
+	t->recent_cpu = ADD_X_Y(MULTI_X_Y(arg,CONVERT_N_X(t->recent_cpu)),CONVERT_N_X(t->nice)); 
+	
+	return convert_x_n(t->recent_cpu);
+
+
+}

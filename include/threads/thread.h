@@ -104,6 +104,10 @@ struct thread {
 	struct list_elem d_elem;
 	int init_pri; //맨처음에 선언된 priority
 
+	//mlfqs용
+	int recent_cpu;
+	int nice;
+
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
 	uint64_t *pml4;                     /* Page map level 4 */
@@ -161,5 +165,7 @@ bool thread_donation_priority_less(const struct list_elem *a, const struct list_
 void donate_priority(void);
 void donate_set_priority(struct thread *new);
 
+
+int convert_x_n(const signed int x);
 
 #endif /* threads/thread.h */
