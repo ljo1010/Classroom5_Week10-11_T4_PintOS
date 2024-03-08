@@ -12,6 +12,7 @@
 #include "threads/vaddr.h"
 #include "intrinsic.h"
 #include "devices/timer.h"
+
 #ifdef USERPROG
 #include "userprog/process.h"
 #endif
@@ -45,33 +46,10 @@ static struct list destruction_req;
 static struct list sleep_list;
 
 // mlfqs 용
+static struct list all_list;
+
+// mlfqs 용
 static int load_avg; // load_avg 전역 변수.
-
-
-#define f (1<<14)
-#define f_2 (1<<13)
-
-#define CONVERT_N_X(n) (int)n*f
-#define CONVERT_X_N_ZERO(x) (int32_t)x/f
-#define CONVERT_X_N_PLUS(x) ((int32_t)x+f_2)/f
-#define CONVERT_X_N_MINUS(x) ((int32_t)x-f_2)/f
-
-#define ADD_X_Y(x,y)  ((int32_t)(x) + (int32_t)(y))
-#define SUB_X_Y(x,y) ((int32_t)(x)-(int32_t)(y))
-
-#define ADD_X_N(x,n) ((int32_t)(x)+(int)(n)*f)
-#define SUB_X_N(x,n) ((int32_t)(x)-(int)(n)*f)
-
-#define MULTI_X_Y(x,y) (int)(((int64_t)(x))*(int)(y)/f)
-#define MULTI_X_N(x,n) ((int32_t)(x)*n) 
-
-#define DIVI_X_Y(x,y) (int)(((int64_t)(x))*f/y)
-#define DIVI_X_N(x,n) ((int32_t)(x)/n) 
-
-#define LOAD_AV_1 DIVI_X_Y(CONVERT_N_X(59),CONVERT_N_X(60))
-#define LOAD_AV_2 DIVI_X_Y(CONVERT_N_X(1),CONVERT_N_X(60))
-
-
 
 
 /* Statistics. */
@@ -87,6 +65,32 @@ static unsigned thread_ticks;   /* # of timer ticks since last yield. */
    If true, use multi-level feedback queue scheduler.
    Controlled by kernel command-line option "-o mlfqs". */
 bool thread_mlfqs;
+
+
+#define f (1<<14)
+#define f_2 (1<<13)
+
+#define CONVERT_N_X(n) (int)n*f
+#define CONVERT_X_N_ZERO(x) (int32_t)x/f
+#define CONVERT_X_N_PLUS(x) ((int32_t)x+f_2)/f
+#define CONVERT_X_N_MINUS(x) ((int32_t)x-f_2)/f
+
+#define ADD_X_Y(x,y)  ((x) + (y))
+#define SUB_X_Y(x,y) ((x)-(y))
+
+#define ADD_X_N(x,n) ((x)+(n)*f)
+#define SUB_X_N(x,n) ((x)-(n)*f)
+
+#define MULTI_X_Y(x,y) (int)(((x))*(y)/f)
+#define MULTI_X_N(x,n) ((x)*n) 
+
+#define DIVI_X_Y(x,y) (int)(((x))*f/y)
+#define DIVI_X_N(x,n) ((x)/n) 
+
+#define LOAD_AV_1 DIVI_X_Y(CONVERT_N_X(59),CONVERT_N_X(60))
+#define LOAD_AV_2 DIVI_X_Y(CONVERT_N_X(1),CONVERT_N_X(60))
+
+
 
 static void kernel_thread (thread_func *, void *aux);
 
@@ -146,6 +150,9 @@ thread_init (void) {
 	list_init (&destruction_req);
 	// sleep list 용
 	list_init (&sleep_list);
+
+	// mlfqs 용
+	list_init(&all_list);
 
 	
 	if (thread_mlfqs){
@@ -482,8 +489,12 @@ void
 thread_set_nice (int nice UNUSED) {
 	/* TODO: Your implementation goes here */
 	struct thread *t = thread_current();
-
+	enum intr_level old_level = intr_disable();
 	t->nice = nice;
+	t->priority = calculating_therad_priority(t);
+	// thread_yield();
+	
+	intr_set_level(old_level);
 }
 
 /* Returns the current thread's nice value. */
@@ -593,11 +604,16 @@ init_thread (struct thread *t, const char *name, int priority) {
 		// mlfqs용
 		if(!initial_thread){
 			t->recent_cpu = thread_current()->recent_cpu;
+			t->nice = thread_current()->nice;
 		}
 		else{
 			t->recent_cpu = 0;
+			t->nice = 0;
 		}
+	
 	}
+
+	list_push_back(&all_list, &t->all_elem);
 	
 }
 
@@ -833,23 +849,12 @@ thread_wake_up(int64_t ticks){
 }
 
 
-int convert_x_n(const signed int x){
-    int value;
-    if(x> 0){
-        value = (x +f_2)/f;
-    }
-    else if(x<0){
-        value = (x - f_2)/f;
-    }
-    else{
-        value = 0;
-    }
-    return value ;
-}
-
 int
 calculating_therad_priority(struct thread *t){
 
+	if(t == idle_thread){
+		return ;
+	}
 	int value = 
 		convert_x_n(
 			SUB_X_Y(
@@ -867,20 +872,20 @@ calculating_therad_priority(struct thread *t){
 void
 calculating_load_avg(void){
 	
-	signed int size;
+	int size= list_size(&ready_list);;
 
-	if(thread_current() == idle_thread){
-		size = (signed int)list_size(&ready_list);
-	}
-	else{
-		size =  (signed int)(list_size(&ready_list))+1;
+	if(thread_current() != idle_thread){
+		size +=1;
 	}
 
-	load_avg = ADD_X_Y(
-		MULTI_X_Y(LOAD_AV_1,load_avg),
-		MULTI_X_Y(LOAD_AV_2,(size))
-	);
-	
+	// load_avg = ADD_X_Y(
+	// 	MULTI_X_Y(LOAD_AV_1,load_avg),
+	// 	MULTI_X_Y(LOAD_AV_2,(size))
+	// );
+
+	load_avg = DIVI_X_N(ADD_X_N(MULTI_X_N(load_avg,59),size),60);
+	// 나누기를 마지막에 해야하는 거였다니 미치겠다..
+
 	// load_avg = ADD_X_Y(
 	// 	MULTI_X_N (
 	// 		(LOAD_AV_1),(load_avg)),
@@ -896,64 +901,97 @@ calculating_recent_cpu(struct thread *t){
 
 	/* TODO: Your implementation goes here */
 	int32_t arg;
-
+	if(t == idle_thread){
+		return ;
+	}
 	// 실수화 하고 곱하기 vs 정수끼리 곱한다음 실수 나눗셈이 필요할때만 실수화하기
 	arg = DIVI_X_Y((MULTI_X_Y(CONVERT_N_X(2),CONVERT_N_X(load_avg))),(ADD_X_Y(MULTI_X_Y(CONVERT_N_X(2),CONVERT_N_X(load_avg)), CONVERT_N_X(1))));
 	t->recent_cpu = ADD_X_Y(MULTI_X_Y(arg,CONVERT_N_X(t->recent_cpu)),CONVERT_N_X(t->nice)); 
 	
-	return convert_x_n(t->recent_cpu);
+	return t->recent_cpu;
 
 
 }
 
 void
 set_thread_recent_cpu(void){
-
+	enum intr_level old_level = intr_disable();
 	struct list_elem *e;
-	if(!list_empty(&ready_list)){
-		for(e = list_begin(&ready_list); e != list_end(&ready_list);){
+	if(!list_empty(&all_list)){
+		for(e = list_begin(&all_list); e != list_end(&all_list);){
 
-			struct thread *t = list_entry(e, struct thread, elem);
-			t->recent_cpu = calculating_recent_cpu(t);
+			struct thread *t = list_entry(e, struct thread, all_elem);
+				t->recent_cpu = calculating_recent_cpu(t);
 			e = list_next(e);
 
 		}
 	}
-	if(!list_empty(&sleep_list)){
-	// sleep 도 돌아야하나?
-		for(e = list_begin(&sleep_list); e != list_end(&sleep_list);){
-
-			struct thread *t = list_entry(e, struct thread, elem);
-			t->recent_cpu = calculating_recent_cpu(t);
-			e = list_next(e);
-
-		}
-	}
+	intr_set_level(old_level);
 }
 
 void
 set_thread_priority(void){
 
-	thread_current()->priority = calculating_therad_priority(thread_current());
-
+	enum intr_level old_level = intr_disable();
 	struct list_elem *e;
-	if(!list_empty(&ready_list)){
-		for(e = list_begin(&ready_list); e != list_end(&ready_list);){
+	int value;
+	if(!list_empty(&all_list)){
+		for(e = list_begin(&all_list); e != list_end(&all_list);){
 
-			struct thread *t = list_entry(e, struct thread, elem);
-			t->priority = calculating_therad_priority(t);
+			struct thread *t = list_entry(e, struct thread, all_elem);
+			value = calculating_therad_priority(t);
+
+			if(value>PRI_MAX){
+				value = PRI_MAX;
+			}
+			else if(value<PRI_MIN)
+			{
+				value = 0;
+			}
+			
+			t->priority = value;
 			e = list_next(e);
 
 		}
 	}
-	if(!list_empty(&sleep_list)){
-	// sleep 도 돌아야하나?
-		for(e = list_begin(&sleep_list); e != list_end(&sleep_list);){
+	intr_set_level(old_level);
 
-			struct thread *t = list_entry(e, struct thread, elem);
-			t->priority = calculating_therad_priority(t);
-			e = list_next(e);
 
-		}
+//  	if (thread_current()->priority < max_priority()) {
+//     	intr_yield_on_return();
+// // [출처] Pintos Thread - Priority aging|작성자 사오구이
+// }
+}
+
+int 
+max_priority(void){
+  int priority = -1;
+  struct thread* t;
+  if (!list_empty(&ready_list)) {
+      t = list_entry(list_front(&ready_list), struct thread, elem);
+      priority = t->priority;
+  }
+  return priority;
+}
+//[출처] Pintos Thread - Priority aging|작성자 사오구이
+
+int convert_x_n(const signed int x){
+    int value;
+    if(x> 0){
+        value = (x +f_2)/f;
+    }
+    else if(x<0){
+        value = (x - f_2)/f;
+    }
+    else{
+        value = 0;
+    }
+    return value ;
+}
+
+void
+increment_recent_cpu(void){
+	if(thread_current() != idle_thread){
+		thread_current()->recent_cpu = ADD_X_N(thread_current()->recent_cpu,1);
 	}
 }

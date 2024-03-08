@@ -107,6 +107,7 @@ struct thread {
 	//mlfqs용
 	int recent_cpu;
 	int nice;
+	struct list_elem all_elem;
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
@@ -173,6 +174,8 @@ void set_thread_recent_cpu(void);
 int calculating_therad_priority(struct thread *t);
 
 void set_thread_priority(void);
+int max_priority(void);
+void increment_recent_cpu(void);
 
 
 #endif /* threads/thread.h */

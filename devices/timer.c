@@ -9,6 +9,7 @@
 #include "threads/thread.h"
 
 
+
 /* See [8254] for hardware details of the 8254 timer chip. */
 
 #if TIMER_FREQ < 19
@@ -116,6 +117,7 @@ timer_sleep (int64_t ticks) {
 
 	if (timer_elapsed (start) < ticks)
 		thread_sleep(timer_ticks() + ticks);
+
 }
 
 /* Suspends execution for approximately MS milliseconds. */
@@ -152,7 +154,8 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 
 	if(thread_mlfqs){
 	//mlfqs 전용.
-		thread_current()->recent_cpu +=1;
+
+		increment_recent_cpu();
 
 		if(timer_ticks()%4 == 0){
 			set_thread_priority();
@@ -162,7 +165,6 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 			// load_avg 갱신
 			calculating_load_avg();
 			// ready list recent_cpu 갱신
-			thread_current()->recent_cpu = calculating_recent_cpu(thread_current());
 			set_thread_recent_cpu();
 		}
 	}

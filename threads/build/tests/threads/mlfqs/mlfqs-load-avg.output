@@ -1,0 +1,28 @@
+Kernel command line: -q -mlfqs run mlfqs-load-avg
+0 ~ 9fc00 1
+100000 ~ 13e0000 1
+Pintos booting with: 
+	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
+	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
+Calibrating timer...  71,577,600 loops/s.
+Boot complete.
+Executing 'mlfqs-load-avg':
+(mlfqs-load-avg) begin
+(mlfqs-load-avg) Starting 60 load threads...
+(mlfqs-load-avg) Starting threads took 0 seconds.
+Interrupt 0x0d (#GP General Protection Exception) at rip=8004207f56
+ cr2=0000000000000000 error=               0
+rax cccccccccccccc4c rbx 0000000000001a28 rcx 0000000000000000 rdx 000000000000003f
+rsp 000000800426edb0 rbp 000000800426edd0 rsi 000000800426e020 rdi cccccccccccccc4c
+rip 0000008004207f56 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
+r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
+r15 0000000000000000 rflags 00000002
+es: 0010 ds: 0010 cs: 0008 ss: 0010
+Kernel PANIC at ../../threads/interrupt.c:361 in intr_handler(): Unexpected interrupt
+Call stack: 0x80042140d0 0x8004209280 0x8004209632 0x8004208213 0x800420de2e 0x8004209214 0x8004209632 0x8004208394 0x800420dc11 0x800420dc2f 0x800421ae06 0x8004207675.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 12060 ticks
+Thread: 996 idle ticks, 11064 kernel ticks, 0 user ticks
+Console: 1
