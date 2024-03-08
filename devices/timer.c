@@ -150,8 +150,19 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 	thread_tick ();
 //	sema_up(&sleep); // 맨처음 아이디어용.
 
+	//mlfqs 전용.
+	thread_current()->recent_cpu +=1;
+
+	if(timer_ticks()%4 == 0){
+		set_thread_priority();
+	}
+
 	if(timer_ticks() %TIMER_FREQ == 0){
-		thread_get_load_avg();
+		// load_avg 갱신
+		calculating_load_avg();
+		// ready list recent_cpu 갱신
+		thread_current()->recent_cpu = calculating_recent_cpu(thread_current()->recent_cpu);
+		set_thread_recent_cpu();
 	}
 
 }

@@ -816,9 +816,25 @@ int convert_x_n(const signed int x){
     return value ;
 }
 
+int
+calculating_therad_priority(struct thread *t){
+
+	int value = 
+		convert_x_n(
+			SUB_X_Y(
+				CONVERT_N_X(PRI_MAX), 
+				SUB_X_Y(
+					(DIVI_X_Y(CONVERT_N_X(t->recent_cpu),CONVERT_N_X(4)))
+					,CONVERT_N_X(t->nice*2))
+			)
+		);
+
+	return value;
+}
+
 
 void
-cauculating_load_avg(void){
+calculating_load_avg(void){
 	
 	load_avg = ADD_X_Y(MULTI_X_Y ((LOAD_AV_1),CONVERT_N_X(load_avg)),MULTI_X_Y((LOAD_AV_2),CONVERT_N_X((strlen(&ready_list)+1))));
 	load_avg = convert_x_n(load_avg);
@@ -826,7 +842,7 @@ cauculating_load_avg(void){
 }
 
 int32_t
-cauculating_recent_cpu(struct thread *t){
+calculating_recent_cpu(struct thread *t){
 
 	/* TODO: Your implementation goes here */
 	int32_t arg;
@@ -838,4 +854,56 @@ cauculating_recent_cpu(struct thread *t){
 	return convert_x_n(t->recent_cpu);
 
 
+}
+
+void
+set_thread_recent_cpu(void){
+
+	struct list_elem *e;
+	if(!list_empty(&ready_list)){
+		for(e = list_begin(&ready_list); e != list_end(&ready_list);){
+
+			struct thread *t = list_entry(e, struct thread, elem);
+			t->recent_cpu = calculating_recent_cpu(t->recent_cpu);
+			e = list_next(e);
+
+		}
+	}
+	if(!list_empty(&sleep_list)){
+	// sleep 도 돌아야하나?
+		for(e = list_begin(&sleep_list); e != list_end(&sleep_list);){
+
+			struct thread *t = list_entry(e, struct thread, elem);
+			t->recent_cpu = calculating_recent_cpu(t->recent_cpu);
+			e = list_next(e);
+
+		}
+	}
+}
+
+void
+set_thread_priority(void){
+
+	thread_current()->priority = calculating_therad_priority(thread_current()->priority);
+
+	struct list_elem *e;
+	if(!list_empty(&ready_list)){
+		for(e = list_begin(&ready_list); e != list_end(&ready_list);){
+
+			struct thread *t = list_entry(e, struct thread, elem);
+			t->priority = calculating_therad_priority(t->priority);
+			e = list_next(e);
+
+		}
+	}
+	if(!list_empty(&sleep_list)){
+	// sleep 도 돌아야하나?
+		for(e = list_begin(&sleep_list); e != list_end(&sleep_list);){
+
+			struct thread *t = list_entry(e, struct thread, elem);
+			t->priority = calculating_therad_priority(t->priority);
+			e = list_next(e);
+
+		}
+	}
 }
