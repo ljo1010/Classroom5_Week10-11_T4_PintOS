@@ -68,8 +68,8 @@ static int load_avg; // load_avg 전역 변수.
 #define DIVI_X_Y(x,y) ((int64_t)(x))*f/y 
 #define DIVI_X_N(x,n) ((int32_t)(x)/n) 
 
-#define LOAD_AV_1 DIVI_X_Y(CONVERT_X_N_PLUS(59),CONVERT_X_N_PLUS(60))
-#define LOAD_AV_2 DIVI_X_Y(CONVERT_X_N_PLUS(1),CONVERT_X_N_PLUS(60))
+#define LOAD_AV_1 DIVI_X_Y(CONVERT_N_X(59),CONVERT_N_X(60))
+#define LOAD_AV_2 DIVI_X_Y(CONVERT_N_X(1),CONVERT_N_X(60))
 
 
 
@@ -156,8 +156,7 @@ thread_init (void) {
 	initial_thread = running_thread ();
 	
 	if (thread_mlfqs){
-		initial_thread->recent_cpu = 0; // mlfqs용
-		init_thread(init_thread, "main", 0);
+		init_thread(initial_thread, "main", 0);
 	}
 	else{
 		init_thread (initial_thread, "main", PRI_DEFAULT);
@@ -499,7 +498,7 @@ int
 thread_get_load_avg (void) {
 
 	int value;
-	value = MULTI_X_Y(CONVERT_N_X(load_avg),CONVERT_N_X(100));
+	value = MULTI_X_N((load_avg),(100));
 
 	return convert_x_n(value);
 }
@@ -592,7 +591,12 @@ init_thread (struct thread *t, const char *name, int priority) {
 	
 	if(thread_mlfqs){
 		// mlfqs용
-		t->recent_cpu = thread_current()->recent_cpu;
+		if(!initial_thread){
+			t->recent_cpu = thread_current()->recent_cpu;
+		}
+		else{
+			t->recent_cpu = 0;
+		}
 	}
 	
 }
@@ -832,13 +836,13 @@ thread_wake_up(int64_t ticks){
 int convert_x_n(const signed int x){
     int value;
     if(x> 0){
-        value = ((x + (f_2)) / f);
+        value = (x +f_2)/f;
     }
     else if(x<0){
-        value = ((x-(f_2))/f);
+        value = (x - f_2)/f;
     }
     else{
-        value = x/f;
+        value = 0;
     }
     return value ;
 }
@@ -863,8 +867,27 @@ calculating_therad_priority(struct thread *t){
 void
 calculating_load_avg(void){
 	
-	load_avg = ADD_X_Y(MULTI_X_Y ((LOAD_AV_1),CONVERT_N_X(load_avg)),MULTI_X_Y((LOAD_AV_2),CONVERT_N_X((list_size(&ready_list)+1))));
-	load_avg = convert_x_n(load_avg);
+	signed int size;
+
+	if(thread_current() == idle_thread){
+		size = (signed int)list_size(&ready_list);
+	}
+	else{
+		size =  (signed int)(list_size(&ready_list))+1;
+	}
+
+	load_avg = ADD_X_Y(
+		MULTI_X_Y(LOAD_AV_1,load_avg),
+		MULTI_X_Y(LOAD_AV_2,(size))
+	);
+	
+	// load_avg = ADD_X_Y(
+	// 	MULTI_X_N (
+	// 		(LOAD_AV_1),(load_avg)),
+	// 		MULTI_X_N(
+	// 			(LOAD_AV_2),((size))));
+	
+	// load_avg = convert_x_n(load_avg);
 
 }
 
