@@ -195,12 +195,14 @@ lock_acquire (struct lock *lock) {
 	ASSERT (!intr_context ());
 	ASSERT (!lock_held_by_current_thread (lock));
 	struct thread *curr = thread_current ();
-	// priority 순으로 donation 리스트 넣는법....
-	if(lock->holder){
-		curr->wait_on_lock = lock; // lock을 필요로 하는 thread의 address 저장
-		list_insert_ordered(&curr->wait_on_lock->holder->donation, &curr->d_elem, donation_priority_less,NULL); // donation 리스트에 넣기.
+	if(!thread_mlfqs){
+		// priority 순으로 donation 리스트 넣는법....
+		if(lock->holder){
+			curr->wait_on_lock = lock; // lock을 필요로 하는 thread의 address 저장
+			list_insert_ordered(&curr->wait_on_lock->holder->donation, &curr->d_elem, donation_priority_less,NULL); // donation 리스트에 넣기.
 
-		donate_priority();
+			donate_priority();
+		}
 	}
 	sema_down (&lock->semaphore);
 
@@ -241,30 +243,33 @@ lock_release (struct lock *lock) {
 	ASSERT (lock != NULL);
 	ASSERT (lock_held_by_current_thread (lock));
 
-	struct list_elem *e;
-
-	struct thread *holde = lock->holder;
-	// donation list를 순회하며 해당하는 lock을 가진 thread list에서 제거
-	if (!list_empty(&holde->donation)){	
-		for(e = list_begin(&holde->donation); e != list_end(&holde->donation);)
-		{
-				if(list_entry(e, struct thread, d_elem)->wait_on_lock == lock){
-					list_entry(e, struct thread, d_elem)->wait_on_lock = NULL; // wait_on_lock 초기화
-					// 해당하는 스레드의 priority 초기화
-					donate_set_priority(list_entry(e, struct thread, d_elem));
-					list_remove(e); // d_elem 제거
-					}
-				else{
-					e = list_next(e);
-					}
+	if(!thread_mlfqs){
+		struct list_elem *e;
+		struct thread *holde = lock->holder;
+		// donation list를 순회하며 해당하는 lock을 가진 thread list에서 제거
+		if (!list_empty(&holde->donation)){	
+			for(e = list_begin(&holde->donation); e != list_end(&holde->donation);)
+			{
+					if(list_entry(e, struct thread, d_elem)->wait_on_lock == lock){
+						list_entry(e, struct thread, d_elem)->wait_on_lock = NULL; // wait_on_lock 초기화
+						// 해당하는 스레드의 priority 초기화
+						donate_set_priority(list_entry(e, struct thread, d_elem));
+						list_remove(e); // d_elem 제거
+						}
+					else{
+						e = list_next(e);
+						}
+				}
 			}
-		}
 
-	// Donation 용 추가 (여기까지)
+		// Donation 용 추가 (여기까지)
+	}
 	lock->holder = NULL;
 	
 	// 현재 스레드의 priority를 init 값으로 초기화
-	donate_set_priority(thread_current());
+	if(!thread_mlfqs){
+		donate_set_priority(thread_current());
+	}
 	sema_up (&lock->semaphore);
 
 	
