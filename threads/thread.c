@@ -62,10 +62,10 @@ static int load_avg; // load_avg 전역 변수.
 #define ADD_X_N(x,n) ((int32_t)(x)+(int)(n)*f)
 #define SUB_X_N(x,n) ((int32_t)(x)-(int)(n)*f)
 
-#define MULTI_X_Y(x,y) ((int64_t)(x))*(int)(y)/f
+#define MULTI_X_Y(x,y) (int)(((int64_t)(x))*(int)(y)/f)
 #define MULTI_X_N(x,n) ((int32_t)(x)*n) 
 
-#define DIVI_X_Y(x,y) ((int64_t)(x))*f/y 
+#define DIVI_X_Y(x,y) (int)(((int64_t)(x))*f/y)
 #define DIVI_X_N(x,n) ((int32_t)(x)/n) 
 
 #define LOAD_AV_1 DIVI_X_Y(CONVERT_N_X(59),CONVERT_N_X(60))
