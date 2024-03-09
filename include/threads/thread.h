@@ -176,6 +176,6 @@ void calculating_therad_priority(struct thread *t);
 void set_thread_priority(void);
 int max_priority(void);
 void increment_recent_cpu(void);
-
+void test_max_priority(struct thread *t);
 
 #endif /* threads/thread.h */

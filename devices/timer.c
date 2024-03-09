@@ -97,7 +97,7 @@ timer_elapsed (int64_t then) {
 void
 timer_sleep (int64_t ticks) {
 	int64_t start = timer_ticks ();
-
+	printf("%d 초간 %s는 자겠습니다\n", ticks, thread_current()->name);
 	ASSERT (intr_get_level () == INTR_ON);
 	
 	// 맨처음 아이디어용.
@@ -115,8 +115,8 @@ timer_sleep (int64_t ticks) {
 	// while (timer_elapsed (start) < ticks)
 	// 	thread_yield ();
 
-	if (timer_elapsed (start) < ticks)
-		thread_sleep(timer_ticks() + ticks);
+	// if (timer_elapsed (start) < ticks)
+	thread_sleep(timer_ticks() + ticks);
 
 }
 
@@ -148,7 +148,6 @@ timer_print_stats (void) {
 static void
 timer_interrupt (struct intr_frame *args UNUSED) {
 	ticks++;
-	thread_wake_up(ticks);
 	thread_tick ();
 //	sema_up(&sleep); // 맨처음 아이디어용.
 
@@ -157,17 +156,20 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 
 		increment_recent_cpu();
 
-		if(timer_ticks()%4 == 0){
+		if(ticks%4 == 0){
 			set_thread_priority();
+
 		}
-		if(timer_ticks() %TIMER_FREQ == 0){
+		if(ticks %TIMER_FREQ == 0){
 			// load_avg 갱신
 			// ready list recent_cpu 갱신
+			printf("1sec\n");
 			set_thread_recent_cpu();
 			calculating_load_avg();
+			// test_all_list();
 		}
 	}
-
+	thread_wake_up(ticks);
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer

@@ -402,9 +402,9 @@ thread_set_priority (int new_priority) {
 	}
 	else{
 		curr->priority = new_priority;
+		curr->init_pri = new_priority;
 		list_insert_ordered(&ready_list, &curr->elem, thread_priority_less, NULL);
 	}
-
 
 	do_schedule(THREAD_READY);
 
@@ -494,14 +494,9 @@ thread_set_nice (int nice UNUSED) {
 	/* TODO: Your implementation goes here */
 	struct thread *t = thread_current();
 	t->nice = nice;
-	int priority = SUB_N_X(
-				(PRI_MAX), 
-				SUB_X_N(
-					(DIVI_X_N(
-						t->recent_cpu,4))
-							,(t->nice*2))
-			);
-
+	printf("%d priprity에서", t->priority);
+	int priority = convert_x_n(ADD_X_N(DIVI_X_N(t->recent_cpu,-4), PRI_MAX - (t->nice*2)));
+	printf("%d 로 갱신되었다!\n", priority);
 	if(priority > PRI_MAX){
 		priority = PRI_MAX;
 	}
@@ -526,10 +521,9 @@ thread_get_nice (void) {
 /* Returns 100 times the system load average. */
 int
 thread_get_load_avg (void) {
-	enum intr_level old_level = intr_disable ();
+
 	int value;
 	value = convert_x_n(load_avg*100);
-	intr_set_level (old_level);
 	return value;
 }
 
@@ -821,12 +815,11 @@ thread_sleep(int64_t tick) {
 
 	enum intr_level old_level = intr_disable();
 	struct thread *curr = thread_current ();
-
+	printf("나 자러왔다\n");
 	if (curr != idle_thread) {
-		curr->status = THREAD_BLOCKED;
 		curr->ticks = tick;
 		list_push_back (&sleep_list, &curr->elem);
-		schedule();
+		thread_block();
 	}
 
 	intr_set_level(old_level);
@@ -875,14 +868,16 @@ calculating_therad_priority(struct thread *t){
 	if(t == idle_thread){
 		return ;
 	}
-	t->priority = 
-			SUB_N_X(
-				(PRI_MAX), 
-				SUB_X_N(
-					(DIVI_X_N(
-						t->recent_cpu,4))
-							,(t->nice*2))
-			);
+	int priority = PRI_MAX - convert_x_n(DIVI_X_N(thread_current()->recent_cpu,4)) - thread_current()->nice*2;
+	if(priority <0){
+		priority = 0;
+	}
+	if(priority > 63){
+		priority = 63;
+	}
+	t->priority = priority;
+
+
 }
 
 
@@ -902,6 +897,8 @@ calculating_load_avg(void){
 
 	load_avg = DIVI_X_N(ADD_X_N(MULTI_X_N(load_avg,59),size),60);
 	// 나누기를 마지막에 해야하는 거였다니 미치겠다..
+	printf("%d\n",convert_x_n(load_avg*100));
+	
 
 	// load_avg = ADD_X_Y(
 	// 	MULTI_X_N (
@@ -939,15 +936,15 @@ void
 set_thread_recent_cpu(void){
 	enum intr_level old_level = intr_disable();
 	struct list_elem *e;
-	if(!list_empty(&all_list)){
-		for(e = list_begin(&all_list); e != list_end(&all_list);){
 
-			struct thread *t = list_entry(e, struct thread, all_elem);
-			calculating_recent_cpu(t);
-			e = list_next(e);
+	for(e = list_begin(&all_list); e != list_end(&all_list);e = list_next(e)){
 
-		}
+		struct thread *t = list_entry(e, struct thread, all_elem);
+		calculating_recent_cpu(t);
+		
+
 	}
+
 	intr_set_level(old_level);
 }
 
@@ -956,22 +953,15 @@ set_thread_priority(void){
 
 	enum intr_level old_level = intr_disable();
 	struct list_elem *e;
-	if(!list_empty(&all_list)){
-		for(e = list_begin(&all_list); e != list_end(&all_list);){
 
-			struct thread *t = list_entry(e, struct thread, all_elem);
-			calculating_therad_priority(t);
-			e = list_next(e);
+	for(e = list_begin(&all_list); e != list_end(&all_list);e = list_next(e)){
 
-		}
+		struct thread *t = list_entry(e, struct thread, all_elem);
+		calculating_therad_priority(t);
+
 	}
 	intr_set_level(old_level);
 
-
-//  	if (thread_current()->priority < max_priority()) {
-//     	intr_yield_on_return();
-// // [출처] Pintos Thread - Priority aging|작성자 사오구이
-// }
 }
 
 int 
@@ -1004,5 +994,29 @@ void
 increment_recent_cpu(void){
 	if(thread_current() != idle_thread){
 		thread_current()->recent_cpu = ADD_X_N(thread_current()->recent_cpu,1);
+	}
+
+}
+
+void
+test_max_priority(struct thread *t){
+	if(list_empty(&ready_list))
+		return;
+	if(!intr_context()&& t->priority > thread_current()->priority){
+		thread_yield();
+	
+	}
+}
+
+void
+test_all_list(void){
+
+	struct list_elem *e;
+	for(e = list_begin(&all_list); e != list_end(&all_list);e = list_next(e)){
+
+		struct thread *t = list_entry(e, struct thread, all_elem);
+		printf("%s 는 recent_cpu가 %d고 priority는 %d 로 갱신되었다.\n", t->name, t->recent_cpu,t->priority);
+		printf("현재 내 상태는 %s다.\n", t->status);
+
 	}
 }
