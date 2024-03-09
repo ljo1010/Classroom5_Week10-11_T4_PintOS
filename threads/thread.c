@@ -83,10 +83,10 @@ bool thread_mlfqs;
 
 #define SUB_N_X(n,x) ((n)*f-(x))
 
-#define MULTI_X_Y(x,y) (int)(((x))*(y)/f)
+#define MULTI_X_Y(x,y) (int)(((int64_t)(x))*(y)/f)
 #define MULTI_X_N(x,n) ((x)*n) 
 
-#define DIVI_X_Y(x,y) (int)(((x))*f/y)
+#define DIVI_X_Y(x,y) (int)(((int64_t)(x))*f/y)
 #define DIVI_X_N(x,n) ((x)/n) 
 
 #define LOAD_AV_1 DIVI_X_Y(CONVERT_N_X(59),CONVERT_N_X(60))
@@ -936,19 +936,17 @@ void
 calculating_recent_cpu(struct thread *t){
 
 	/* TODO: Your implementation goes here */
-	int32_t arg;
 	if(t == idle_thread){
 		return ;
 	}
 	// 실수화 하고 곱하기 vs 정수끼리 곱한다음 실수 나눗셈이 필요할때만 실수화하기
-	arg = DIVI_X_Y(
-		(MULTI_X_N(load_avg,2)),
-		(ADD_X_N(
-			MULTI_X_N(load_avg,2),1)
-			));
+	
+	int load = MULTI_X_N(load_avg, 2);
+	int coef = DIVI_X_Y(load,ADD_X_N(load,1));
+
 	t->recent_cpu = 
 		ADD_X_N(
-			MULTI_X_Y(arg,t->recent_cpu),(t->nice)); 
+			MULTI_X_Y(coef,t->recent_cpu),(t->nice)); 
 	
 
 

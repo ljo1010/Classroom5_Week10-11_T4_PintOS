@@ -162,7 +162,7 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 			//printf("1sec\n");
 			calculating_load_avg();
 			set_thread_recent_cpu();
-
+			// printf("%d 동안 사용했었어... 나는 %s야.\n", thread_current()->recent_cpu, thread_current()->name);
 			// test_all_list();
 		}
 				if(ticks%4 == 0){
