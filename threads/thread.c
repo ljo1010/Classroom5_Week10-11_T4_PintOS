@@ -868,7 +868,7 @@ calculating_therad_priority(struct thread *t){
 	if(t == idle_thread){
 		return ;
 	}
-	int priority = PRI_MAX - convert_x_n(DIVI_X_N(thread_current()->recent_cpu,4)) - thread_current()->nice*2;
+	int priority = PRI_MAX - convert_x_n(DIVI_X_N(t->recent_cpu,4)) - t->nice*2;
 	if(priority <0){
 		priority = 0;
 	}

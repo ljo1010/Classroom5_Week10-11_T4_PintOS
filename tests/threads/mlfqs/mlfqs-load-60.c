@@ -155,8 +155,8 @@ load_thread (void *aux UNUSED)
   printf("%d라는 recent_cpu를 가지고 있답니다... \n", thread_current()->recent_cpu);
   timer_sleep (sleep_time - timer_elapsed (start_time));
   while (timer_elapsed (start_time) < spin_time){
-    printf("당신은 함정에 걸렸습니다...\n");
-    printf("%s 인 제가 범인이고 저의 priority는 %d 랍니다...\n", thread_current()->name, thread_current()->priority);
+    // printf("당신은 함정에 걸렸습니다...\n");
+    // printf("%s 인 제가 범인이고 저의 priority는 %d 랍니다...\n", thread_current()->name, thread_current()->priority);
     continue;}
   timer_sleep (exit_time - timer_elapsed (start_time));
 }
