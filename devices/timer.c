@@ -155,18 +155,19 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 	//mlfqs 전용.
 
 		increment_recent_cpu();
-
-		if(ticks%4 == 0){
-			set_thread_priority();
-
-		}
+		
 		if(ticks %TIMER_FREQ == 0){
 			// load_avg 갱신
 			// ready list recent_cpu 갱신
 			printf("1sec\n");
-			set_thread_recent_cpu();
 			calculating_load_avg();
+			set_thread_recent_cpu();
+
 			// test_all_list();
+		}
+				if(ticks%4 == 0){
+			set_thread_priority();
+
 		}
 	}
 	thread_wake_up(ticks);

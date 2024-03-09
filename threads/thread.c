@@ -267,12 +267,12 @@ thread_create (const char *name, int priority,
 	thread_unblock (t);
 
 	// 생성시 선점형 구현
-	if (!thread_mlfqs){
-		struct thread *curr = thread_current();
-		if (curr->priority < t->priority){
-			thread_yield();
-		}
+	// if (!thread_mlfqs){
+	struct thread *curr = thread_current();
+	if (curr->priority < t->priority){
+		thread_yield();
 	}
+	// }
 	return tid;
 }
 
@@ -310,6 +310,7 @@ thread_unblock (struct thread *t) {
 	//list_push_back (&ready_list, &t->elem);
 	list_insert_ordered(&ready_list, &t->elem, thread_priority_less ,NULL); // priority 순으로 삽입
 	t->status = THREAD_READY;
+
 	intr_set_level (old_level);
 	
 }
@@ -357,6 +358,7 @@ thread_exit (void) {
 	/* Just set our status to dying and schedule another process.
 	   We will be destroyed during the call to schedule_tail(). */
 	intr_disable ();
+	list_remove(&thread_current()->all_elem);
 	do_schedule (THREAD_DYING);
 	NOT_REACHED ();
 }
@@ -463,6 +465,9 @@ thread_priority_less(const struct list_elem *a, const struct list_elem *b, void 
 	struct thread *thread_a = list_entry(a, struct thread, elem);
     struct thread *thread_b = list_entry(b, struct thread, elem);
 
+	if(thread_mlfqs){
+		return thread_a->priority > thread_b->priority;
+	}
     return thread_a->init_pri > thread_b->init_pri;
 }
 
@@ -492,18 +497,32 @@ thread_get_priority (void) {
 void
 thread_set_nice (int nice UNUSED) {
 	/* TODO: Your implementation goes here */
+	
 	struct thread *t = thread_current();
 	t->nice = nice;
-	printf("%d priprity에서", t->priority);
+
 	int priority = convert_x_n(ADD_X_N(DIVI_X_N(t->recent_cpu,-4), PRI_MAX - (t->nice*2)));
-	printf("%d 로 갱신되었다!\n", priority);
 	if(priority > PRI_MAX){
 		priority = PRI_MAX;
 	}
 	else if(priority <PRI_MIN){
 		priority = PRI_MIN;
 	}
-	thread_set_priority(priority);
+	if(t != idle_thread){
+		t->priority = priority;}
+	if(t != idle_thread){
+		if(t->status == THREAD_READY){
+			enum intr_level old_level = intr_disable();
+			list_remove(&t->elem);
+			list_insert_ordered(&ready_list, &t->elem, thread_priority_less, NULL);
+			intr_set_level(old_level);
+		}
+		else if(t->status == THREAD_RUNNING && 
+		list_entry(list_begin(&ready_list), 
+		struct thread, elem)->priority > t->priority){
+			thread_yield();
+		}
+	}
 	// thread_yield();
 	
 }
@@ -554,6 +573,7 @@ idle (void *idle_started_ UNUSED) {
 	struct semaphore *idle_started = idle_started_;
 
 	idle_thread = thread_current ();
+	list_remove(&idle_thread->all_elem);
 	sema_up (idle_started);
 
 	for (;;) {
@@ -831,7 +851,6 @@ thread_wake_up(int64_t ticks){
 
 	if(list_empty(&sleep_list))
 		return;
-	enum intr_level old_level = intr_disable();
 	
 	// struct thread *next = list_entry(list_pop_front(&sleep_list), struct thread, elem);
 	// if(timer_elapsed(next->ticks) > 0){
@@ -852,13 +871,18 @@ thread_wake_up(int64_t ticks){
 			if (ticks >= t->ticks)
 			{
 				e = list_remove(e);
+				printf("나 %s인데\n", t->name);
+				printf("%d 에ㄷ 깨야하는데 %d에 깰  수 있었ㄷ다...\n", t->ticks, timer_ticks());
 				thread_unblock(t);
 			}
 			else{
 				e = list_next(e);
 			}
 		}
-	intr_set_level(old_level);
+
+	if(thread_mlfqs){
+		
+	}
 }
 
 

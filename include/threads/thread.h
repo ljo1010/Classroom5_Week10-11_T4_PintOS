@@ -178,4 +178,6 @@ int max_priority(void);
 void increment_recent_cpu(void);
 void test_max_priority(struct thread *t);
 
+void test_all_list(void);
+void thread_yield_current (struct thread *cur);
 #endif /* threads/thread.h */
