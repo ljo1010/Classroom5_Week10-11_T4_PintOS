@@ -1,0 +1,93 @@
+FAIL
+Some recent_cpu values were missing or differed from those expected by more than 2.5.
+  time   actual <-> expected explanation
+------ -------- --- -------- ----------------------------------------
+     2     7.39  =  6.40     
+     4    undef     12.60    Missing value.
+     6     0.62 <<< 18.61    Too small, by 15.49.
+     8     5.49 <<< 24.44    Too small, by 16.45.
+    10    undef     30.08    Missing value.
+    12    undef     35.54    Missing value.
+    14    undef     40.83    Missing value.
+    16     0.23 <<< 45.96    Too small, by 43.23.
+    18     3.56 <<< 50.92    Too small, by 44.86.
+    20     6.82 <<< 55.73    Too small, by 46.41.
+    22    undef     60.39    Missing value.
+    24    undef     64.90    Missing value.
+    26    undef     69.27    Missing value.
+    28     8.57 <<< 73.50    Too small, by 62.43.
+    30    undef     77.60    Missing value.
+    32    undef     81.56    Missing value.
+    34    undef     85.40    Missing value.
+    36    undef     89.12    Missing value.
+    38     1.12 <<< 92.72    Too small, by 89.10.
+    40     2.92 <<< 96.20    Too small, by 90.78.
+    42     4.67 <<< 99.57    Too small, by 92.40.
+    44     6.37 <<< 102.84   Too small, by 93.97.
+    46     8.01 <<< 106.00   Too small, by 95.49.
+    48    undef     109.06   Missing value.
+    50     6.64 <<< 112.02   Too small, by 102.88.
+    52     2.73 <<< 114.89   Too small, by 109.66.
+    54    undef     117.66   Missing value.
+    56    undef     120.34   Missing value.
+    58    undef     122.94   Missing value.
+    60    undef     125.46   Missing value.
+    62    undef     127.89   Missing value.
+    64    undef     130.25   Missing value.
+    66    undef     132.53   Missing value.
+    68    undef     134.73   Missing value.
+    70     6.77 <<< 136.86   Too small, by 127.59.
+    72    undef     138.93   Missing value.
+    74    undef     140.93   Missing value.
+    76     8.43 <<< 142.86   Too small, by 131.93.
+    78    undef     144.73   Missing value.
+    80     8.16 <<< 146.54   Too small, by 135.88.
+    82    undef     148.29   Missing value.
+    84    undef     149.99   Missing value.
+    86     2.02 <<< 151.63   Too small, by 147.11.
+    88    undef     153.21   Missing value.
+    90    undef     154.75   Missing value.
+    92    undef     156.23   Missing value.
+    94    undef     157.67   Missing value.
+    96    undef     159.06   Missing value.
+    98    undef     160.40   Missing value.
+   100    undef     161.70   Missing value.
+   102    undef     162.96   Missing value.
+   104    undef     164.18   Missing value.
+   106    undef     165.35   Missing value.
+   108    undef     166.49   Missing value.
+   110    undef     167.59   Missing value.
+   112    undef     168.66   Missing value.
+   114    undef     169.69   Missing value.
+   116    undef     170.69   Missing value.
+   118    undef     171.65   Missing value.
+   120    undef     172.58   Missing value.
+   122    undef     173.49   Missing value.
+   124    undef     174.36   Missing value.
+   126    undef     175.20   Missing value.
+   128     0.24 <<< 176.02   Too small, by 173.28.
+   130     0.52 <<< 176.81   Too small, by 173.79.
+   132     0.80 <<< 177.57   Too small, by 174.27.
+   134     1.06 <<< 178.31   Too small, by 174.75.
+   136     1.32 <<< 179.02   Too small, by 175.20.
+   138     1.57 <<< 179.72   Too small, by 175.65.
+   140     1.81 <<< 180.38   Too small, by 176.07.
+   142     2.04 <<< 181.03   Too small, by 176.49.
+   144     2.27 <<< 181.65   Too small, by 176.88.
+   146     2.48 <<< 182.26   Too small, by 177.28.
+   148     2.69 <<< 182.84   Too small, by 177.65.
+   150     2.89 <<< 183.41   Too small, by 178.02.
+   152     3.09 <<< 183.96   Too small, by 178.37.
+   154     3.28 <<< 184.49   Too small, by 178.71.
+   156     3.46 <<< 185.00   Too small, by 179.04.
+   158     3.64 <<< 185.49   Too small, by 179.35.
+   160     3.81 <<< 185.97   Too small, by 179.66.
+   162     3.98 <<< 186.43   Too small, by 179.95.
+   164     4.14 <<< 186.88   Too small, by 180.24.
+   166     4.30 <<< 187.31   Too small, by 180.51.
+   168     4.45 <<< 187.73   Too small, by 180.78.
+   170     4.59 <<< 188.14   Too small, by 181.05.
+   172     4.73 <<< 188.53   Too small, by 181.30.
+   174     4.87 <<< 188.91   Too small, by 181.54.
+   176     5.00 <<< 189.27   Too small, by 181.77.
+   178     5.13 <<< 189.63   Too small, by 182.00.

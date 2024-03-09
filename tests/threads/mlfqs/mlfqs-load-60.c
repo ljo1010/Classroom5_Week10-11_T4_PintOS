@@ -117,7 +117,7 @@ test_mlfqs_load_60 (void)
   int i;
   
   ASSERT (thread_mlfqs);
-  printf("main priority : %d\n", thread_current()->priority);
+  // printf("main priority : %d\n", thread_current()->priority);
   start_time = timer_ticks ();
   msg ("Starting %d niced load threads...", THREAD_CNT);
   for (i = 0; i < THREAD_CNT; i++) 
@@ -128,15 +128,15 @@ test_mlfqs_load_60 (void)
     }
   msg ("Starting threads took %d seconds.",
        timer_elapsed (start_time) / TIMER_FREQ);
-  printf("main priority_2 : %d\n", thread_current()->priority);
+  // printf("main priority_2 : %d\n", thread_current()->priority);
   for (i = 0; i < 90; i++) 
     {
       int64_t sleep_until = start_time + TIMER_FREQ * (2 * i + 10);
       int load_avg;
-      printf("go!\n");
-      printf("main priority_3 : %d\n", thread_current()->priority);
+      // printf("go!\n");
+      // printf("main priority_3 : %d\n", thread_current()->priority);
       timer_sleep (sleep_until - timer_ticks ());
-      printf("good!\n");
+      // printf("good!\n");
       load_avg = thread_get_load_avg ();
       msg ("After %d seconds, load average=%d.%02d.",
            i * 2, load_avg / 100, load_avg % 100);
@@ -151,8 +151,8 @@ load_thread (void *aux UNUSED)
   int64_t exit_time = spin_time + 60 * TIMER_FREQ;
 
   thread_set_nice (20);
-  printf("%s 이는 priority가 %d구요\n", thread_current()->name,thread_current()->priority);
-  printf("%d라는 recent_cpu를 가지고 있답니다... \n", thread_current()->recent_cpu);
+  // printf("%s 이는 priority가 %d구요\n", thread_current()->name,thread_current()->priority);
+  // printf("%d라는 recent_cpu를 가지고 있답니다... \n", thread_current()->recent_cpu);
   timer_sleep (sleep_time - timer_elapsed (start_time));
   while (timer_elapsed (start_time) < spin_time){
     // printf("당신은 함정에 걸렸습니다...\n");

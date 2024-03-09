@@ -550,10 +550,8 @@ thread_get_load_avg (void) {
 int
 thread_get_recent_cpu (void) {
 		/* TODO: Your implementation goes here */
-		enum intr_level old_level = intr_disable ();
 	int value;
-	value = convert_x_n((thread_current()->recent_cpu)*(100));
-	intr_set_level (old_level);
+	value = convert_x_n(MULTI_X_N((thread_current()->recent_cpu),(100)));
 	return  value;
 
 
@@ -835,7 +833,7 @@ thread_sleep(int64_t tick) {
 
 	enum intr_level old_level = intr_disable();
 	struct thread *curr = thread_current ();
-	printf("나 자러왔다\n");
+	//printf("나 자러왔다\n");
 	if (curr != idle_thread) {
 		curr->ticks = tick;
 		list_push_back (&sleep_list, &curr->elem);
@@ -871,8 +869,8 @@ thread_wake_up(int64_t ticks){
 			if (ticks >= t->ticks)
 			{
 				e = list_remove(e);
-				printf("나 %s인데\n", t->name);
-				printf("%d 에ㄷ 깨야하는데 %d에 깰  수 있었ㄷ다...\n", t->ticks, timer_ticks());
+				// printf("나 %s인데\n", t->name);
+				// printf("%d 에ㄷ 깨야하는데 %d에 깰  수 있었ㄷ다...\n", t->ticks, timer_ticks());
 				thread_unblock(t);
 			}
 			else{
@@ -921,7 +919,7 @@ calculating_load_avg(void){
 
 	load_avg = DIVI_X_N(ADD_X_N(MULTI_X_N(load_avg,59),size),60);
 	// 나누기를 마지막에 해야하는 거였다니 미치겠다..
-	printf("%d\n",convert_x_n(load_avg*100));
+	//printf("%d\n",convert_x_n(load_avg*100));
 	
 
 	// load_avg = ADD_X_Y(
@@ -1039,8 +1037,8 @@ test_all_list(void){
 	for(e = list_begin(&all_list); e != list_end(&all_list);e = list_next(e)){
 
 		struct thread *t = list_entry(e, struct thread, all_elem);
-		printf("%s 는 recent_cpu가 %d고 priority는 %d 로 갱신되었다.\n", t->name, t->recent_cpu,t->priority);
-		printf("현재 내 상태는 %s다.\n", t->status);
+		//printf("%s 는 recent_cpu가 %d고 priority는 %d 로 갱신되었다.\n", t->name, t->recent_cpu,t->priority);
+		//printf("현재 내 상태는 %s다.\n", t->status);
 
 	}
 }

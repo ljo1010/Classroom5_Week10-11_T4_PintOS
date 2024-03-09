@@ -97,7 +97,7 @@ timer_elapsed (int64_t then) {
 void
 timer_sleep (int64_t ticks) {
 	int64_t start = timer_ticks ();
-	printf("%d 초간 %s는 자겠습니다\n", ticks, thread_current()->name);
+	//printf("%d 초간 %s는 자겠습니다\n", ticks, thread_current()->name);
 	ASSERT (intr_get_level () == INTR_ON);
 	
 	// 맨처음 아이디어용.
@@ -155,11 +155,11 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 	//mlfqs 전용.
 
 		increment_recent_cpu();
-		
+
 		if(ticks %TIMER_FREQ == 0){
 			// load_avg 갱신
 			// ready list recent_cpu 갱신
-			printf("1sec\n");
+			//printf("1sec\n");
 			calculating_load_avg();
 			set_thread_recent_cpu();
 
