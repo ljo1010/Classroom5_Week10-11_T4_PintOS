@@ -65,7 +65,6 @@ sema_down (struct semaphore *sema) {
 	ASSERT (!intr_context ());
 
 	while (sema->value == 0) {
-		//list_push_back (&sema->waiters, &thread_current ()->elem);
 		list_insert_ordered(&sema->waiters, &thread_current()->elem, thread_donation_priority_less, NULL);
 		
 		thread_block ();
@@ -229,7 +228,6 @@ lock_try_acquire (struct lock *lock) {
 		lock->holder = thread_current ();
 	return success;
 
-	// donation 용을 추가해야하나?
 }
 
 /* Releases LOCK, which must be owned by the current thread.

@@ -172,7 +172,6 @@ thread_init (void) {
 	initial_thread->status = THREAD_RUNNING;
 	initial_thread->tid = allocate_tid ();
 
-	// initial_thread의 tick은 뭘로 설정하지?
 }
 
 /* Starts preemptive thread scheduling by enabling interrupts.
@@ -267,12 +266,10 @@ thread_create (const char *name, int priority,
 	thread_unblock (t);
 
 	// 생성시 선점형 구현
-	// if (!thread_mlfqs){
 	struct thread *curr = thread_current();
 	if (curr->priority < t->priority){
 		thread_yield();
 	}
-	// }
 	return tid;
 }
 
@@ -307,7 +304,6 @@ thread_unblock (struct thread *t) {
 
 	old_level = intr_disable ();
 	ASSERT (t->status == THREAD_BLOCKED);
-	//list_push_back (&ready_list, &t->elem);
 	list_insert_ordered(&ready_list, &t->elem, thread_priority_less ,NULL); // priority 순으로 삽입
 	t->status = THREAD_READY;
 
@@ -376,7 +372,6 @@ thread_yield (void) {
 	
 	if (!thread_mlfqs){
 		if (curr != idle_thread){
-			// list_push_back (&ready_list, &curr->elem);
 			list_insert_ordered(&ready_list, &curr->elem, thread_donation_priority_less, NULL);
 		}
 		list_sort(&ready_list, thread_donation_priority_less, NULL);
@@ -411,8 +406,6 @@ thread_set_priority (int new_priority) {
 	do_schedule(THREAD_READY);
 
 	intr_set_level (old_level);
-
-	// donation에 따라 priority set.
 
 }
 
@@ -523,8 +516,7 @@ thread_set_nice (int nice UNUSED) {
 			thread_yield();
 		}
 	}
-	// thread_yield();
-	
+
 }
 
 /* Returns the current thread's nice value. */
@@ -614,23 +606,19 @@ init_thread (struct thread *t, const char *name, int priority) {
 	ASSERT (PRI_MIN <= priority && priority <= PRI_MAX);
 	ASSERT (name != NULL);
 
-	// struct lock wait_lock;
-
 	memset (t, 0, sizeof *t);
 	t->status = THREAD_BLOCKED;
 	strlcpy (t->name, name, sizeof t->name);
 	t->tf.rsp = (uint64_t) t + PGSIZE - sizeof (void *);
 	t->priority = priority;
 	t->magic = THREAD_MAGIC;
-	// 생성한 thread의 tick은 뭘로 설정하지?
 
-	// priority donaiton 데이터 구조를 init 할게 있나?
+
 	// donation list 용
 	t->init_pri = priority;
 	t->wait_on_lock = NULL;
 	list_init (&t->donation);
-	// lock_init(&wait_lock);
-	// t->wait_on_lock = &wait_lock;
+
 	
 	if(thread_mlfqs){
 		// mlfqs용
@@ -833,7 +821,6 @@ thread_sleep(int64_t tick) {
 
 	enum intr_level old_level = intr_disable();
 	struct thread *curr = thread_current ();
-	//printf("나 자러왔다\n");
 	if (curr != idle_thread) {
 		curr->ticks = tick;
 		list_push_back (&sleep_list, &curr->elem);
@@ -850,16 +837,6 @@ thread_wake_up(int64_t ticks){
 	if(list_empty(&sleep_list))
 		return;
 	
-	// struct thread *next = list_entry(list_pop_front(&sleep_list), struct thread, elem);
-	// if(timer_elapsed(next->ticks) > 0){
-	// 	next->status = THREAD_READY;
-	// 	list_push_back (&ready_list, &next->elem);
-	// }
-	// else{
-	// 	list_push_back (&sleep_list, &next->elem);
-	// }
-
-
     struct list_elem *e;
 
 		for (e = list_begin(&sleep_list); e != list_end(&sleep_list);)
@@ -869,18 +846,12 @@ thread_wake_up(int64_t ticks){
 			if (ticks >= t->ticks)
 			{
 				e = list_remove(e);
-				// printf("나 %s인데\n", t->name);
-				// printf("%d 에ㄷ 깨야하는데 %d에 깰  수 있었ㄷ다...\n", t->ticks, timer_ticks());
 				thread_unblock(t);
 			}
 			else{
 				e = list_next(e);
 			}
 		}
-
-	if(thread_mlfqs){
-		
-	}
 }
 
 
@@ -912,23 +883,7 @@ calculating_load_avg(void){
 		size +=1;
 	}
 
-	// load_avg = ADD_X_Y(
-	// 	MULTI_X_Y(LOAD_AV_1,load_avg),
-	// 	MULTI_X_Y(LOAD_AV_2,(size))
-	// );
-
 	load_avg = DIVI_X_N(ADD_X_N(MULTI_X_N(load_avg,59),size),60);
-	// 나누기를 마지막에 해야하는 거였다니 미치겠다..
-	//printf("%d\n",convert_x_n(load_avg*100));
-	
-
-	// load_avg = ADD_X_Y(
-	// 	MULTI_X_N (
-	// 		(LOAD_AV_1),(load_avg)),
-	// 		MULTI_X_N(
-	// 			(LOAD_AV_2),((size))));
-	
-	// load_avg = convert_x_n(load_avg);
 
 }
 
@@ -939,7 +894,6 @@ calculating_recent_cpu(struct thread *t){
 	if(t == idle_thread){
 		return ;
 	}
-	// 실수화 하고 곱하기 vs 정수끼리 곱한다음 실수 나눗셈이 필요할때만 실수화하기
 	
 	int load = MULTI_X_N(load_avg, 2);
 	int coef = DIVI_X_Y(load,ADD_X_N(load,1));
@@ -994,7 +948,7 @@ max_priority(void){
   }
   return priority;
 }
-//[출처] Pintos Thread - Priority aging|작성자 사오구이
+
 
 int convert_x_n(const signed int x){
     int value;
@@ -1035,8 +989,6 @@ test_all_list(void){
 	for(e = list_begin(&all_list); e != list_end(&all_list);e = list_next(e)){
 
 		struct thread *t = list_entry(e, struct thread, all_elem);
-		//printf("%s 는 recent_cpu가 %d고 priority는 %d 로 갱신되었다.\n", t->name, t->recent_cpu,t->priority);
-		//printf("현재 내 상태는 %s다.\n", t->status);
 
 	}
 }

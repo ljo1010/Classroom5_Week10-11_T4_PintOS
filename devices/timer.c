@@ -47,8 +47,7 @@ timer_init (void) {
 	outb (0x40, count >> 8);
 
 	intr_register_ext (0x20, timer_interrupt, "8254 Timer");
-	// 맨처음 아이디어용.
-	// sema_init(&sleep, 0); //slee 타이머용 sema.
+
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -97,25 +96,8 @@ timer_elapsed (int64_t then) {
 void
 timer_sleep (int64_t ticks) {
 	int64_t start = timer_ticks ();
-	//printf("%d 초간 %s는 자겠습니다\n", ticks, thread_current()->name);
 	ASSERT (intr_get_level () == INTR_ON);
 	
-	// 맨처음 아이디어용.
-	// while(1){
-	// 	sema_down(&sleep);
-	// 	if (timer_elapsed (start) >= ticks){
-	// 		sema_up(&sleep);
-	// 		thread_yield();}
-	// 	else {
-	// 		sema_up(&sleep);
-	// 		}
-	// }
-
-	// 본래 함수.
-	// while (timer_elapsed (start) < ticks)
-	// 	thread_yield ();
-
-	// if (timer_elapsed (start) < ticks)
 	thread_sleep(timer_ticks() + ticks);
 
 }
@@ -149,21 +131,15 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED) {
 	ticks++;
 	thread_tick ();
-//	sema_up(&sleep); // 맨처음 아이디어용.
 
 	if(thread_mlfqs){
 	//mlfqs 전용.
-
 		increment_recent_cpu();
 
 		if(ticks %TIMER_FREQ == 0){
-			// load_avg 갱신
-			// ready list recent_cpu 갱신
-			//printf("1sec\n");
 			calculating_load_avg();
 			set_thread_recent_cpu();
-			// printf("%d 동안 사용했었어... 나는 %s야.\n", thread_current()->recent_cpu, thread_current()->name);
-			// test_all_list();
+
 		}
 				if(ticks%4 == 0){
 			set_thread_priority();
