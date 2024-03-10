@@ -449,7 +449,7 @@ donate_priority(void)
 {
 	struct thread *curr = thread_current();
 	
-	for(int depth = 0; depth < 8;depth++){ // 왜 최대 depth가 8이지...(일종의 하드코딩인듯)
+	for(int depth = 0; depth < 8;depth++){ 
 		if(curr->wait_on_lock){
 			struct thread *t = curr->wait_on_lock->holder;
 
