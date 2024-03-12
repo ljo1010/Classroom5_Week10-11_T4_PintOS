@@ -7,6 +7,7 @@ struct token{
     char *s;
     struct list_elem elem;
     char *addr; //git book이 char*타입으로 저장하래서
+    char name[16];
 };
 
 tid_t process_create_initd (const char *file_name);

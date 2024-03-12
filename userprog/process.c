@@ -20,6 +20,7 @@
 #include "intrinsic.h"
 #include "lib/string.h"
 #include "threads/synch.h"
+#include "lib/stdio.h"
 
 #ifdef VM
 #include "vm/vm.h"
@@ -58,10 +59,10 @@ process_create_initd (const char *file_name) {
 	char *save_ptr;
 	strlcpy(buf,fn_copy, sizeof(buf));
 	char *f_name = strtok_r(buf, " ", &save_ptr);
-	
-	printf("yes");
-	printf("%s", buf); // buf는 잘 들어갔음.
-	printf("f_name: %s\n", f_name); //f_name도 잘 들어갔음
+
+	// printf("yes");
+	// printf("%s", buf); // buf는 잘 들어갔음.
+	// printf("f_name: %s\n", f_name); //f_name도 잘 들어갔음
 
 	if (f_name == NULL) {
         palloc_free_page (fn_copy);
@@ -194,6 +195,7 @@ process_exec (void *f_name) {
 	_if.eflags = FLAG_IF | FLAG_MBS;
 
 	printf("hie\n");
+	printf("process_exec file_name : %s\n", file_name); // 풀 네임인거 확인함.
 
 	/* We first kill the current context */
 	process_cleanup ();
@@ -201,6 +203,7 @@ process_exec (void *f_name) {
 	/* And then load the binary */
 	success = load (file_name, &_if);
 
+	hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
 	/* If load failed, quit. */
 	palloc_free_page (file_name);
 	if (!success)
@@ -360,16 +363,27 @@ load (const char *file_name, struct intr_frame *if_) {
 	bool success = false;
 	int i;
 
+	printf("load 진입\n");
+	printf("load file_name :%s\n", file_name);
+
+	char f_name_buf[128];
+	// file naem 전달시 parse
+	char *name_ptr;
+	strlcpy(f_name_buf,file_name, sizeof(f_name_buf));
+	char *f_name = strtok_r(f_name_buf, " ", &name_ptr);
+
 	/* Allocate and activate page directory. */
 	t->pml4 = pml4_create ();
 	if (t->pml4 == NULL)
 		goto done;
 	process_activate (thread_current ());
 
+
+
 	/* Open executable file. */
-	file = filesys_open (file_name);
+	file = filesys_open (f_name);
 	if (file == NULL) {
-		printf ("load: %s: open failed\n", file_name);
+		printf ("load: %s: open failed\n", f_name);
 		goto done;
 	}
 
@@ -446,35 +460,54 @@ load (const char *file_name, struct intr_frame *if_) {
 	if_->rip = ehdr.e_entry;
 
 
-	// // file name을 명령 인수 등과 나눠서 user stack에 push
-	// char *save_ptr;
-	// struct token token;
-	// struct list file_arg;
-	// list_init(&file_arg);
+	// file name을 명령 인수 등과 나눠서 user stack에 push
+	char *save_ptr;
+	struct token token;
+	struct list file_arg;
+	list_init(&file_arg);
 
-	// char buf[14];
-	// strlcpy(buf, file_name,sizeof(buf));
+	char full_f_name_buf[128];
+	int count  = 0;
+	strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf));
 
-	// for(token.s = strtok_r(buf, " ", &save_ptr);token.s != NULL; token.s = strtok_r(NULL, " ", &save_ptr)){
-	// 	list_push_back(&file_arg, &token.elem);
-	// }
-	// struct list_elem *e;
-	// size_t data_size = 0;
-	// for(e =list_back(&file_arg);e != list_begin(&file_arg);e = list_prev(e)){
-	// 	struct token *to= list_entry(e, struct token, elem);
-	// 	char *s = to->s;
-	// 	size_t word_size = strlen(s) + 1; // 널문자 포함으로 +1
-	// 	data_size+= word_size; // padding용 총 길이 재기
+	printf("load buf : %s\n", full_f_name_buf);
 
-	// 	to->addr = (char *)if_->rsp; // 현재 data 주소값 저장
+	for(token.s = strtok_r(full_f_name_buf, " ", &save_ptr);token.s != NULL; token.s = strtok_r(NULL, " ", &save_ptr)){
+		list_push_back(&file_arg, &token.elem);
+    	snprintf(token.name, sizeof(token.name), "%d", count);
+		printf("load token.s : %s\n", token.s);
+		count += 1;
+	}
+
+
+	printf("스택 안에 넣어볼것임. \n");
+
+	printf("%d개가 들어왔군.\n", count);
+	struct list_elem *e;
+	size_t data_size = 0;
+	if (list_empty(&file_arg)) {
+		printf("file_arg is empty\n");
+	} else {
+		printf("file_arg is not empty\n");
+	}
+
+	for(e =list_rbegin(&file_arg);e != list_rend(&file_arg);e = list_prev(e)){
+		struct token *to= list_entry(e, struct token, elem);
+		printf("List element: %s\n", to->s);
+		// char *s = to->s;
+		// size_t word_size = strlen(s) + 1; // 널문자 포함으로 +1
+		// data_size+= word_size; // padding용 총 길이 재기
+
+		// to->addr = (char *)if_->rsp; // 현재 data 주소값 저장
 		
-	// 	// 이거쓰짖말래
-	// 	// 그럼 그 주소에 값 s를 넣는건 어떻게 해야하지.... 
-	// 	memcpy((void *)if_->rsp, s, word_size);	
-	// 	if_->rsp -= word_size;
-		
-	// 	printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
-	// }
+		// // 이거쓰짖말래
+		// // 그럼 그 주소에 값 s를 넣는건 어떻게 해야하지.... 
+		// memcpy((void *)if_->rsp, s, word_size);	
+		// if_->rsp -= word_size;
+		printf("뭐라도 해봐\n");
+		printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
+	}
+	printf("for 넘어옴\n");
 
 	// if(data_size%8 != 0){
 	// 	// padding 해서 하는 만큼 push.
