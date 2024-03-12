@@ -50,8 +50,13 @@ process_create_initd (const char *file_name) {
 		return TID_ERROR;
 	strlcpy (fn_copy, file_name, PGSIZE);
 
+
+	// file naem 전달시 parse
+	char *token, *save_ptr;
+	token = __strtok_r(file_name, " ", &save_ptr);
+
 	/* Create a new thread to execute FILE_NAME. */
-	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy);
+	tid = thread_create (token, PRI_DEFAULT, initd, fn_copy); // file_name ->token
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
 	return tid;
@@ -188,7 +193,6 @@ process_exec (void *f_name) {
 	do_iret (&_if);
 	NOT_REACHED ();
 }
-
 
 /* Waits for thread TID to die and returns its exit status.  If
  * it was terminated by the kernel (i.e. killed due to an
@@ -420,8 +424,54 @@ load (const char *file_name, struct intr_frame *if_) {
 	/* Start address. */
 	if_->rip = ehdr.e_entry;
 
-	/* TODO: Your code goes here.
-	 * TODO: Implement argument passing (see project2/argument_passing.html). */
+
+	// file name을 명령 인수 등과 나눠서 user stack에 push
+	char *save_ptr;
+	struct token toke;
+	struct list file_arg;
+	list_init(&file_arg);
+	for(toke.s = __strtok_r(file_name, " ", &save_ptr);toke.s != NULL; toke.s = __strtok_r(NULL, " ", &save_ptr)){
+		list_push_back(&file_arg, &toke.elem);
+	}
+	struct list_elem *e;
+	size_t data_size = 0;
+	for(e =list_back(&file_arg);e != list_begin(&file_arg);e = list_prev(e)){
+		struct token *to= list_entry(e, struct token, elem);
+		char *s = to->s;
+		size_t word_size = strlen(s) + 1; // 널문자 포함으로 +1
+		data_size+= word_size; // padding용 총 길이 재기
+
+		to->addr = (char *)if_->rsp; // 현재 data 주소값 저장
+		
+		strcpy(if_->rsp, s);
+		if_->rsp -= word_size;
+		
+		printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
+	}
+
+	if(data_size%4 != 0){
+		// padding 해서 하는 만큼 push.
+		size_t padding_size = 4 - (data_size%4);
+		memset(if_->rsp, 0, padding_size);
+		if_->rsp -= padding_size;
+	}
+
+	// 마지막 인자 null용 char * push.
+	*((uintptr_t *)if_->rsp) = (char *)NULL;
+	if_->rsp -= sizeof(char *);
+
+	// arg의 주소값을 push
+
+	for(e = list_back(&file_arg);e != list_begin(&file_arg);e = list_prev(e)){
+		struct token *to= list_entry(e, struct token, elem);
+
+		*((uintptr_t *)if_->rsp) = to->addr;
+		if_->rsp -= sizeof(char *);
+	}
+
+	//fake return addr을 push	
+	*((uintptr_t *)if_->rsp) = (void *)NULL;
+	if_->rsp -= sizeof(void *);
 
 	success = true;
 
