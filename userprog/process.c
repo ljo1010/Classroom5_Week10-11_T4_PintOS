@@ -473,7 +473,7 @@ load (const char *file_name, struct intr_frame *if_) {
 	printf("load buf : %s\n", full_f_name_buf);
 
 	for(token.s = strtok_r(full_f_name_buf, " ", &save_ptr);token.s != NULL; token.s = strtok_r(NULL, " ", &save_ptr)){
-		list_push_back(&file_arg, &token.elem);
+		list_push_front(&file_arg, &token.elem);
     	snprintf(token.name, sizeof(token.name), "%d", count);
 		printf("load token.s : %s\n", token.s);
 		count += 1;
@@ -491,7 +491,7 @@ load (const char *file_name, struct intr_frame *if_) {
 		printf("file_arg is not empty\n");
 	}
 
-	for(e =list_rbegin(&file_arg);e != list_rend(&file_arg);e = list_prev(e)){
+	for(e =list_begin(&file_arg);e != list_end(&file_arg);){
 		struct token *to= list_entry(e, struct token, elem);
 		printf("List element: %s\n", to->s);
 		// char *s = to->s;
@@ -506,6 +506,8 @@ load (const char *file_name, struct intr_frame *if_) {
 		// if_->rsp -= word_size;
 		printf("뭐라도 해봐\n");
 		printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
+		e = list_next(e);
+		break;
 	}
 	printf("for 넘어옴\n");
 
