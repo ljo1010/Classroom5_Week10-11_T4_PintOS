@@ -19,6 +19,7 @@
 #include "threads/vaddr.h"
 #include "intrinsic.h"
 #include "lib/string.h"
+#include "threads/synch.h"
 
 #ifdef VM
 #include "vm/vm.h"
@@ -64,9 +65,10 @@ process_create_initd (const char *file_name) {
 		}
 
 	/* Create a new thread to execute FILE_NAME. */
-	tid = thread_create (f_name, PRI_DEFAULT, initd, fn_copy); // file_name ->token
+	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy); // file_name ->token
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
+
 
 	return tid;
 }
@@ -187,6 +189,8 @@ process_exec (void *f_name) {
 	_if.cs = SEL_UCSEG;
 	_if.eflags = FLAG_IF | FLAG_MBS;
 
+	printf("hie\n");
+
 	/* We first kill the current context */
 	process_cleanup ();
 
@@ -217,12 +221,17 @@ process_wait (tid_t child_tid UNUSED) {
 	/* XXX: Hint) The pintos exit if process_wait (initd), we recommend you
 	 * XXX:       to add infinite loop here before
 	 * XXX:       implementing the process_wait. */
-	while (1)
-	{
-		/* code */
-	}
-	
 
+// #ifdef USERPROG
+// 	while(thread_current()->status != THREAD_DYING){
+// 		barrier();
+// 	}
+// #endif
+
+  for (int i = 0; i < 100000000; i++)
+  {
+  }
+	
 	return -1;
 }
 
@@ -234,7 +243,6 @@ process_exit (void) {
 	 * TODO: Implement process termination message (see
 	 * TODO: project2/process_termination.html).
 	 * TODO: We recommend you to implement process resource cleanup here. */
-
 	process_cleanup ();
 }
 
@@ -434,58 +442,58 @@ load (const char *file_name, struct intr_frame *if_) {
 	if_->rip = ehdr.e_entry;
 
 
-	// file name을 명령 인수 등과 나눠서 user stack에 push
-	char *save_ptr;
-	struct token token;
-	struct list file_arg;
-	list_init(&file_arg);
+	// // file name을 명령 인수 등과 나눠서 user stack에 push
+	// char *save_ptr;
+	// struct token token;
+	// struct list file_arg;
+	// list_init(&file_arg);
 
-	char buf[14];
-	strlcpy(buf, file_name,sizeof(buf));
+	// char buf[14];
+	// strlcpy(buf, file_name,sizeof(buf));
 
-	for(token.s = strtok_r(buf, " ", &save_ptr);token.s != NULL; token.s = strtok_r(NULL, " ", &save_ptr)){
-		list_push_back(&file_arg, &token.elem);
-	}
-	struct list_elem *e;
-	size_t data_size = 0;
-	for(e =list_back(&file_arg);e != list_begin(&file_arg);e = list_prev(e)){
-		struct token *to= list_entry(e, struct token, elem);
-		char *s = to->s;
-		size_t word_size = strlen(s) + 1; // 널문자 포함으로 +1
-		data_size+= word_size; // padding용 총 길이 재기
+	// for(token.s = strtok_r(buf, " ", &save_ptr);token.s != NULL; token.s = strtok_r(NULL, " ", &save_ptr)){
+	// 	list_push_back(&file_arg, &token.elem);
+	// }
+	// struct list_elem *e;
+	// size_t data_size = 0;
+	// for(e =list_back(&file_arg);e != list_begin(&file_arg);e = list_prev(e)){
+	// 	struct token *to= list_entry(e, struct token, elem);
+	// 	char *s = to->s;
+	// 	size_t word_size = strlen(s) + 1; // 널문자 포함으로 +1
+	// 	data_size+= word_size; // padding용 총 길이 재기
 
-		to->addr = (char *)if_->rsp; // 현재 data 주소값 저장
+	// 	to->addr = (char *)if_->rsp; // 현재 data 주소값 저장
 		
-		// 이거쓰짖말래
-		// 그럼 그 주소에 값 s를 넣는건 어떻게 해야하지.... 
-		memcpy((void *)if_->rsp, s, word_size);	
-		if_->rsp -= word_size;
+	// 	// 이거쓰짖말래
+	// 	// 그럼 그 주소에 값 s를 넣는건 어떻게 해야하지.... 
+	// 	memcpy((void *)if_->rsp, s, word_size);	
+	// 	if_->rsp -= word_size;
 		
-		printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
-	}
+	// 	printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
+	// }
 
-	if(data_size%8 != 0){
-		// padding 해서 하는 만큼 push.
-		size_t padding_size = 8 - (data_size%8);
-		memset((void *)if_->rsp, 0, padding_size);
-		if_->rsp -= padding_size;
-	}
+	// if(data_size%8 != 0){
+	// 	// padding 해서 하는 만큼 push.
+	// 	size_t padding_size = 8 - (data_size%8);
+	// 	memset((void *)if_->rsp, 0, padding_size);
+	// 	if_->rsp -= padding_size;
+	// }
 
-	// 마지막 인자 null용 char * push.
-	*((char **)if_->rsp) = NULL;
-	if_->rsp -= sizeof(char *);
+	// // 마지막 인자 null용 char * push.
+	// *((char **)if_->rsp) = NULL;
+	// if_->rsp -= sizeof(char *);
 
-	// arg의 주소값을 push
-	for(e = list_back(&file_arg);e != list_begin(&file_arg);e = list_prev(e)){
-		struct token *to= list_entry(e, struct token, elem);
+	// // arg의 주소값을 push
+	// for(e = list_back(&file_arg);e != list_begin(&file_arg);e = list_prev(e)){
+	// 	struct token *to= list_entry(e, struct token, elem);
 
-		*((char **)if_->rsp) = to->addr;
-		if_->rsp -= sizeof(char *);
-	}
+	// 	*((char **)if_->rsp) = to->addr;
+	// 	if_->rsp -= sizeof(char *);
+	// }
 
-	//fake return addr을 push	
-	*((void **)if_->rsp) = NULL;
-	if_->rsp -= sizeof(void *);
+	// //fake return addr을 push	
+	// *((void **)if_->rsp) = NULL;
+	// if_->rsp -= sizeof(void *);
 
 	success = true;
 
@@ -619,6 +627,16 @@ setup_stack (struct intr_frame *if_) {
 			palloc_free_page (kpage);
 	}
 	return success;
+}
+
+bool
+is_child_finished(tid_t tid){
+	
+	struct thread *child;
+
+	if(child == NULL){
+
+	}
 }
 
 /* Adds a mapping from user virtual address UPAGE to kernel
