@@ -58,6 +58,10 @@ process_create_initd (const char *file_name) {
 	char *save_ptr;
 	strlcpy(buf,fn_copy, sizeof(buf));
 	char *f_name = strtok_r(buf, " ", &save_ptr);
+	
+	printf("yes");
+	printf("%s", buf); // buf는 잘 들어갔음.
+	printf("f_name: %s\n", f_name); //f_name도 잘 들어갔음
 
 	if (f_name == NULL) {
         palloc_free_page (fn_copy);
@@ -65,7 +69,7 @@ process_create_initd (const char *file_name) {
 		}
 
 	/* Create a new thread to execute FILE_NAME. */
-	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy); // file_name ->token
+	tid = thread_create (f_name, PRI_DEFAULT, initd, fn_copy); // file_name ->token
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
 
