@@ -18,6 +18,8 @@
 #include "threads/mmu.h"
 #include "threads/vaddr.h"
 #include "intrinsic.h"
+#include "lib/string.h"
+
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -50,15 +52,22 @@ process_create_initd (const char *file_name) {
 		return TID_ERROR;
 	strlcpy (fn_copy, file_name, PGSIZE);
 
-
+	char buf[128];
 	// file naem 전달시 parse
-	char *token, *save_ptr;
-	token = __strtok_r(file_name, " ", &save_ptr);
+	char *save_ptr;
+	strlcpy(buf,fn_copy, sizeof(buf));
+	char *f_name = strtok_r(buf, " ", &save_ptr);
+
+	if (f_name == NULL) {
+        palloc_free_page (fn_copy);
+        return TID_ERROR; // 파일 이름이 존재하지 않는 경우
+		}
 
 	/* Create a new thread to execute FILE_NAME. */
-	tid = thread_create (token, PRI_DEFAULT, initd, fn_copy); // file_name ->token
+	tid = thread_create (f_name, PRI_DEFAULT, initd, fn_copy); // file_name ->token
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
+
 	return tid;
 }
 
@@ -427,11 +436,15 @@ load (const char *file_name, struct intr_frame *if_) {
 
 	// file name을 명령 인수 등과 나눠서 user stack에 push
 	char *save_ptr;
-	struct token toke;
+	struct token token;
 	struct list file_arg;
 	list_init(&file_arg);
-	for(toke.s = __strtok_r(file_name, " ", &save_ptr);toke.s != NULL; toke.s = __strtok_r(NULL, " ", &save_ptr)){
-		list_push_back(&file_arg, &toke.elem);
+
+	char buf[14];
+	strlcpy(buf, file_name,sizeof(buf));
+
+	for(token.s = strtok_r(buf, " ", &save_ptr);token.s != NULL; token.s = strtok_r(NULL, " ", &save_ptr)){
+		list_push_back(&file_arg, &token.elem);
 	}
 	struct list_elem *e;
 	size_t data_size = 0;
@@ -443,34 +456,35 @@ load (const char *file_name, struct intr_frame *if_) {
 
 		to->addr = (char *)if_->rsp; // 현재 data 주소값 저장
 		
-		strcpy(if_->rsp, s);
+		// 이거쓰짖말래
+		// 그럼 그 주소에 값 s를 넣는건 어떻게 해야하지.... 
+		memcpy((void *)if_->rsp, s, word_size);	
 		if_->rsp -= word_size;
 		
 		printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
 	}
 
-	if(data_size%4 != 0){
+	if(data_size%8 != 0){
 		// padding 해서 하는 만큼 push.
-		size_t padding_size = 4 - (data_size%4);
-		memset(if_->rsp, 0, padding_size);
+		size_t padding_size = 8 - (data_size%8);
+		memset((void *)if_->rsp, 0, padding_size);
 		if_->rsp -= padding_size;
 	}
 
 	// 마지막 인자 null용 char * push.
-	*((uintptr_t *)if_->rsp) = (char *)NULL;
+	*((char **)if_->rsp) = NULL;
 	if_->rsp -= sizeof(char *);
 
 	// arg의 주소값을 push
-
 	for(e = list_back(&file_arg);e != list_begin(&file_arg);e = list_prev(e)){
 		struct token *to= list_entry(e, struct token, elem);
 
-		*((uintptr_t *)if_->rsp) = to->addr;
+		*((char **)if_->rsp) = to->addr;
 		if_->rsp -= sizeof(char *);
 	}
 
 	//fake return addr을 push	
-	*((uintptr_t *)if_->rsp) = (void *)NULL;
+	*((void **)if_->rsp) = NULL;
 	if_->rsp -= sizeof(void *);
 
 	success = true;
