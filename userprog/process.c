@@ -197,21 +197,81 @@ process_exec (void *f_name) {
 	printf("hie\n");
 	printf("process_exec file_name : %s\n", file_name); // 풀 네임인거 확인함.
 
+	//------------------------------
+
+	char *save_ptr;
+
+	char full_f_name_buf[128];
+	char full_name_buf[128];
+	int count  = 0;
+	strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf)); // file_name 가져오기
+	strlcpy(full_name_buf, file_name, sizeof(full_name_buf)); //strtok에서 잘리길래 두개 복사해놓음..
+
+	printf("process exec buf : %s\n", full_f_name_buf); // 잘 출력하는거 확인
+
+	char f_name_arg[128];
+	char *f_buf;
+
+	for(f_buf = strtok_r(full_f_name_buf," ", &save_ptr); f_buf != NULL;f_buf = strtok_r(NULL, " ", &save_ptr)){
+		strlcpy(f_name_arg, f_buf, sizeof(f_name_arg));
+		printf("process exec f_name_arg :%s\n", f_name_arg);
+		count++;
+	}// arg 갯수 세기
+
+
+	//------------------------------
+
 	/* We first kill the current context */
 	process_cleanup ();
 
 	/* And then load the binary */
 	success = load (file_name, &_if);
-
-	hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
 	/* If load failed, quit. */
 	palloc_free_page (file_name);
 	if (!success)
 		return -1;
 
+	argument_passing(full_name_buf, count, _if);
+
+	hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
+
 	/* Start switched process. */
 	do_iret (&_if);
 	NOT_REACHED ();
+}
+
+
+
+void
+argument_passing(char *file_name,int count,struct intr_frame if_){
+
+	char full_f_name_buf[128];
+	strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf)); // file_name 가져오기
+	printf("argument passing file_name : %s\n", file_name); // 잘 출력하는거 확인
+	printf("argument passing full_f_name_buf : %s\n", full_f_name_buf); // 잘 출력하는거 확인
+
+	char *f_buf;
+	char *save_ptr;
+	size_t total_size = 0;
+	char *parse[64];
+	int count_parse = 0;
+
+	int i = 0;
+	for(f_buf = strtok_r(full_f_name_buf, " ", &save_ptr); f_buf != NULL; f_buf = strtok_r(NULL," ", &save_ptr)){
+	
+		parse[count_parse++] = f_buf;
+
+	}
+
+	for(int i = count-1; i > -1; i--){
+
+		for(int j = strlen(parse[i]);j > -1; j--){
+
+			
+
+		}
+	}
+
 }
 
 /* Waits for thread TID to die and returns its exit status.  If
@@ -228,12 +288,6 @@ process_wait (tid_t child_tid UNUSED) {
 	/* XXX: Hint) The pintos exit if process_wait (initd), we recommend you
 	 * XXX:       to add infinite loop here before
 	 * XXX:       implementing the process_wait. */
-
-// #ifdef USERPROG
-// 	while(thread_current()->status != THREAD_DYING){
-// 		barrier();
-// 	}
-// #endif
 
   for (int i = 0; i < 100000000; i++)
   {
@@ -507,16 +561,16 @@ load (const char *file_name, struct intr_frame *if_) {
 	// for(e =list_begin(&file_arg);e != list_end(&file_arg);){
 	// 	struct token *to= list_entry(e, struct token, elem);
 	// 	printf("List element: %s\n", to->s);
-		// char *s = to->s;
-		// size_t word_size = strlen(s) + 1; // 널문자 포함으로 +1
-		// data_size+= word_size; // padding용 총 길이 재기
+	// 	char *s = to->s;
+	// 	size_t word_size = strlen(s) + 1; // 널문자 포함으로 +1
+	// 	data_size+= word_size; // padding용 총 길이 재기
 
-		// to->addr = (char *)if_->rsp; // 현재 data 주소값 저장
+	// 	to->addr = (char *)if_->rsp; // 현재 data 주소값 저장
 		
-		// // 이거쓰짖말래
-		// // 그럼 그 주소에 값 s를 넣는건 어떻게 해야하지.... 
-		// memcpy((void *)if_->rsp, s, word_size);	
-		// if_->rsp -= word_size;
+	// 	// 이거쓰짖말래
+	// 	// 그럼 그 주소에 값 s를 넣는건 어떻게 해야하지.... 
+	// 	memcpy((void *)if_->rsp, s, word_size);	
+	// 	if_->rsp -= word_size;
 	// 	printf("뭐라도 해봐\n");
 	// 	printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
 	// 	e = list_next(e);
