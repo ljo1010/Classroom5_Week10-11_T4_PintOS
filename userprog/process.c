@@ -194,8 +194,8 @@ process_exec (void *f_name) {
 	_if.cs = SEL_UCSEG;
 	_if.eflags = FLAG_IF | FLAG_MBS;
 
-	printf("hie\n");
-	printf("process_exec file_name : %s\n", file_name); // 풀 네임인거 확인함.
+	// printf("hie\n");
+	// printf("process_exec file_name : %s\n", file_name); // 풀 네임인거 확인함.
 
 	//------------------------------
 
@@ -207,14 +207,14 @@ process_exec (void *f_name) {
 	strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf)); // file_name 가져오기
 	strlcpy(full_name_buf, file_name, sizeof(full_name_buf)); //strtok에서 잘리길래 두개 복사해놓음..
 
-	printf("process exec buf : %s\n", full_f_name_buf); // 잘 출력하는거 확인
+	// printf("process exec buf : %s\n", full_f_name_buf); // 잘 출력하는거 확인
 
 	char f_name_arg[128];
 	char *f_buf;
 
 	for(f_buf = strtok_r(full_f_name_buf," ", &save_ptr); f_buf != NULL;f_buf = strtok_r(NULL, " ", &save_ptr)){
 		strlcpy(f_name_arg, f_buf, sizeof(f_name_arg));
-		printf("process exec f_name_arg :%s\n", f_name_arg);
+		// printf("process exec f_name_arg :%s\n", f_name_arg);
 		count++;
 	}// arg 갯수 세기
 
@@ -233,6 +233,9 @@ process_exec (void *f_name) {
 
 	argument_passing(full_name_buf, count, &_if.rsp);
 
+	_if.R.rdi = count;
+	_if.R.rsi = _if.rsp+8;
+
 	hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
 
 	/* Start switched process. */
@@ -241,20 +244,21 @@ process_exec (void *f_name) {
 }
 
 
-
+//포인터의 주소 자체를 수정해야해서, 포인터로 받아온게 아니라 이중 포인터로 받아옴.(포인터의 포인터로.)
 void
 argument_passing(char *file_name,int count,void **rsp){
 
 	char full_f_name_buf[128];
 	strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf)); // file_name 가져오기
-	printf("argument passing file_name : %s\n", file_name); // 잘 출력하는거 확인
-	printf("argument passing full_f_name_buf : %s\n", full_f_name_buf); // 잘 출력하는거 확인
+	// printf("argument passing file_name : %s\n", file_name); // 잘 출력하는거 확인
+	// printf("argument passing full_f_name_buf : %s\n", full_f_name_buf); // 잘 출력하는거 확인
 
 	char *f_buf, *save_ptr;
 	int total_size = 0;
 	char *parse[64];
 	int count_parse = 0;
 
+	// parse에 나눠서 arg별로 저장해두고
 	int i = 0;
 	for(f_buf = strtok_r(full_f_name_buf, " ", &save_ptr); f_buf != NULL; f_buf = strtok_r(NULL," ", &save_ptr)){
 	
@@ -265,22 +269,20 @@ argument_passing(char *file_name,int count,void **rsp){
 	uint8_t *addr[64];
 	int l = 0;
 
+	// 한글자씩 1씩 낮춰가며 이동.
 	for(int i = count-1; i > -1; i--){
 
 		for(int j = strlen(parse[i]);j > -1; j--){
 
 			(*rsp)--;
-			**(char**)rsp=parse[i][j];
-			printf("argument passing rsp : %p\n", &rsp);
-			printf("argument passing parse[i][j] : %s\n", &parse[i][j]);
+			**(char**)rsp=parse[i][j]; // char 형태로 넣어야해서 이중 포인터 안에 있는 값을 char 만큼 움직여 값 넣기.
+			// printf("argument passing rsp : %p\n", &rsp);
+			// printf("argument passing parse[i][j] : %p\n", &parse[i][j]); 
 
-			if(parse[i][j] == '\0'){
-				addr[l] = rsp;
-				printf("argument passing addr[l] : %p\n", &addr[l]);
-				l++;
-			}
 			total_size += 1;
 		}
+		parse[i] = *(char**)rsp; // 한번 카운트 다 돌때마다 맨 앞글자일테니 본래 자리를 주소로 갱신.
+		// 주소라서 앞의 *갯수가 하나임.
 	}
 
 	if(total_size%8 != 0){
@@ -288,15 +290,26 @@ argument_passing(char *file_name,int count,void **rsp){
 		for(int k = 0; k<padding;k++){
 			(*rsp)--;
 			**(uint8_t**)rsp = 0;
-		}
-		printf("argument passing padding : %d\n", padding);
+		} // 패딩용, uin8_t만큼 움직이자.
+		// printf("argument passing padding : %d\n", padding);
 
 	}
-
-	(*rsp)--;
+	// align 용으로 8칸을 비워놓기 위함.
+	(*rsp)-=8;
 	**(char**)rsp = 0;
+	// 근데 8칸 내내 0으로 채워놔야하는거아닌가? 왜 그 지점만 채워넣지?
 
-	
+
+	for (int i = count-1; i> -1; i--){
+
+		(*rsp)-=8;
+		**(char***)rsp = parse[i]; // char*만큼 움직이며 parse[i]를 넣기.
+	}
+
+	(*rsp)-=8;
+	**(void***)rsp = 0;
+
+
 
 }
 
@@ -443,8 +456,8 @@ load (const char *file_name, struct intr_frame *if_) {
 	bool success = false;
 	int i;
 
-	printf("load 진입\n");
-	printf("load file_name :%s\n", file_name);
+	// printf("load 진입\n");
+	// printf("load file_name :%s\n", file_name);
 
 	char f_name_buf[128];
 	// file naem 전달시 parse
