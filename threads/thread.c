@@ -981,14 +981,3 @@ test_max_priority(struct thread *t){
 	
 	}
 }
-
-void
-test_all_list(void){
-
-	struct list_elem *e;
-	for(e = list_begin(&all_list); e != list_end(&all_list);e = list_next(e)){
-
-		struct thread *t = list_entry(e, struct thread, all_elem);
-
-	}
-}

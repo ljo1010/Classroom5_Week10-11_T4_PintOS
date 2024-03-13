@@ -296,7 +296,7 @@ argument_passing(char *file_name,int count,void **rsp){
 	}
 	// align 용으로 8칸을 비워놓기 위함.
 	(*rsp)-=8;
-	**(char**)rsp = 0;
+	**(char***)rsp = 0;
 	// 근데 8칸 내내 0으로 채워놔야하는거아닌가? 왜 그 지점만 채워넣지?
 
 
