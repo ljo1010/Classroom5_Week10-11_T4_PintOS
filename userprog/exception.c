@@ -145,8 +145,8 @@ page_fault (struct intr_frame *f) {
 
 	// 가상 주소 포인터가 널인경우, KERN_BASE, 커널 가상 주소 공간 이상인 경우
 	// 거부. 프로세스를 종료하고 자원 해제.
-	if(fault_addr == NULL ){ null_ptr = false;}
-	if( fault_addr > KERN_BASE ){kern_base_up = false;}
+	if(fault_addr == NULL ){ null_ptr = true;}
+	if( fault_addr > KERN_BASE ){kern_base_up = true;}
 
 #ifdef VM
 	/* For project 3 and later. */
@@ -163,8 +163,16 @@ page_fault (struct intr_frame *f) {
 			not_present ? "not present" : "rights violation",
 			write ? "writing" : "reading",
 			user ? "user" : "kernel",
-			null_ptr ? "validate ptr": "NULL ptr",
-			kern_base_up ? "kernel address in": "kernel address out");
+			null_ptr ? "NULL ptr": "validate ptr",
+			kern_base_up ? "kernel address out": "kernel address in");
 	kill (f);
+
+	// 여기서 프로세스도 킬하고 thread name을 출력후 exit status인 -1을 print 해야함.
+	if(not_present || null_ptr || kern_base_up){
+		printf("%s :", thread_current()->name);
+		printf("exit(-1)\n"); // 이렇게...??
+		thread_exit();
+	}
+
 }
 
