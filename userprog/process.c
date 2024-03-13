@@ -460,40 +460,53 @@ load (const char *file_name, struct intr_frame *if_) {
 	if_->rip = ehdr.e_entry;
 
 
-	// file name을 명령 인수 등과 나눠서 user stack에 push
-	char *save_ptr;
-	struct token token;
-	struct list file_arg;
-	list_init(&file_arg);
-
-	char full_f_name_buf[128];
-	int count  = 0;
-	strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf));
-
-	printf("load buf : %s\n", full_f_name_buf);
-
-	for(token.s = strtok_r(full_f_name_buf, " ", &save_ptr);token.s != NULL; token.s = strtok_r(NULL, " ", &save_ptr)){
-		list_push_front(&file_arg, &token.elem);
-    	snprintf(token.name, sizeof(token.name), "%d", count);
-		printf("load token.s : %s\n", token.s);
-		count += 1;
-	}
 
 
-	printf("스택 안에 넣어볼것임. \n");
+	// //file name을 명령 인수 등과 나눠서 user stack에 push
+	// char *save_ptr;
+	// struct list file_arg;
+	// list_init(&file_arg);
 
-	printf("%d개가 들어왔군.\n", count);
-	struct list_elem *e;
-	size_t data_size = 0;
-	if (list_empty(&file_arg)) {
-		printf("file_arg is empty\n");
-	} else {
-		printf("file_arg is not empty\n");
-	}
+	// char full_f_name_buf[128];
+	// int count  = 0;
+	// strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf));
 
-	for(e =list_begin(&file_arg);e != list_end(&file_arg);){
-		struct token *to= list_entry(e, struct token, elem);
-		printf("List element: %s\n", to->s);
+	// printf("load buf : %s\n", full_f_name_buf);
+
+	// char f_name_arg[128];
+	// char *f_buf;
+	// int count = 0;
+
+	// for(f_buf = strtok_r(full_f_name_buf," ", &save_ptr); f_buf != NULL;f_buf = strtok_r(NULL, " ", &save_ptr)){
+	// 	strlcpy(f_name_arg, f_buf, sizeof(f_name_arg));
+	// 	printf("load f_name_arg :%s\n", f_name_arg);
+	// 	count++;
+	// }
+
+	// for()
+
+	// for(token.s = strtok_r(full_f_name_buf, " ", &save_ptr);token.s != NULL; token.s = strtok_r(NULL, " ", &save_ptr)){
+	// 	list_push_front(&file_arg, &token.elem);
+    // 	snprintf(token.name, sizeof(token.name), "%d", count);
+	// 	printf("load token.s : %s\n", token.s);
+	// 	count += 1;
+	// }
+
+
+	// printf("스택 안에 넣어볼것임. \n");
+
+	// printf("%d개가 들어왔군.\n", count);
+	// struct list_elem *e;
+	// size_t data_size = 0;
+	// if (list_empty(&file_arg)) {
+	// 	printf("file_arg is empty\n");
+	// } else {
+	// 	printf("file_arg is not empty\n");
+	// }
+
+	// for(e =list_begin(&file_arg);e != list_end(&file_arg);){
+	// 	struct token *to= list_entry(e, struct token, elem);
+	// 	printf("List element: %s\n", to->s);
 		// char *s = to->s;
 		// size_t word_size = strlen(s) + 1; // 널문자 포함으로 +1
 		// data_size+= word_size; // padding용 총 길이 재기
@@ -504,12 +517,12 @@ load (const char *file_name, struct intr_frame *if_) {
 		// // 그럼 그 주소에 값 s를 넣는건 어떻게 해야하지.... 
 		// memcpy((void *)if_->rsp, s, word_size);	
 		// if_->rsp -= word_size;
-		printf("뭐라도 해봐\n");
-		printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
-		e = list_next(e);
-		break;
-	}
-	printf("for 넘어옴\n");
+	// 	printf("뭐라도 해봐\n");
+	// 	printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
+	// 	e = list_next(e);
+	// 	break;
+	// }
+	// printf("for 넘어옴\n");
 
 	// if(data_size%8 != 0){
 	// 	// padding 해서 하는 만큼 push.
