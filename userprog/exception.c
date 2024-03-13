@@ -121,6 +121,9 @@ page_fault (struct intr_frame *f) {
 	bool not_present;  /* True: not-present page, false: writing r/o page. */
 	bool write;        /* True: access was write, false: access was read. */
 	bool user;         /* True: access by user, false: access by kernel. */
+	bool null_ptr; /* True : null이 아님, false : null 포인터임.*/
+	bool kern_base_up; // true : 커널 가상 주소 공간 내, false: 커널 가상 주소 공간 바깥.
+	
 	void *fault_addr;  /* Fault address. */
 
 	/* Obtain faulting address, the virtual address that was
@@ -136,9 +139,14 @@ page_fault (struct intr_frame *f) {
 
 
 	/* Determine cause. */
-	not_present = (f->error_code & PF_P) == 0;
+	not_present = (f->error_code & PF_P) == 0; // 가상 주소 공간이 매핑되었는지 아닌지 판단.
 	write = (f->error_code & PF_W) != 0;
 	user = (f->error_code & PF_U) != 0;
+
+	// 가상 주소 포인터가 널인경우, KERN_BASE, 커널 가상 주소 공간 이상인 경우
+	// 거부. 프로세스를 종료하고 자원 해제.
+	if(fault_addr == NULL ){ null_ptr = false;}
+	if( fault_addr > KERN_BASE ){kern_base_up = false;}
 
 #ifdef VM
 	/* For project 3 and later. */
@@ -154,7 +162,9 @@ page_fault (struct intr_frame *f) {
 			fault_addr,
 			not_present ? "not present" : "rights violation",
 			write ? "writing" : "reading",
-			user ? "user" : "kernel");
+			user ? "user" : "kernel",
+			null_ptr ? "validate ptr": "NULL ptr",
+			kern_base_up ? "kernel address in": "kernel address out");
 	kill (f);
 }
 
