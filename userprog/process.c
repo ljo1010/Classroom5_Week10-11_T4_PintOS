@@ -231,7 +231,7 @@ process_exec (void *f_name) {
 	if (!success)
 		return -1;
 
-	argument_passing(full_name_buf, count, _if);
+	argument_passing(full_name_buf, count, &_if.rsp);
 
 	hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
 
@@ -243,16 +243,15 @@ process_exec (void *f_name) {
 
 
 void
-argument_passing(char *file_name,int count,struct intr_frame if_){
+argument_passing(char *file_name,int count,void **rsp){
 
 	char full_f_name_buf[128];
 	strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf)); // file_name 가져오기
 	printf("argument passing file_name : %s\n", file_name); // 잘 출력하는거 확인
 	printf("argument passing full_f_name_buf : %s\n", full_f_name_buf); // 잘 출력하는거 확인
 
-	char *f_buf;
-	char *save_ptr;
-	size_t total_size = 0;
+	char *f_buf, *save_ptr;
+	int total_size = 0;
 	char *parse[64];
 	int count_parse = 0;
 
@@ -263,14 +262,41 @@ argument_passing(char *file_name,int count,struct intr_frame if_){
 
 	}
 
+	uint8_t *addr[64];
+	int l = 0;
+
 	for(int i = count-1; i > -1; i--){
 
 		for(int j = strlen(parse[i]);j > -1; j--){
 
-			
+			(*rsp)--;
+			**(char**)rsp=parse[i][j];
+			printf("argument passing rsp : %p\n", &rsp);
+			printf("argument passing parse[i][j] : %s\n", &parse[i][j]);
 
+			if(parse[i][j] == '\0'){
+				addr[l] = rsp;
+				printf("argument passing addr[l] : %p\n", &addr[l]);
+				l++;
+			}
+			total_size += 1;
 		}
 	}
+
+	if(total_size%8 != 0){
+		size_t padding = 8 - (total_size%8);
+		for(int k = 0; k<padding;k++){
+			(*rsp)--;
+			**(uint8_t**)rsp = 0;
+		}
+		printf("argument passing padding : %d\n", padding);
+
+	}
+
+	(*rsp)--;
+	**(char**)rsp = 0;
+
+	
 
 }
 
