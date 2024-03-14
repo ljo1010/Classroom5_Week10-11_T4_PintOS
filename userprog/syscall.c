@@ -37,10 +37,42 @@ syscall_init (void) {
 			FLAG_IF | FLAG_TF | FLAG_DF | FLAG_IOPL | FLAG_AC | FLAG_NT);
 }
 
+
+
 /* The main system call interface */
 void
-syscall_handler (struct intr_frame *f UNUSED) {
+syscall_handler (struct intr_frame *f) {
 	// TODO: Your implementation goes here.
+
+
 	printf ("system call!\n");
+	// 여기는 OS
+	printf("syscall handler f->es : %x\n", f->es);
+	printf("syscall handler f->ds : %x\n", f->ds);
+	printf("syscall handler f->vec_no : %llx\n", f->vec_no);
+	printf("syscall handler f->error_code : %llx\n", f->error_code);
+	// 아래는 CPU
+	printf("syscall handler f->rip : %llx\n", f->rip);
+	printf("syscall handler f->cs : %x\n", f->cs);
+	printf("syscall handler f->rsp : %llx\n", f->rsp);
+	printf("syscall handler f->ss : %x\n", f->ss);
+	printf("syscall handler f->eflags : %llx\n", f->eflags);
+
+	check_address(addr);
+
 	thread_exit ();
+}
+
+void
+check_address(void *addr){
+
+	if(is_user_vaddr(addr)){
+		
+		if(pml4_get_page(thread_current()->pml4, addr) == NULL){
+			exit(-1);
+		}
+	}
+	else{
+		exit(-1);
+	}
 }

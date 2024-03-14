@@ -262,6 +262,12 @@ thread_create (const char *name, int priority,
 	t->tf.cs = SEL_KCSEG;
 	t->tf.eflags = FLAG_IF;
 
+	// thread의 fdt를 초기화.
+
+	#ifdef USERPROG
+
+	#endif 
+
 	/* Add to run queue. */
 	thread_unblock (t);
 

@@ -167,12 +167,5 @@ page_fault (struct intr_frame *f) {
 			kern_base_up ? "kernel address out": "kernel address in");
 	kill (f);
 
-	// 여기서 프로세스도 킬하고 thread name을 출력후 exit status인 -1을 print 해야함.
-	if(not_present || null_ptr || kern_base_up){
-		printf("%s :", thread_current()->name);
-		printf("exit(-1)\n"); // 이렇게...??
-		thread_exit();
-	}
-
 }
 
