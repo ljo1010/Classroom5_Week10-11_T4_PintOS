@@ -58,7 +58,17 @@ syscall_handler (struct intr_frame *f) {
 	printf("syscall handler f->ss : %x\n", f->ss);
 	printf("syscall handler f->eflags : %llx\n", f->eflags);
 
-	check_address(addr);
+	switch (f->R.rax)
+	{
+	case /* constant-expression */:
+		/* code */
+		break;
+	
+	default:
+		break;
+	}
+
+	// check_address(addr);
 
 	thread_exit ();
 }
@@ -69,10 +79,10 @@ check_address(void *addr){
 	if(is_user_vaddr(addr)){
 		
 		if(pml4_get_page(thread_current()->pml4, addr) == NULL){
-			exit(-1);
+			// exit(-1);
 		}
 	}
 	else{
-		exit(-1);
+		// exit(-1);
 	}
 }

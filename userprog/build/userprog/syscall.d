@@ -6,6 +6,6 @@ userprog/syscall.o: ../../userprog/syscall.c \
  ../../include/lib/syscall-nr.h ../../include/threads/interrupt.h \
  ../../include/threads/thread.h ../../include/lib/kernel/list.h \
  ../../include/threads/loader.h ../../include/userprog/gdt.h \
- ../../include/threads/flags.h ../../include/intrinsic.h \
- ../../include/threads/mmu.h ../../include/threads/pte.h \
- ../../include/threads/vaddr.h
+ ../../include/threads/flags.h ../../include/lib/user/syscall.h \
+ ../../include/intrinsic.h ../../include/threads/mmu.h \
+ ../../include/threads/pte.h ../../include/threads/vaddr.h
