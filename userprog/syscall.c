@@ -40,6 +40,8 @@ syscall_init (void) {
 	 * mode stack. Therefore, we masked the FLAG_FL. */
 	write_msr(MSR_SYSCALL_MASK,
 			FLAG_IF | FLAG_TF | FLAG_DF | FLAG_IOPL | FLAG_AC | FLAG_NT);
+
+	lock_init(&filesys_lock);
 }
 
 
@@ -171,6 +173,11 @@ remove (const char *file) {
 int
 open (const char *file) {
 
+	struct file *open_n = filesys_open(file);
+	int new_fd = thread_current()->next_fd;
+	thread_current()->next_fd += 1;
+
+	return new_fd;
 }
 
 int
@@ -199,4 +206,8 @@ tell (int fd) {
 
 void
 close (int fd) {
+}
+
+int dup2(int oldfd, int newfd){
+
 }
