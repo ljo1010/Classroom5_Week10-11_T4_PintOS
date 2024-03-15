@@ -8,6 +8,9 @@
 #include "threads/flags.h"
 #include "intrinsic.h"
 #include "threads/init.h"
+#include "filesys/filesys.h"
+#include "filesys/file.h"
+#include "threads/palloc.h"
 
 
 void syscall_entry (void);
@@ -141,10 +144,12 @@ exit (int status) {
 pid_t
 fork (const char *thread_name){
 
+
 }
 
 int
 exec (const char *file) {
+
 
 }
 

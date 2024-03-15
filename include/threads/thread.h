@@ -5,6 +5,7 @@
 #include <list.h>
 #include <stdint.h>
 #include "threads/interrupt.h"
+#include "filesys/file.h"
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -111,6 +112,9 @@ struct thread {
 
 	// userprog용 exit status
 	int exit_status;
+	// userprog용 fdt
+	struct file **fdt[64];
+	int next_fd;
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */

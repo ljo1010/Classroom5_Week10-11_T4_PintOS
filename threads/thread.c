@@ -251,6 +251,7 @@ thread_create (const char *name, int priority,
 	tid = t->tid = allocate_tid ();
 
 
+
 	/* Call the kernel_thread if it scheduled.
 	 * Note) rdi is 1st argument, and rsi is 2nd argument. */
 	t->tf.rip = (uintptr_t) kernel_thread;
@@ -361,6 +362,12 @@ thread_exit (void) {
 	   We will be destroyed during the call to schedule_tail(). */
 	intr_disable ();
 	list_remove(&thread_current()->all_elem);
+
+	// 모든 파일 close()하는 함수.
+	for(int i = 0; i<=64 ;i++){
+		close(thread_current()->fdt[i]);
+	}
+	
 	do_schedule (THREAD_DYING);
 	NOT_REACHED ();
 }
@@ -624,6 +631,14 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->init_pri = priority;
 	t->wait_on_lock = NULL;
 	list_init (&t->donation);
+
+	// userprog fdt용
+	t->fdt[0]= STDIN_FILENO; //stdin
+	t->fdt[1]= STDOUT_FILENO; //stdout
+	for(int i=2; i<=64;i++){
+		t->fdt[i] = 0;
+		printf("init_thread fdt[%d] : %p\n",i, t->fdt[i]);
+	} // 그 외는 초기화.
 
 	
 	if(thread_mlfqs){
