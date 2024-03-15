@@ -109,6 +109,9 @@ struct thread {
 	int nice;
 	struct list_elem all_elem;
 
+	// userprog용 exit status
+	int exit_status;
+
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
 	uint64_t *pml4;                     /* Page map level 4 */

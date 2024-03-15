@@ -7,6 +7,8 @@
 #include "userprog/gdt.h"
 #include "threads/flags.h"
 #include "intrinsic.h"
+#include "threads/init.h"
+
 
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
@@ -42,33 +44,68 @@ syscall_init (void) {
 /* The main system call interface */
 void
 syscall_handler (struct intr_frame *f) {
-	// TODO: Your implementation goes here.
-
-
-	printf ("system call!\n");
-	// 여기는 OS
-	printf("syscall handler f->es : %x\n", f->es);
-	printf("syscall handler f->ds : %x\n", f->ds);
-	printf("syscall handler f->vec_no : %llx\n", f->vec_no);
-	printf("syscall handler f->error_code : %llx\n", f->error_code);
-	// 아래는 CPU
-	printf("syscall handler f->rip : %llx\n", f->rip);
-	printf("syscall handler f->cs : %x\n", f->cs);
-	printf("syscall handler f->rsp : %llx\n", f->rsp);
-	printf("syscall handler f->ss : %x\n", f->ss);
-	printf("syscall handler f->eflags : %llx\n", f->eflags);
+	check_address(f->rip);
 
 	switch (f->R.rax)
 	{
-	case /* constant-expression */:
-		/* code */
+	case SYS_HALT:
+		halt();
+		break;
+	case SYS_EXIT:
+		exit(f->R.rdi);
+		break;
+
+	case SYS_FORK:
+		fork(f->R.rdi);
+		break;
+
+	case SYS_EXEC:
+		exec(f->R.rdi);
 		break;
 	
+	case SYS_WAIT:
+		wait(f->R.rdi);
+		break;
+	
+	case SYS_CREATE:
+		create(f->R.rdi, f->R.rsi);
+		break;
+	
+	case SYS_REMOVE:
+		remove(f->R.rdi);
+		break;
+
+	case SYS_OPEN:
+		open(f->R.rdi);
+		break;
+
+	case SYS_FILESIZE:
+		filesize(f->R.rdi);
+		break;
+	
+	case SYS_READ:
+		read(f->R.rdi, f->R.rsi, f->R.rdx);
+		break;
+
+	case SYS_WRITE:
+		write(f->R.rdi, f->R.rsi, f->R.rdx);
+		break;
+
+	case SYS_SEEK:
+		seek(f->R.rdi, f->R.rsi);
+		break;
+	
+	case SYS_TELL:
+		tell(f->R.rdi);
+		break;
+
+	case SYS_CLOSE:
+		close(f->R.rdi);
+		break;
 	default:
+		exit(-1);
 		break;
 	}
-
-	// check_address(addr);
 
 	thread_exit ();
 }
@@ -79,10 +116,82 @@ check_address(void *addr){
 	if(is_user_vaddr(addr)){
 		
 		if(pml4_get_page(thread_current()->pml4, addr) == NULL){
-			// exit(-1);
+			exit(-1);
 		}
 	}
 	else{
-		// exit(-1);
+		exit(-1);
 	}
+}
+
+void
+halt (void) {
+	power_off();
+}
+
+void
+exit (int status) {
+	// pid에 exit status 저장
+	// 딱히 pid 가 없어서 thread... 안에 저장할까싶다
+	thread_current()->exit_status = EXIT_SUCCESS;
+	printf("%s: exit(%d)\n", thread_current()->name, status);
+	thread_exit();
+}
+
+pid_t
+fork (const char *thread_name){
+
+}
+
+int
+exec (const char *file) {
+
+}
+
+int
+wait (pid_t pid) {
+
+}
+
+bool
+create (const char *file, unsigned initial_size) {
+
+}
+
+bool
+remove (const char *file) {
+
+}
+
+int
+open (const char *file) {
+
+}
+
+int
+filesize (int fd) {
+
+}
+
+int
+read (int fd, void *buffer, unsigned size) {
+}
+
+
+int
+write (int fd, const void *buffer, unsigned size) {
+
+}
+
+void
+seek (int fd, unsigned position) {
+
+}
+
+unsigned
+tell (int fd) {
+}
+
+void
+close (int fd) {
 }

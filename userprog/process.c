@@ -774,16 +774,6 @@ setup_stack (struct intr_frame *if_) {
 	return success;
 }
 
-bool
-is_child_finished(tid_t tid){
-	
-	struct thread *child;
-
-	if(child == NULL){
-
-	}
-}
-
 /* Adds a mapping from user virtual address UPAGE to kernel
  * virtual address KPAGE to the page table.
  * If WRITABLE is true, the user process may modify the page;
