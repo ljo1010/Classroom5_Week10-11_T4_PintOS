@@ -175,6 +175,7 @@ open (const char *file) {
 
 	struct file *open_n = filesys_open(file);
 	int new_fd = thread_current()->next_fd;
+	thread_current()->fdt[new_fd] = open_n;
 	thread_current()->next_fd += 1;
 
 	return new_fd;
@@ -183,6 +184,10 @@ open (const char *file) {
 int
 filesize (int fd) {
 
+	struct file *target_file = thread_current()->fdt[fd];
+	off_t size = file_length(target_file);
+
+	return size;
 }
 
 int
