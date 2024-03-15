@@ -113,8 +113,12 @@ struct thread {
 	// userprog용 exit status
 	int exit_status;
 	// userprog용 fdt
-	struct file **fdt[64];
+	struct file **fdt[63];
 	int next_fd;
+
+	struct thread *parent; //부모 스레드 존재 확인용.
+	struct list child_list; //존재하는 자식 스레드 리스트.
+	struct list_elem child_elem; // 자식 스레드로서 노드일떄.
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */

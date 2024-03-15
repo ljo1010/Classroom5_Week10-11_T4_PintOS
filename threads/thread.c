@@ -367,7 +367,7 @@ thread_exit (void) {
 	for(int i = 0; i<=64 ;i++){
 		close(thread_current()->fdt[i]);
 	}
-	
+
 	do_schedule (THREAD_DYING);
 	NOT_REACHED ();
 }
@@ -635,10 +635,21 @@ init_thread (struct thread *t, const char *name, int priority) {
 	// userprog fdt용
 	t->fdt[0]= STDIN_FILENO; //stdin
 	t->fdt[1]= STDOUT_FILENO; //stdout
-	for(int i=2; i<=64;i++){
-		t->fdt[i] = 0;
-		printf("init_thread fdt[%d] : %p\n",i, t->fdt[i]);
-	} // 그 외는 초기화.
+
+	// if(initial_thread){
+		for(int i=2; i<64;i++){
+			t->fdt[i] = 0;
+			// printf("init_thread fdt[%d] : %p\n",i, t->fdt[i]);
+		} // 그 외는 초기화.
+	// }
+	// else{
+	// 	for(int j= 0; j<64; j++){
+	// 		t->fdt[j] = thread_current()->fdt[j];
+	// 	}
+	// }
+	// 자식 프로세스는 fdt를 그대로 상속받아야하지만,
+	// 포인터 복사로는 한쪽이 파일을 닫으면 그대로 닫힐 수 있음.
+	// 그래서 결국 파일을 재오픈 하는 과정까지 하려니 어려워서 일단 생략.
 
 	
 	if(thread_mlfqs){
