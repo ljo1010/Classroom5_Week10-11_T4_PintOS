@@ -57,55 +57,55 @@ syscall_handler (struct intr_frame *f) {
 		halt();
 		break;
 	case SYS_EXIT:
-		exit(f->R.rdi);
+		exit((int)f->R.rdi);
 		break;
 
 	case SYS_FORK:
-		fork(f->R.rdi);
+		fork((const char *)f->R.rdi);
 		break;
 
 	case SYS_EXEC:
-		exec(f->R.rdi);
+		exec((const char *)f->R.rdi);
 		break;
 	
 	case SYS_WAIT:
-		wait(f->R.rdi);
+		wait((pid_t)f->R.rdi);
 		break;
 	
 	case SYS_CREATE:
-		create(f->R.rdi, f->R.rsi);
+		create((const char *)f->R.rdi, (unsigned int) f->R.rsi);
 		break;
 	
 	case SYS_REMOVE:
-		remove(f->R.rdi);
+		remove((const char *)f->R.rdi);
 		break;
 
 	case SYS_OPEN:
-		open(f->R.rdi);
+		open((const char *)f->R.rdi);
 		break;
 
 	case SYS_FILESIZE:
-		filesize(f->R.rdi);
+		filesize((int)f->R.rdi);
 		break;
 	
 	case SYS_READ:
-		read(f->R.rdi, f->R.rsi, f->R.rdx);
+		read((int)f->R.rdi, (void *)f->R.rsi, (unsigned int) f->R.rdx);
 		break;
 
 	case SYS_WRITE:
-		write(f->R.rdi, f->R.rsi, f->R.rdx);
+		write((int)f->R.rdi, (const void *)f->R.rsi, (unsigned int)f->R.rdx);
 		break;
 
 	case SYS_SEEK:
-		seek(f->R.rdi, f->R.rsi);
+		seek((int)f->R.rdi, (unsigned int)f->R.rsi);
 		break;
 	
 	case SYS_TELL:
-		tell(f->R.rdi);
+		tell((int)f->R.rdi);
 		break;
 
 	case SYS_CLOSE:
-		close(f->R.rdi);
+		close((int)f->R.rdi);
 		break;
 	default:
 		exit(-1);
@@ -162,18 +162,30 @@ wait (pid_t pid) {
 
 bool
 create (const char *file, unsigned initial_size) {
+	lock_acquire(&filesys_lock);
+	bool is_create = filesys_create(file, initial_size);
+	lock_release(&filesys_lock);
+	return is_create;
 
 }
 
 bool
 remove (const char *file) {
 
+	// 바로 삭제하지 않고 열려있다면 그 파일은 close가 되지 않도록 처리.
+	lock_acquire(&filesys_lock);
+	bool is_remove = filesys_remove(file);
+	lock_release(&filesys_lock);
+	return is_remove;
+
 }
 
 int
 open (const char *file) {
 
+	lock_acquire(&filesys_lock);
 	struct file *open_n = filesys_open(file);
+	lock_release(&filesys_lock);
 	int new_fd = thread_current()->next_fd;
 	thread_current()->fdt[new_fd] = open_n;
 	thread_current()->next_fd += 1;
@@ -185,18 +197,45 @@ int
 filesize (int fd) {
 
 	struct file *target_file = thread_current()->fdt[fd];
+	lock_acquire(&filesys_lock);
 	off_t size = file_length(target_file);
-
+	lock_release(&filesys_lock);
 	return size;
 }
 
 int
 read (int fd, void *buffer, unsigned size) {
+
+
+	if(fd == 0){
+		int key = input_getc();
+		return key;
+	}
+	if(fd <64){
+		struct file *target_file = thread_current()->fdt[fd];
+		lock_acquire(&filesys_lock);
+		off_t byte_read =  file_read(target_file,buffer,size);
+		lock_release(&filesys_lock);
+		return byte_read;
+		}
+	else{
+		// 64 이상이나 이하의 fd를 가져왔다면 리턴.
+		// 또 target_file 자체가 존재하는지도 확인해야함.
+	}
+
+
 }
 
 
 int
 write (int fd, const void *buffer, unsigned size) {
+
+
+	struct file *target_file = thread_current()->fdt[fd];
+	lock_acquire(&filesys_lock);
+	off_t byte_write = file_write(target_file,buffer,size);
+	lock_release(&filesys_lock);
+	return byte_write;
 
 }
 

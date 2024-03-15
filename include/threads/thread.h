@@ -113,7 +113,7 @@ struct thread {
 	// userprog용 exit status
 	int exit_status;
 	// userprog용 fdt
-	struct file **fdt[63];
+	struct file *fdt[63];
 	int next_fd;
 
 	struct thread *parent; //부모 스레드 존재 확인용.
