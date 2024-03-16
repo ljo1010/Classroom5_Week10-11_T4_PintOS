@@ -12,6 +12,7 @@
 #include "threads/vaddr.h"
 #include "intrinsic.h"
 #include "devices/timer.h"
+#include "include/userprog/syscall.h"
 
 #ifdef USERPROG
 #include "userprog/process.h"
@@ -239,6 +240,7 @@ thread_create (const char *name, int priority,
 	struct thread *t;
 	tid_t tid;
 
+	struct thread *cur = thread_current();
 	ASSERT (function != NULL);
 
 	/* Allocate thread. */
@@ -248,8 +250,18 @@ thread_create (const char *name, int priority,
 
 	/* Initialize thread. */
 	init_thread (t, name, priority);
-	tid = t->tid = allocate_tid ();
-
+	if(initial_thread && idle_thread){
+		tid = t->tid = allocate_tid ();
+	}
+	else{
+		tid = t->tid = cur->tid; // pid 를 일치시키는 과정과 유사.
+	}
+	
+	if(!initial_thread && !idle_thread){
+		// userprogram 용 자식, 부모 프로세스 리스트.
+		list_push_back(&cur->child_list, &t->child_elem);
+		t->parent = cur;
+	}
 
 
 	/* Call the kernel_thread if it scheduled.
@@ -262,8 +274,6 @@ thread_create (const char *name, int priority,
 	t->tf.ss = SEL_KDSEG;
 	t->tf.cs = SEL_KCSEG;
 	t->tf.eflags = FLAG_IF;
-
-	// thread의 fdt를 초기화.
 
 	#ifdef USERPROG
 
@@ -365,7 +375,7 @@ thread_exit (void) {
 
 	// 모든 파일 close()하는 함수.
 	for(int i = 0; i<=64 ;i++){
-		close(thread_current()->fdt[i]);
+		close(i);
 	}
 
 	do_schedule (THREAD_DYING);
@@ -625,16 +635,18 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->tf.rsp = (uint64_t) t + PGSIZE - sizeof (void *);
 	t->priority = priority;
 	t->magic = THREAD_MAGIC;
+	t->parent = NULL;
 
 
 	// donation list 용
 	t->init_pri = priority;
 	t->wait_on_lock = NULL;
 	list_init (&t->donation);
+	list_init (&t->child_list);
 
 	// userprog fdt용
-	t->fdt[0]= STDIN_FILENO; //stdin
-	t->fdt[1]= STDOUT_FILENO; //stdout
+	t->fdt[0]= 0; //stdin
+	t->fdt[1]= 1; //stdout
 
 	// if(initial_thread){
 		for(int i=2; i<64;i++){
@@ -651,7 +663,6 @@ init_thread (struct thread *t, const char *name, int priority) {
 	// 포인터 복사로는 한쪽이 파일을 닫으면 그대로 닫힐 수 있음.
 	// 그래서 결국 파일을 재오픈 하는 과정까지 하려니 어려워서 일단 생략.
 
-	
 	if(thread_mlfqs){
 		// mlfqs용
 		if(!initial_thread){

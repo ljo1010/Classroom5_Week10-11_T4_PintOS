@@ -21,6 +21,7 @@
 #include "lib/string.h"
 #include "threads/synch.h"
 #include "lib/stdio.h"
+#include "devices/timer.h"
 
 #ifdef VM
 #include "vm/vm.h"
@@ -74,6 +75,8 @@ process_create_initd (const char *file_name) {
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
 
+	
+
 
 	return tid;
 }
@@ -96,6 +99,9 @@ initd (void *f_name) {
  * TID_ERROR if the thread cannot be created. */
 tid_t
 process_fork (const char *name, struct intr_frame *if_ UNUSED) {
+
+
+
 	/* Clone current thread to new thread.*/
 	return thread_create (name,
 			PRI_DEFAULT, __do_fork, thread_current ());
@@ -234,9 +240,9 @@ process_exec (void *f_name) {
 	argument_passing(full_name_buf, count, &_if.rsp);
 
 	_if.R.rdi = count;
-	_if.R.rsi = _if.rsp+8;
+	_if.R.rsi = (char *)_if.rsp+8;
 
-	hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
+	// hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
 
 	/* Start switched process. */
 	do_iret (&_if);
@@ -331,6 +337,7 @@ process_wait (tid_t child_tid UNUSED) {
   for (int i = 0; i < 100000000; i++)
   {
   }
+  timer_sleep(10);
 	
 	return -1;
 }

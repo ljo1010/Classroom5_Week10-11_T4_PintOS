@@ -12,6 +12,9 @@
 #include "filesys/file.h"
 #include "threads/palloc.h"
 #include "devices/input.h"
+#include "userprog/process.h"
+#include "lib/kernel/console.h"
+#include "lib/kernel/stdio.h"
 
 
 void syscall_entry (void);
@@ -50,8 +53,7 @@ syscall_init (void) {
 /* The main system call interface */
 void
 syscall_handler (struct intr_frame *f) {
-	check_address((void *)f->rip);
-
+	// check_address((void *)f->rip);
 	switch (f->R.rax)
 	{
 	case SYS_HALT:{
@@ -162,7 +164,9 @@ exit (int status) {
 
 pid_t
 fork (const char *thread_name){
+	struct intr_frame *f;
 
+	tid_t child_tid = process_fork(thread_name,f);
 
 }
 
@@ -174,6 +178,15 @@ exec (const char *file) {
 
 int
 wait (pid_t pid) {
+
+	struct thread *curr = thread_current();
+	struct list_elem *e;
+	for(e = list_begin(&curr->child_list);e != list_end(&curr->child_list);e = list_next(e)){
+		struct thread *child = list_entry(e, struct thread, elem);
+		if(child->tid == pid){
+
+		}
+	}
 
 }
 
@@ -248,21 +261,16 @@ read (int fd, void *buffer, unsigned size) {
 int
 write (int fd, const void *buffer, unsigned size) {
 
-
+	lock_acquire(&filesys_lock);
 	if(fd == 1){
-		const uint8_t *buf_ptr = (const uint8_t *)buffer;
-		unsigned i;
-		for(i = 0; i < size; i++){
-			input_putc(buf_ptr[i]); // 그치만 이렇게 나눠서 쓰지말고 한번에 보내라고했음...
-		}
+		putbuf(buffer, size);
 		return size;
 	}
 	else{
-		struct file *target_file = thread_current()->fdt[fd];
-		lock_acquire(&filesys_lock);
-		off_t byte_write = file_write(target_file,buffer,size);
-		lock_release(&filesys_lock);
-		return byte_write;
+	struct file *target_file = thread_current()->fdt[fd];
+	off_t byte_write = file_write(target_file,buffer,size);
+	lock_release(&filesys_lock);
+	return byte_write;
 	}
 }
 
@@ -291,11 +299,11 @@ tell (int fd) {
 
 void
 close (int fd) {
-	struct file *target_file = thread_current()->fdt[fd];
-	lock_acquire(&filesys_lock);
-	file_close(target_file);
-	lock_release(&filesys_lock);
-	thread_current()->fdt[fd] = 0; // 닫았으니 0으로 초기화.
+	// struct file *target_file = thread_current()->fdt[fd];
+	// lock_acquire(&filesys_lock);
+	// file_close(target_file);
+	// lock_release(&filesys_lock);
+	// thread_current()->fdt[fd] = 0; // 닫았으니 0으로 초기화.
 }
 
 int dup2(int oldfd, int newfd){

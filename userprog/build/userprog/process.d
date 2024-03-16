@@ -15,4 +15,5 @@ userprog/process.o: ../../userprog/process.c \
  ../../include/threads/mmu.h ../../include/threads/pte.h \
  ../../include/threads/vaddr.h ../../include/intrinsic.h \
  ../../include/threads/mmu.h ../../include/lib/string.h \
- ../../include/threads/synch.h ../../include/lib/stdio.h
+ ../../include/threads/synch.h ../../include/lib/stdio.h \
+ ../../include/devices/timer.h
