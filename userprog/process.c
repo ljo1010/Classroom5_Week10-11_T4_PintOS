@@ -69,14 +69,10 @@ process_create_initd (const char *file_name) {
         palloc_free_page (fn_copy);
         return TID_ERROR; // 파일 이름이 존재하지 않는 경우
 		}
-
 	/* Create a new thread to execute FILE_NAME. */
 	tid = thread_create (f_name, PRI_DEFAULT, initd, fn_copy); // file_name ->token
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
-
-	
-
 
 	return tid;
 }
@@ -191,7 +187,6 @@ int
 process_exec (void *f_name) {
 	char *file_name = f_name;
 	bool success;
-
 	/* We cannot use the intr_frame in the thread structure.
 	 * This is because when current thread rescheduled,
 	 * it stores the execution information to the member. */
@@ -330,27 +325,21 @@ process_wait (tid_t child_tid) {
 	 * XXX:       to add infinite loop here before
 	 * XXX:       implementing the process_wait. */
 
-	for (int i = 0; i < 100000000; i++)
-	{
-	}
-	timer_sleep(10);
-	printf("process wait 진입\n");
+
 	struct list_elem *e;
 	struct thread *curr = thread_current();
-	printf("process wait curr name : %s\n",curr->name);
-	printf("process wait child_tid : %d\n", child_tid);
 	if(list_empty(&curr->child_list)){
-		printf("비었구만욘\n");
 	}
 	for(e = list_begin(&curr->child_list); e != list_end(&curr->child_list); e = list_next(e)){
-		struct thread *child = list_entry(e, struct thread , elem);
-		printf("process wait 진입\n");
-		printf("process wait child name : %s\n", child->name);
+		struct thread *child = list_entry(e, struct thread , child_elem);
 		if(child->tid == child_tid){
-			sema_down(&curr->wait);
-			return child->exit_status;
+			sema_down(&child->wait);
+			int exit_status = child->exit_status;
+			list_remove(&child->child_elem);
+			return exit_status;
 		}
 	}
+
 	
 	return -1;
 }
@@ -363,6 +352,7 @@ process_exit (void) {
 	 * TODO: Implement process termination message (see
 	 * TODO: project2/process_termination.html).
 	 * TODO: We recommend you to implement process resource cleanup here. */
+	sema_up(&thread_current()->wait);
 	process_cleanup ();
 }
 

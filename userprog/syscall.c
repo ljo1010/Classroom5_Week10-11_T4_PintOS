@@ -161,7 +161,6 @@ exit (int status) {
 	curr->exit_status = EXIT_SUCCESS;
 	printf("%s: exit(%d)\n", curr->name, status);
 	thread_exit();
-	sema_up(&curr->wait);
 }
 
 pid_t
@@ -185,7 +184,7 @@ wait (pid_t pid) {
 	struct thread *curr = thread_current();
 	struct list_elem *e;
 	for(e = list_begin(&curr->child_list);e != list_end(&curr->child_list);e = list_next(e)){
-		struct thread *child = list_entry(e, struct thread, elem);
+		struct thread *child = list_entry(e, struct thread, child_elem);
 		if(child->tid == pid){
 			
 		}

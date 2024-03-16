@@ -256,12 +256,13 @@ thread_create (const char *name, int priority,
 	else{
 		tid = t->tid = cur->tid; // pid 를 일치시키는 과정과 유사.
 	}
-	
-	if(!initial_thread && !idle_thread){
+
+	if(t != initial_thread && t != idle_thread){
 		// userprogram 용 자식, 부모 프로세스 리스트.
 		list_push_back(&cur->child_list, &t->child_elem);
 		t->parent = cur;
 	}
+
 
 
 	/* Call the kernel_thread if it scheduled.
@@ -377,7 +378,7 @@ thread_exit (void) {
 	for(int i = 0; i<=64 ;i++){
 		close(i);
 	}
-	
+
 	do_schedule (THREAD_DYING);
 	NOT_REACHED ();
 }
