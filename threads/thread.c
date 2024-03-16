@@ -649,6 +649,8 @@ init_thread (struct thread *t, const char *name, int priority) {
 	sema_init(&t->wait, 0);
 	t->fdt[0]= 0; //stdin
 	t->fdt[1]= 1; //stdout
+	t->next_fd = 2;
+	printf("init_thread next_fd :%d\n", t->next_fd);
 
 	// if(initial_thread){
 		for(int i=2; i<64;i++){

@@ -215,7 +215,10 @@ open (const char *file) {
 	lock_acquire(&filesys_lock);
 	struct file *open_n = filesys_open(file);
 	lock_release(&filesys_lock);
+	printf("open thread_current name : %s\n", thread_current()->name);
 	int new_fd = thread_current()->next_fd;
+	printf("open next_fd : %d\n", thread_current()->next_fd);
+	printf("open new_fd :%d\n",new_fd);
 	thread_current()->fdt[new_fd] = open_n;
 	thread_current()->next_fd += 1;
 
@@ -299,11 +302,11 @@ tell (int fd) {
 
 void
 close (int fd) {
-	// struct file *target_file = thread_current()->fdt[fd];
-	// lock_acquire(&filesys_lock);
-	// file_close(target_file);
-	// lock_release(&filesys_lock);
-	// thread_current()->fdt[fd] = 0; // 닫았으니 0으로 초기화.
+	struct file *target_file = thread_current()->fdt[fd];
+	lock_acquire(&filesys_lock);
+	file_close(target_file);
+	lock_release(&filesys_lock);
+	thread_current()->fdt[fd] = 0; // 닫았으니 0으로 초기화.
 }
 
 int dup2(int oldfd, int newfd){
