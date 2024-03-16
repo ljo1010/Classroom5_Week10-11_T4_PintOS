@@ -276,10 +276,6 @@ thread_create (const char *name, int priority,
 	t->tf.cs = SEL_KCSEG;
 	t->tf.eflags = FLAG_IF;
 
-	#ifdef USERPROG
-
-	#endif 
-
 	/* Add to run queue. */
 	thread_unblock (t);
 
@@ -636,7 +632,7 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->tf.rsp = (uint64_t) t + PGSIZE - sizeof (void *);
 	t->priority = priority;
 	t->magic = THREAD_MAGIC;
-	t->parent = NULL;
+	t->parent = running_thread();
 
 
 	// donation list 용
@@ -650,7 +646,8 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->fdt[0]= 0; //stdin
 	t->fdt[1]= 1; //stdout
 	t->next_fd = 2;
-	printf("init_thread next_fd :%d\n", t->next_fd);
+	// printf("init_thread next_fd :%d\n", t->next_fd);
+	// printf("init thread name : %s\n", t->name);
 
 	// if(initial_thread){
 		for(int i=2; i<64;i++){

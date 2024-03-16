@@ -65,7 +65,7 @@ syscall_handler (struct intr_frame *f) {
 	}
 
 	case SYS_FORK:{
-		pid_t pid = fork((const char *)f->R.rdi);
+		pid_t pid = sys_fork((const char *)f->R.rdi); //이름이 내장함수에 충돌된다고 컴파일이 울어서 고쳐줌.
 		f->R.rax = pid;
 		break;
 	}
@@ -161,10 +161,13 @@ exit (int status) {
 }
 
 pid_t
-fork (const char *thread_name){
+sys_fork (const char *thread_name){
 	struct intr_frame *f;
+	f = &thread_current()->tf;
+	tid_t child_tid;
+	child_tid = process_fork(thread_name,f);
 
-	tid_t child_tid = process_fork(thread_name,f);
+	return child_tid;
 
 }
 
@@ -172,20 +175,13 @@ int
 exec (const char *file) {
 
 
+
 }
 
 int
 wait (pid_t pid) {
 
-
-	struct thread *curr = thread_current();
-	struct list_elem *e;
-	for(e = list_begin(&curr->child_list);e != list_end(&curr->child_list);e = list_next(e)){
-		struct thread *child = list_entry(e, struct thread, child_elem);
-		if(child->tid == pid){
-			
-		}
-	}
+	return process_wait(pid);
 
 }
 
@@ -215,10 +211,17 @@ open (const char *file) {
 	lock_acquire(&filesys_lock);
 	struct file *open_n = filesys_open(file);
 	lock_release(&filesys_lock);
-	printf("open thread_current name : %s\n", thread_current()->name);
-	int new_fd = thread_current()->next_fd;
-	printf("open next_fd : %d\n", thread_current()->next_fd);
-	printf("open new_fd :%d\n",new_fd);
+	if(open_n == NULL){
+		return -1;
+	}
+	// printf("open thread_current name : %s\n", thread_current()->name);
+	int new_fd;
+	new_fd = thread_current()->next_fd;
+	// printf("open next_fd : %d\n", thread_current()->next_fd);
+	// printf("open new_fd :%d\n",new_fd);
+	if(new_fd <2){
+		new_fd = 2; // 0이하가 인식 안되어 꼼수.
+	}
 	thread_current()->fdt[new_fd] = open_n;
 	thread_current()->next_fd += 1;
 

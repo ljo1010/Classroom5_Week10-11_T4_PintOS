@@ -96,8 +96,6 @@ initd (void *f_name) {
 tid_t
 process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 
-
-
 	/* Clone current thread to new thread.*/
 	return thread_create (name,
 			PRI_DEFAULT, __do_fork, thread_current ());
@@ -146,6 +144,10 @@ __do_fork (void *aux) {
 	struct thread *current = thread_current ();
 	/* TODO: somehow pass the parent_if. (i.e. process_fork()'s if_) */
 	struct intr_frame *parent_if;
+
+	struct thread *real_parent = (struct thread *)current->tf.R.rsi; // thread_creat시 aux 인자가 여기로 옴.
+	parent_if = &real_parent->tf; // 전달받았을 parent의 tf 가져오기.
+
 	bool succ = true;
 
 	/* 1. Read the cpu context to local stack. */
@@ -165,6 +167,8 @@ __do_fork (void *aux) {
 	if (!pml4_for_each (parent->pml4, duplicate_pte, parent))
 		goto error;
 #endif
+
+	// file_duplicate();
 
 	/* TODO: Your code goes here.
 	 * TODO: Hint) To duplicate the file object, use `file_duplicate`
