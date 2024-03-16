@@ -53,7 +53,6 @@ syscall_init (void) {
 /* The main system call interface */
 void
 syscall_handler (struct intr_frame *f) {
-	// check_address((void *)f->rip);
 	switch (f->R.rax)
 	{
 	case SYS_HALT:{
@@ -130,8 +129,6 @@ syscall_handler (struct intr_frame *f) {
 		exit(-1);
 		break;
 	}
-
-	thread_exit ();
 }
 
 void
