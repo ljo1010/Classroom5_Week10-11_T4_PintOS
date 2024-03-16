@@ -11,6 +11,7 @@
 #include "filesys/filesys.h"
 #include "filesys/file.h"
 #include "threads/palloc.h"
+#include "devices/input.h"
 
 
 void syscall_entry (void);
@@ -49,64 +50,80 @@ syscall_init (void) {
 /* The main system call interface */
 void
 syscall_handler (struct intr_frame *f) {
-	check_address(f->rip);
+	check_address((void *)f->rip);
 
 	switch (f->R.rax)
 	{
-	case SYS_HALT:
+	case SYS_HALT:{
 		halt();
 		break;
-	case SYS_EXIT:
+	}
+	case SYS_EXIT:{
 		exit((int)f->R.rdi);
 		break;
+	}
 
-	case SYS_FORK:
-		fork((const char *)f->R.rdi);
+	case SYS_FORK:{
+		pid_t pid = fork((const char *)f->R.rdi);
+		f->R.rax = pid;
 		break;
+	}
 
-	case SYS_EXEC:
-		exec((const char *)f->R.rdi);
+	case SYS_EXEC:{
+		int success = exec((const char *)f->R.rdi);
+		f->R.rax = success;
 		break;
+	}
 	
-	case SYS_WAIT:
-		wait((pid_t)f->R.rdi);
+	case SYS_WAIT:{
+		int status = wait((pid_t)f->R.rdi);
+		f->R.rax = status;
 		break;
-	
-	case SYS_CREATE:
-		create((const char *)f->R.rdi, (unsigned int) f->R.rsi);
+	}
+	case SYS_CREATE:{
+		bool is_create = create((const char *)f->R.rdi, (unsigned int) f->R.rsi);
+		f->R.rax = is_create;
 		break;
-	
-	case SYS_REMOVE:
-		remove((const char *)f->R.rdi);
+	}
+	case SYS_REMOVE:{
+		bool is_remove = remove((const char *)f->R.rdi);
+		f->R.rax = is_remove;
 		break;
+	}
+	case SYS_OPEN:{
+		int fd = open((const char *)f->R.rdi);
+		f->R.rax = fd;
+		break;
+	}
 
-	case SYS_OPEN:
-		open((const char *)f->R.rdi);
+	case SYS_FILESIZE:{
+		int size = filesize((int)f->R.rdi);
+		f->R.rax = size;
 		break;
-
-	case SYS_FILESIZE:
-		filesize((int)f->R.rdi);
+	}
+	case SYS_READ:{
+		int byte_read = read((int)f->R.rdi, (void *)f->R.rsi, (unsigned int) f->R.rdx);
+		f->R.rax = byte_read;
 		break;
-	
-	case SYS_READ:
-		read((int)f->R.rdi, (void *)f->R.rsi, (unsigned int) f->R.rdx);
+	}
+	case SYS_WRITE:{
+		int byte_write = write((int)f->R.rdi, (const void *)f->R.rsi, (unsigned int)f->R.rdx);
+		f->R.rax = byte_write;
 		break;
-
-	case SYS_WRITE:
-		write((int)f->R.rdi, (const void *)f->R.rsi, (unsigned int)f->R.rdx);
-		break;
-
-	case SYS_SEEK:
+	}
+	case SYS_SEEK:{
 		seek((int)f->R.rdi, (unsigned int)f->R.rsi);
 		break;
-	
-	case SYS_TELL:
-		tell((int)f->R.rdi);
+}
+	case SYS_TELL:{
+		unsigned int position =  tell((int)f->R.rdi);
+		f->R.rax = position;
 		break;
-
-	case SYS_CLOSE:
+	}
+	case SYS_CLOSE:{
 		close((int)f->R.rdi);
 		break;
+		}
 	default:
 		exit(-1);
 		break;
@@ -211,6 +228,7 @@ read (int fd, void *buffer, unsigned size) {
 		int key = input_getc();
 		return key;
 	}
+	
 	if(fd <64){
 		struct file *target_file = thread_current()->fdt[fd];
 		lock_acquire(&filesys_lock);
@@ -231,25 +249,53 @@ int
 write (int fd, const void *buffer, unsigned size) {
 
 
-	struct file *target_file = thread_current()->fdt[fd];
-	lock_acquire(&filesys_lock);
-	off_t byte_write = file_write(target_file,buffer,size);
-	lock_release(&filesys_lock);
-	return byte_write;
-
+	if(fd == 1){
+		const uint8_t *buf_ptr = (const uint8_t *)buffer;
+		unsigned i;
+		for(i = 0; i < size; i++){
+			input_putc(buf_ptr[i]); // 그치만 이렇게 나눠서 쓰지말고 한번에 보내라고했음...
+		}
+		return size;
+	}
+	else{
+		struct file *target_file = thread_current()->fdt[fd];
+		lock_acquire(&filesys_lock);
+		off_t byte_write = file_write(target_file,buffer,size);
+		lock_release(&filesys_lock);
+		return byte_write;
+	}
 }
 
 void
 seek (int fd, unsigned position) {
 
+	struct file *target_file = thread_current()->fdt[fd];
+	if(position > filesize(fd)){
+		return ;
+	}
+	else{
+		lock_acquire(&filesys_lock);
+		file_seek(target_file, position);
+		lock_release(&filesys_lock);
+	}
 }
 
 unsigned
 tell (int fd) {
+	struct file *target_file = thread_current()->fdt[fd];
+	lock_acquire(&filesys_lock);
+	off_t position = file_tell(target_file);
+	lock_release(&filesys_lock);
+	return (unsigned)position;
 }
 
 void
 close (int fd) {
+	struct file *target_file = thread_current()->fdt[fd];
+	lock_acquire(&filesys_lock);
+	file_close(target_file);
+	lock_release(&filesys_lock);
+	thread_current()->fdt[fd] = 0; // 닫았으니 0으로 초기화.
 }
 
 int dup2(int oldfd, int newfd){
