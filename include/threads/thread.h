@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "threads/interrupt.h"
 #include "filesys/file.h"
+#include "threads/synch.h"
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -113,16 +114,17 @@ struct thread {
 	int recent_cpu;
 	int nice;
 	struct list_elem all_elem;
-
+	// ------------------------
 	// userprog용 exit status
 	int exit_status;
 	// userprog용 fdt
 	struct file *fdt[63];
 	int next_fd;
-
+	struct semaphore wait;
 	struct thread *parent; //부모 스레드 존재 확인용.
 	struct list child_list; //존재하는 자식 스레드 리스트.
 	struct list_elem child_elem; // 자식 스레드로서 노드일떄.
+
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */

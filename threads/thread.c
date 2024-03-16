@@ -377,7 +377,7 @@ thread_exit (void) {
 	for(int i = 0; i<=64 ;i++){
 		close(i);
 	}
-
+	
 	do_schedule (THREAD_DYING);
 	NOT_REACHED ();
 }
@@ -645,6 +645,7 @@ init_thread (struct thread *t, const char *name, int priority) {
 	list_init (&t->child_list);
 
 	// userprog fdt용
+	sema_init(&t->wait, 0);
 	t->fdt[0]= 0; //stdin
 	t->fdt[1]= 1; //stdout
 

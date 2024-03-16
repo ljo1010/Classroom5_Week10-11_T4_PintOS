@@ -237,10 +237,10 @@ process_exec (void *f_name) {
 	if (!success)
 		return -1;
 
-	argument_passing(full_name_buf, count, &_if.rsp);
+	argument_passing(full_name_buf, count,(void **) &_if.rsp);
 
 	_if.R.rdi = count;
-	_if.R.rsi = (char *)_if.rsp+8;
+	_if.R.rsi = _if.rsp+8;
 
 	// hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
 
@@ -265,15 +265,11 @@ argument_passing(char *file_name,int count,void **rsp){
 	int count_parse = 0;
 
 	// parse에 나눠서 arg별로 저장해두고
-	int i = 0;
 	for(f_buf = strtok_r(full_f_name_buf, " ", &save_ptr); f_buf != NULL; f_buf = strtok_r(NULL," ", &save_ptr)){
 	
 		parse[count_parse++] = f_buf;
 
 	}
-
-	uint8_t *addr[64];
-	int l = 0;
 
 	// 한글자씩 1씩 낮춰가며 이동.
 	for(int i = count-1; i > -1; i--){
@@ -293,7 +289,7 @@ argument_passing(char *file_name,int count,void **rsp){
 
 	if(total_size%8 != 0){
 		size_t padding = 8 - (total_size%8);
-		for(int k = 0; k<padding;k++){
+		for(unsigned int k = 0; k<padding;k++){
 			(*rsp)--;
 			**(uint8_t**)rsp = 0;
 		} // 패딩용, uin8_t만큼 움직이자.
@@ -329,15 +325,32 @@ argument_passing(char *file_name,int count,void **rsp){
  * This function will be implemented in problem 2-2.  For now, it
  * does nothing. */
 int
-process_wait (tid_t child_tid UNUSED) {
+process_wait (tid_t child_tid) {
 	/* XXX: Hint) The pintos exit if process_wait (initd), we recommend you
 	 * XXX:       to add infinite loop here before
 	 * XXX:       implementing the process_wait. */
 
-  for (int i = 0; i < 100000000; i++)
-  {
-  }
-  timer_sleep(10);
+	for (int i = 0; i < 100000000; i++)
+	{
+	}
+	timer_sleep(10);
+	printf("process wait 진입\n");
+	struct list_elem *e;
+	struct thread *curr = thread_current();
+	printf("process wait curr name : %s\n",curr->name);
+	printf("process wait child_tid : %d\n", child_tid);
+	if(list_empty(&curr->child_list)){
+		printf("비었구만욘\n");
+	}
+	for(e = list_begin(&curr->child_list); e != list_end(&curr->child_list); e = list_next(e)){
+		struct thread *child = list_entry(e, struct thread , elem);
+		printf("process wait 진입\n");
+		printf("process wait child name : %s\n", child->name);
+		if(child->tid == child_tid){
+			sema_down(&curr->wait);
+			return child->exit_status;
+		}
+	}
 	
 	return -1;
 }

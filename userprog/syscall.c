@@ -157,9 +157,11 @@ void
 exit (int status) {
 	// pid에 exit status 저장
 	// 딱히 pid 가 없어서 thread... 안에 저장할까싶다
-	thread_current()->exit_status = EXIT_SUCCESS;
-	printf("%s: exit(%d)\n", thread_current()->name, status);
+	struct thread *curr = thread_current();
+	curr->exit_status = EXIT_SUCCESS;
+	printf("%s: exit(%d)\n", curr->name, status);
 	thread_exit();
+	sema_up(&curr->wait);
 }
 
 pid_t
@@ -179,12 +181,13 @@ exec (const char *file) {
 int
 wait (pid_t pid) {
 
+
 	struct thread *curr = thread_current();
 	struct list_elem *e;
 	for(e = list_begin(&curr->child_list);e != list_end(&curr->child_list);e = list_next(e)){
 		struct thread *child = list_entry(e, struct thread, elem);
 		if(child->tid == pid){
-
+			
 		}
 	}
 
@@ -264,13 +267,14 @@ write (int fd, const void *buffer, unsigned size) {
 	lock_acquire(&filesys_lock);
 	if(fd == 1){
 		putbuf(buffer, size);
+		lock_release(&filesys_lock);
 		return size;
 	}
 	else{
-	struct file *target_file = thread_current()->fdt[fd];
-	off_t byte_write = file_write(target_file,buffer,size);
-	lock_release(&filesys_lock);
-	return byte_write;
+		struct file *target_file = thread_current()->fdt[fd];
+		off_t byte_write = file_write(target_file,buffer,size);
+		lock_release(&filesys_lock);
+		return byte_write;
 	}
 }
 
