@@ -126,7 +126,9 @@ struct thread {
 	struct list_elem child_elem; // 자식 스레드로서 노드일떄.
 
 	struct file *self; // 자기 자신 file ptr
-	bool is_fork;
+	struct semaphore fork_wait;
+
+	struct semaphore exec_wait;
 
 
 #ifdef USERPROG

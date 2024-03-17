@@ -96,6 +96,7 @@ initd (void *f_name) {
 tid_t
 process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 
+	sema_down(&thread_current()->fork_wait); 
 	/* Clone current thread to new thread.*/
 	return thread_create (name,
 			PRI_DEFAULT, __do_fork, thread_current ());
@@ -172,13 +173,12 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 static void
 __do_fork (void *aux) {
 	struct intr_frame if_;
-	struct thread *parent = (struct thread *) aux;
+	struct thread *parent = (struct thread *) aux; // 생각해보니 aux로 parent 넘기니 이거 제대로? 오는거아냐?
 	struct thread *current = thread_current ();
 	/* TODO: somehow pass the parent_if. (i.e. process_fork()'s if_) */
 	struct intr_frame *parent_if;
 
-	struct thread *real_parent = (struct thread *)current->tf.R.rsi; // thread_creat시 aux 인자가 여기로 옴.
-	parent_if = &real_parent->tf; // 전달받았을 parent의 tf 가져오기.
+	parent_if = &parent->tf;
 
 	bool succ = true;
 
@@ -219,7 +219,7 @@ __do_fork (void *aux) {
 	current->self = file_duplicate(parent->self);
 
 	process_init ();
-
+	sema_up(&parent->fork_wait);
 	/* Finally, switch to the newly created process. */
 	if (succ)
 		do_iret (&if_);
