@@ -14,21 +14,21 @@ Putting 'create-bad-ptr' into the file system...
 Executing 'create-bad-ptr':
 (create-bad-ptr) begin
 Page fault at 0x20101234: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421fb09
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421fd27
  cr2=0000000020101234 error=               0
 rax 0000000020101234 rbx 0000000000000000 rcx 0000000020101234 rdx 000000000000006f
 rsp 0000008004240e40 rbp 0000008004240e80 rsi 0000000020101234 rdi 000000800423c038
-rip 000000800421fb09 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000206 r12 000000800421d6ab r13 0000000000000000 r14 0000000000000000
+rip 000000800421fd27 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
+r11 0000000000000206 r12 000000800421d85f r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000202
 es: 001b ds: 001b cs: 0008 ss: 0010
 Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x8004218867 0x800421d37a 0x800421d55f 0x800420971e 0x8004209b3c 0x800421e2fc 0x800421db20 0x800421d7ae 0x800421d5d4 0x400102 0x400180 0x400c21.
+Call stack: 0x80042188c1 0x800421d52e 0x800421d713 0x8004209778 0x8004209b96 0x800421e51a 0x800421dca2 0x800421d962 0x800421d788 0x400102 0x400180 0x400c21.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
 Timer: 64 ticks
-Thread: 30 idle ticks, 28 kernel ticks, 6 user ticks
+Thread: 30 idle ticks, 29 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 83 reads, 245 writes
 hd1:0: 103 reads, 0 writes

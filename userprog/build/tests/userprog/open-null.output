@@ -14,7 +14,7 @@ Putting 'open-null' into the file system...
 Executing 'open-null':
 (open-null) begin
 Kernel PANIC at ../../filesys/directory.c:110 in dir_lookup(): assertion `name != NULL' failed.
-Call stack: 0x8004218867 0x800421fa07 0x800421e39d 0x800421dbc8 0x800421d804 0x800421d5d4 0x4000fd 0x40015b 0x400bfc.
+Call stack: 0x80042188c1 0x800421fc25 0x800421e5bb 0x800421dd4a 0x800421d9b8 0x800421d788 0x4000fd 0x40015b 0x400bfc.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.

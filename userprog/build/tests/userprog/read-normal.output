@@ -15,15 +15,33 @@ Putting 'sample.txt' into the file system...
 Executing 'read-normal':
 (read-normal) begin
 (read-normal) open "sample.txt" for verification
-(read-normal) open "sample.txt" for verification: FAILED
-read-normal: exit(1)
-Execution of 'read-normal' complete.
-Timer: 63 ticks
-Thread: 30 idle ticks, 30 kernel ticks, 3 user ticks
+(read-normal) verified contents of "sample.txt"
+(read-normal) close "sample.txt"
+(read-normal) end
+read-normal: exit(0)
+Page fault at 0xd: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421f742
+ cr2=000000000000000d error=               0
+rax 0000000000000001 rbx 0000000000000000 rcx 0000000000000001 rdx 0000008004240000
+rsp 0000008004240e30 rbp 0000008004240e40 rsi 0000000000000241 rdi 0000000000000001
+rip 000000800421f742 r8 0000008004240dd8  r9 000000800421bd3a r10 0000000000000000
+r11 0000000000000206 r12 000000800421d85f r13 0000000000000000 r14 0000000000000000
+r15 0000000000000000 rflags 00000002
+es: 001b ds: 001b cs: 0008 ss: 0010
+Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x80042188c1 0x800421d52e 0x800421d713 0x8004209778 0x8004209b96 0x800421f515 0x800421e105 0x8004207289 0x800421dbd7 0x800421d8b9 0x800421d788Page fault at 0x4747ffb0: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=80042158fb
+ cr2=000000004747ffb0 error=               0
+rax 000000004747ffb0 rbx 0000000000000000 rcx 00000080040b8000 rdx 00000000000003d4
+rsp 0000008004240c30 rbp 0000008004240c40 rsi 000000000000ca0f rdi 0000000000000000
+rip 00000080042158fb r8 0000008004240b48  r9 000000800421bd3a r10 0000008004215d73
+r11 00000000000002Execution of 'read-normal' complete.
+Timer: 72 ticks
+Thread: 30 idle ticks, 39 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 118 reads, 250 writes
+hd0:1: 119 reads, 250 writes
 hd1:0: 106 reads, 0 writes
-Console: 1005 characters output
+Console: 2334 characters output
 Keyboard: 0 keys pressed
-Exception: 0 page faults
+Exception: 2 page faults
 Powering off...
