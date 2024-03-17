@@ -152,7 +152,10 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	/* 5. Add new page to child's page table at address VA with WRITABLE
 	 *    permission. */
 	// 새 페이지를 자식 프로세스의 페이지 테이블에 추가. 가상 주소에 쓰기 가능 권한으로 추가.
-
+	bool success =  pml4_set_page(current->pml4, va, newpage,writable);
+	if(success){
+		return false;
+	}
 
 	if (!pml4_set_page (current->pml4, va, newpage, writable)) {
 		/* 6. TODO: if fail to insert page, do error handling. */
@@ -209,6 +212,11 @@ __do_fork (void *aux) {
 	// 보니까 그냥 별도의 file에 관한 포인터를 가져옴. 하긴 프로세스마다 포인터를 독립적으로 쓰는게 낫겠지...
 	// 이제 문제는 부모 프로세스의 file 정보가 대체 어디있냐는거지...
 	// file_duplicate();
+
+	// 생각해보니 process 시작 시점에 file 열때 그걸 thread 구조체 자체에 저장하는 메커니즘을
+	// 이것때문에 쓴거같다..
+
+	current->self = file_duplicate(parent->self);
 
 	process_init ();
 
@@ -523,6 +531,9 @@ load (const char *file_name, struct intr_frame *if_) {
 
 	/* Open executable file. */
 	file = filesys_open (f_name);
+
+	t->self = file;
+
 	if (file == NULL) {
 		printf ("load: %s: open failed\n", f_name);
 		goto done;

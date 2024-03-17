@@ -13,6 +13,7 @@
 #include "intrinsic.h"
 #include "devices/timer.h"
 #include "include/userprog/syscall.h"
+#include "userprog/process.h"
 
 #ifdef USERPROG
 #include "userprog/process.h"
@@ -263,8 +264,6 @@ thread_create (const char *name, int priority,
 		t->parent = cur;
 	}
 
-
-
 	/* Call the kernel_thread if it scheduled.
 	 * Note) rdi is 1st argument, and rsi is 2nd argument. */
 	t->tf.rip = (uintptr_t) kernel_thread;
@@ -284,6 +283,11 @@ thread_create (const char *name, int priority,
 	if (curr->priority < t->priority){
 		thread_yield();
 	}
+
+	if(aux == (void *)cur){
+		return 0;
+	}
+
 	return tid;
 }
 
@@ -663,6 +667,8 @@ init_thread (struct thread *t, const char *name, int priority) {
 	// 자식 프로세스는 fdt를 그대로 상속받아야하지만,
 	// 포인터 복사로는 한쪽이 파일을 닫으면 그대로 닫힐 수 있음.
 	// 그래서 결국 파일을 재오픈 하는 과정까지 하려니 어려워서 일단 생략.
+
+	t->is_fork = false;
 
 	if(thread_mlfqs){
 		// mlfqs용
