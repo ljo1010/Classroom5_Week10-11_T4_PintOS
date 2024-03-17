@@ -177,7 +177,12 @@ sys_fork (const char *thread_name){
 int
 exec (const char *file) {
 
-
+	tid_t tid;
+	tid = process_exec((void *)file);
+	if(tid == -1){
+		exit(-1);
+	}
+	return tid;
 
 }
 
@@ -258,9 +263,11 @@ read (int fd, void *buffer, unsigned size) {
 		return byte_read;
 		}
 	else{
+		exit(-1);
 		// 64 이상이나 이하의 fd를 가져왔다면 리턴.
 		// 또 target_file 자체가 존재하는지도 확인해야함.
 	}
+
 
 
 }
@@ -287,7 +294,7 @@ void
 seek (int fd, unsigned position) {
 
 	struct file *target_file = thread_current()->fdt[fd];
-	if(position > filesize(fd)){
+	if(position > (unsigned int) filesize(fd)){
 		return ;
 	}
 	else{
