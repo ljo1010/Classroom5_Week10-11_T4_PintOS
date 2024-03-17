@@ -283,11 +283,6 @@ thread_create (const char *name, int priority,
 	if (curr->priority < t->priority){
 		thread_yield();
 	}
-
-	if(aux == (void *)cur){
-		return 0;
-	}
-
 	return tid;
 }
 

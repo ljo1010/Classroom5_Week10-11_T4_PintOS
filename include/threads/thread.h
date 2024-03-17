@@ -127,9 +127,7 @@ struct thread {
 
 	struct file *self; // 자기 자신 file ptr
 	struct semaphore fork_wait;
-
 	struct semaphore exec_wait;
-
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */

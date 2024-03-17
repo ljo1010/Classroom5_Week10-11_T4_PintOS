@@ -98,8 +98,11 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 
 	sema_down(&thread_current()->fork_wait); 
 	/* Clone current thread to new thread.*/
-	return thread_create (name,
-			PRI_DEFAULT, __do_fork, thread_current ());
+	tid_t tid = thread_create (name, PRI_DEFAULT, __do_fork, thread_current ());
+	// if(){
+	// 	return TID_ERROR;
+	// }
+	return tid;
 }
 
 #ifndef VM

@@ -165,6 +165,9 @@ sys_fork (const char *thread_name){
 	struct intr_frame *f;
 	f = &thread_current()->tf;
 	tid_t child_tid;
+	if(thread_name == thread_current()->name){
+		return 0;
+	}
 	child_tid = process_fork(thread_name,f);
 
 	return child_tid;
