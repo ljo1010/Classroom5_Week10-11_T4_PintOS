@@ -113,21 +113,50 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	bool writable;
 
 	/* 1. TODO: If the parent_page is kernel page, then return immediately. */
+	// 부모 페이지가 커널 페이지일경우 바로 리턴. 이건 부모 스레드가 커널인지 확인하면 될듯하다. 근데 어떻게?
+	if(is_kernel_vaddr(va)){
+		return true;
+	}
 
 	/* 2. Resolve VA from the parent's page map level 4. */
+	//
+	// 부모 프로세스의 페이지 테이블에서 주어진 가상 주소에 대한 페이지를 착는 작업을 수행.
 	parent_page = pml4_get_page (parent->pml4, va);
 
 	/* 3. TODO: Allocate new PAL_USER page for the child and set result to
 	 *    TODO: NEWPAGE. */
+	// 새로운 PAL_USER 페이지를 자식 프로세스를 위해 할당. 이 할당된 페이지 주소를 NEWPAGE에 설정.
+	newpage = palloc_get_page(PAL_USER);
+	// 정확히 말하자면 복제해올 page를 parent page로 찾은뒤
+	// 그러한 동일한 가상 주소를 가진 걸 자식도 자기 페이지 테이블에 세팅하는거군
+
+	// 난 get page로 가져오는줄 알았는데 사실 그건 할당하는게 아니긴하지젠장
 
 	/* 4. TODO: Duplicate parent's page to the new page and
 	 *    TODO: check whether parent's page is writable or not (set WRITABLE
 	 *    TODO: according to the result). */
+	// 부모 페이지를 이 새로 할당 받은 새 페이지에 복제한다.
+	// 부모 페이지가 쓰기 가능한지 여부를 확인하고, 그 결과를 writable 변수에 설정.
+	memcpy(newpage, parent_page, PGSIZE);
+	writable = is_writable(pte);
+	// page라는 가상주소에서 물리주소를 받아와서
+	// newpage의 주소에 있을 값에 물리주소가 가지고 있을 값을 복사하고 있거든....
+	// 근데 pte_get_paddr에 넘겨야하는건 pte라서 . 내생각에는
+	// *parent_page가 pte같거든? 근데 지피티는 그냥 형변환해서 넣으라네
+	// 좀 찾아볼까..
+
+	// 하..... 
+	// 찾아보니 그냥 복사하니 당연하지 물리주소가 가지고 있는 값을 뭐 어따 복사할 필요가 뭐가 있어
+
 
 	/* 5. Add new page to child's page table at address VA with WRITABLE
 	 *    permission. */
+	// 새 페이지를 자식 프로세스의 페이지 테이블에 추가. 가상 주소에 쓰기 가능 권한으로 추가.
+
+
 	if (!pml4_set_page (current->pml4, va, newpage, writable)) {
 		/* 6. TODO: if fail to insert page, do error handling. */
+		// 페이지 삽입 실패시 에러 처리.
 	}
 	return true;
 }
@@ -168,13 +197,18 @@ __do_fork (void *aux) {
 		goto error;
 #endif
 
-	// file_duplicate();
-
 	/* TODO: Your code goes here.
 	 * TODO: Hint) To duplicate the file object, use `file_duplicate`
 	 * TODO:       in include/filesys/file.h. Note that parent should not return
 	 * TODO:       from the fork() until this function successfully duplicates
 	 * TODO:       the resources of parent.*/
+
+	// 여기선 file duplicate까지 하라고했지만
+	// 흠....해야.....하나?
+	// duplicate 한다고해도 위치가 똑같은거면 왜 의미있는거지
+	// 보니까 그냥 별도의 file에 관한 포인터를 가져옴. 하긴 프로세스마다 포인터를 독립적으로 쓰는게 낫겠지...
+	// 이제 문제는 부모 프로세스의 file 정보가 대체 어디있냐는거지...
+	// file_duplicate();
 
 	process_init ();
 
