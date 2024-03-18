@@ -8,6 +8,7 @@
         "lib.h": "c",
         "thread.h": "c",
         "stdio.h": "c",
-        "filesys.h": "c"
+        "filesys.h": "c",
+        "interrupt.h": "c"
     }
 }

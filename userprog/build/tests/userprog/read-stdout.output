@@ -14,21 +14,21 @@ Putting 'read-stdout' into the file system...
 Executing 'read-stdout':
 (read-stdout) begin
 Page fault at 0x9: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421f68d
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421f651
  cr2=0000000000000009 error=               0
 rax 0000000000000001 rbx 0000000000000000 rcx 000000004747ff8f rdx 0000000000000001
 rsp 0000008004240e80 rbp 0000008004240eb0 rsi 000000004747ff8f rdi 0000000000000001
-rip 000000800421f68d r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000202 r12 000000800421d7f0 r13 0000000000000000 r14 0000000000000000
+rip 000000800421f651 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
+r11 0000000000000202 r12 000000800421d813 r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000202
 es: 001b ds: 001b cs: 0008 ss: 0010
 Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421888e 0x800421d4bf 0x800421d6a4 0x8004209745 0x8004209b63 0x800421df9a 0x800421d9b9 0x800421d719 0x40010d 0x40016b 0x400c0c.
+Call stack: 0x800421888e 0x800421d4e2 0x800421d6c7 0x8004209745 0x8004209b63 0x800421df5e 0x800421d9e6 0x800421d73c 0x40010d 0x40016b 0x400c0c.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
 Timer: 64 ticks
-Thread: 30 idle ticks, 29 kernel ticks, 5 user ticks
+Thread: 30 idle ticks, 28 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes

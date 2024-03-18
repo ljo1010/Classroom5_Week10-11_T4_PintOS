@@ -6,6 +6,7 @@
 #include <debug.h>
 #include <stddef.h>
 #include <threads/synch.h>
+#include "threads/interrupt.h"
 
 /* Process identifier. */
 typedef int pid_t;
@@ -26,7 +27,6 @@ void syscall_init (void);
 
 void halt (void) NO_RETURN;
 void exit (int status) NO_RETURN;
-pid_t sys_fork (const char *thread_name);
 int exec (const char *file);
 int wait (pid_t);
 bool create (const char *file, unsigned initial_size);
@@ -39,6 +39,8 @@ void seek (int fd, unsigned position);
 unsigned tell (int fd);
 void close (int fd);
 void check_address(const uint64_t *addr);
+
+pid_t ffork (const char *thread_name, struct intr_frame *f);
 
 int dup2(int oldfd, int newfd);
 

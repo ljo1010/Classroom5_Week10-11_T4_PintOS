@@ -67,8 +67,8 @@ syscall_handler (struct intr_frame *f) {
 	}
 
 	case SYS_FORK:{
-		pid_t pid = sys_fork((const char *)f->R.rdi); //이름이 내장함수에 충돌된다고 컴파일이 울어서 고쳐줌.
-		f->R.rax = pid;
+		pid_t ppid = ffork ((const char *)f->R.rdi, f); //이름이 내장함수에 충돌된다고 컴파일이 울어서 고쳐줌.
+		f->R.rax = ppid;
 		break;
 	}
 
@@ -133,6 +133,13 @@ syscall_handler (struct intr_frame *f) {
 	}
 }
 
+pid_t 
+ffork (const char *thread_name, struct intr_frame *f){
+
+	return process_fork(thread_name, f);
+
+}
+
 void
 check_address(const uint64_t *addr){
 
@@ -160,25 +167,6 @@ exit (int status) {
 	curr->exit_status = status;
 	printf("%s: exit(%d)\n", curr->name, status);
 	thread_exit();
-}
-
-pid_t 
-sys_fork (const char *thread_name){
-
-	struct intr_frame *f;
-	f = &thread_current()->tf;
-	tid_t child_tid;
-	char * th_name_copy;
-	th_name_copy = palloc_get_page(0);
-	strlcpy(th_name_copy, thread_name, PGSIZE);
-
-	if(th_name_copy == thread_current()->name){
-		return 0;
-	}
-	child_tid = process_fork(th_name_copy,f);
-
-	return child_tid;
-
 }
 
 int
