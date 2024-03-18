@@ -23,6 +23,12 @@ typedef int off_t;
 #define EXIT_SUCCESS 0          /* Successful execution. */
 #define EXIT_FAILURE 1          /* Unsuccessful execution. */
 
+struct file_elem {
+	struct file *file;
+	int fd;
+	struct list_elem elem;
+};
+
 void syscall_init (void);
 
 void halt (void) NO_RETURN;
@@ -39,6 +45,10 @@ void seek (int fd, unsigned position);
 unsigned tell (int fd);
 void close (int fd);
 void check_address(const uint64_t *addr);
+struct file_elem* get_file_elem_fd(int fd);
+
+
+struct file* get_file_fd(int fd);
 
 pid_t ffork (const char *thread_name, struct intr_frame *f);
 

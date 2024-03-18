@@ -22,6 +22,7 @@ typedef int pid_t;
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
 
+
 /* System call.
  *
  * Previously system call services was handled by the interrupt handler

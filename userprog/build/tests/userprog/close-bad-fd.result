@@ -7,7 +7,7 @@ Translation of call stack:
 0x000000800421d7af: page_fault (userprog/exception.c:170 (discriminator 20))
 0x0000008004209745: intr_handler (threads/interrupt.c:352)
 0x0000008004209b63: intr_entry (threads/intr-stubs.o:?)
-0x000000800421db85: syscall_handler (userprog/syscall.c:128)
+0x000000800421db85: syscall_handler (userprog/syscall.c:129)
 0x000000800421d824: no_sti (userprog/syscall-entry.o:?)
 0x00000000004000fd: (unknown)
 0x000000000040015b: (unknown)

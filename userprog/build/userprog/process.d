@@ -2,8 +2,8 @@ userprog/process.o: ../../userprog/process.c \
  ../../include/userprog/process.h ../../include/threads/thread.h \
  ../../include/lib/debug.h ../../include/lib/kernel/list.h \
  ../../include/lib/stdbool.h ../../include/lib/stddef.h \
- ../../include/lib/stdint.h ../../include/threads/interrupt.h \
- ../../include/filesys/file.h ../../include/filesys/off_t.h \
+ ../../include/lib/stdint.h ../../include/filesys/file.h \
+ ../../include/filesys/off_t.h ../../include/threads/interrupt.h \
  ../../include/threads/synch.h ../../include/lib/inttypes.h \
  ../../include/lib/round.h ../../include/lib/stdio.h \
  ../../include/lib/stdarg.h ../../include/lib/kernel/stdio.h \

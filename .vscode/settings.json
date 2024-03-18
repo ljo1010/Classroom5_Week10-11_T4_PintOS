@@ -9,6 +9,8 @@
         "thread.h": "c",
         "stdio.h": "c",
         "filesys.h": "c",
-        "interrupt.h": "c"
+        "interrupt.h": "c",
+        "stddef.h": "c",
+        "process.h": "c"
     }
 }

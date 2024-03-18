@@ -640,10 +640,20 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->next_fd = 2;
 
 
-	for(int i=2; i<64;i++){
-		t->fdt[i] = NULL;
-
-	} 
+	// if(initial_thread){
+		for(int i=2; i<64;i++){
+			t->fdt[i] = NULL;
+			// printf("init_thread fdt[%d] : %p\n",i, t->fdt[i]);
+		} // 그 외는 초기화.
+	// }
+	// else{
+	// 	for(int j= 0; j<64; j++){
+	// 		t->fdt[j] = thread_current()->fdt[j];
+	// 	}
+	// }
+	// 자식 프로세스는 fdt를 그대로 상속받아야하지만,
+	// 포인터 복사로는 한쪽이 파일을 닫으면 그대로 닫힐 수 있음.
+	// 그래서 결국 파일을 재오픈 하는 과정까지 하려니 어려워서 일단 생략.
 
 	if(thread_mlfqs){
 		// mlfqs용
