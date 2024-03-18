@@ -15,6 +15,7 @@
 #include "userprog/process.h"
 #include "lib/kernel/console.h"
 #include "lib/kernel/stdio.h"
+#include "lib/string.h"
 
 
 void syscall_entry (void);
@@ -165,10 +166,14 @@ sys_fork (const char *thread_name){
 	struct intr_frame *f;
 	f = &thread_current()->tf;
 	tid_t child_tid;
-	if(thread_name == thread_current()->name){
+	char * th_name_copy;
+	th_name_copy = palloc_get_page(0);
+	strlcpy(th_name_copy, thread_name, PGSIZE);
+
+	if(th_name_copy == thread_current()->name){
 		return 0;
 	}
-	child_tid = process_fork(thread_name,f);
+	child_tid = process_fork(th_name_copy,f);
 
 	return child_tid;
 
@@ -178,7 +183,11 @@ int
 exec (const char *file) {
 
 	tid_t tid;
-	tid = process_exec((void *)file);
+	char * f_name_copy;
+	f_name_copy = palloc_get_page(0);
+	strlcpy(f_name_copy, file, PGSIZE);
+
+	tid = process_exec((void *)f_name_copy);
 	if(tid == -1){
 		exit(-1);
 	}
@@ -315,11 +324,16 @@ tell (int fd) {
 
 void
 close (int fd) {
-	struct file *target_file = thread_current()->fdt[fd];
+	struct file *target_file;
+	if(thread_current()->fdt[fd] == NULL){
+		exit(-1);
+	}
+	target_file = thread_current()->fdt[fd];
+
+	thread_current()->fdt[fd] = NULL; // 닫았으니 null로 초기화 
 	lock_acquire(&filesys_lock);
 	file_close(target_file);
 	lock_release(&filesys_lock);
-	thread_current()->fdt[fd] = 0; // 닫았으니 0으로 초기화.
 }
 
 int dup2(int oldfd, int newfd){

@@ -13,4 +13,4 @@ userprog/syscall.o: ../../userprog/syscall.c \
  ../../include/threads/init.h ../../include/filesys/filesys.h \
  ../../include/threads/palloc.h ../../include/devices/input.h \
  ../../include/userprog/process.h ../../include/lib/kernel/console.h \
- ../../include/lib/kernel/stdio.h
+ ../../include/lib/kernel/stdio.h ../../include/lib/string.h

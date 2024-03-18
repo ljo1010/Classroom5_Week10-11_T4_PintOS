@@ -652,7 +652,7 @@ init_thread (struct thread *t, const char *name, int priority) {
 
 	// if(initial_thread){
 		for(int i=2; i<64;i++){
-			t->fdt[i] = 0;
+			t->fdt[i] = NULL;
 			// printf("init_thread fdt[%d] : %p\n",i, t->fdt[i]);
 		} // 그 외는 초기화.
 	// }
