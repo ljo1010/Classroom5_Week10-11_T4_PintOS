@@ -104,6 +104,7 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 		return TID_ERROR;
 	}
 	struct thread *child = get_child_process(tid);
+	printf("process fork child thread name : %s\n", child->name);
 	sema_down(&child->fork_wait);
 	if(child->exit_status == -1){
 		return TID_ERROR;
@@ -125,6 +126,7 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	/* 1. TODO: If the parent_page is kernel page, then return immediately. */
 	// 부모 페이지가 커널 페이지일경우 바로 리턴. 이건 부모 스레드가 커널인지 확인하면 될듯하다. 근데 어떻게?
 	if(is_kernel_vaddr(va)){
+		printf("is_kernel vaddr error!\n");
 		return true;
 	}
 
@@ -132,11 +134,18 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	//
 	// 부모 프로세스의 페이지 테이블에서 주어진 가상 주소에 대한 페이지를 착는 작업을 수행.
 	parent_page = pml4_get_page (parent->pml4, va);
-
+	if(parent_page == NULL){
+		printf("parent_page null error!\n");
+		return false;
+	}
 	/* 3. TODO: Allocate new PAL_USER page for the child and set result to
 	 *    TODO: NEWPAGE. */
 	// 새로운 PAL_USER 페이지를 자식 프로세스를 위해 할당. 이 할당된 페이지 주소를 NEWPAGE에 설정.
-	newpage = palloc_get_page(PAL_USER);
+	newpage = palloc_get_page(PAL_USER | PAL_ZERO);
+	if(newpage == NULL){
+		printf("new page null error!\n");
+		return false;
+	}
 	// 정확히 말하자면 복제해올 page를 parent page로 찾은뒤
 	// 그러한 동일한 가상 주소를 가진 걸 자식도 자기 페이지 테이블에 세팅하는거군
 
@@ -162,15 +171,13 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	/* 5. Add new page to child's page table at address VA with WRITABLE
 	 *    permission. */
 	// 새 페이지를 자식 프로세스의 페이지 테이블에 추가. 가상 주소에 쓰기 가능 권한으로 추가.
-	bool success =  pml4_set_page(current->pml4, va, newpage,writable);
-	if(success){
+	if(!pml4_set_page(current->pml4, va, newpage,writable)){
+		printf("pml4 set page error!\n");
 		return false;
 	}
-
-	if (!pml4_set_page (current->pml4, va, newpage, writable)) {
 		/* 6. TODO: if fail to insert page, do error handling. */
 		// 페이지 삽입 실패시 에러 처리.
-	}
+
 	return true;
 }
 #endif
@@ -186,18 +193,19 @@ __do_fork (void *aux) {
 	struct thread *current = thread_current ();
 	/* TODO: somehow pass the parent_if. (i.e. process_fork()'s if_) */
 	struct intr_frame *parent_if;
-
-	parent_if = &parent->tf;
-
 	bool succ = true;
+	parent_if = &parent->parent_if;
 
 	/* 1. Read the cpu context to local stack. */
 	memcpy (&if_, parent_if, sizeof (struct intr_frame));
-
+	if_.R.rax = 0;
 	/* 2. Duplicate PT */
 	current->pml4 = pml4_create();
-	if (current->pml4 == NULL)
+	if (current->pml4 == NULL){
+		printf("_dofork duplicate pt error!\n");
 		goto error;
+
+	}
 
 	process_activate (current);
 #ifdef VM
@@ -205,8 +213,10 @@ __do_fork (void *aux) {
 	if (!supplemental_page_table_copy (&current->spt, &parent->spt))
 		goto error;
 #else
-	if (!pml4_for_each (parent->pml4, duplicate_pte, parent))
-		goto error;
+	if (!pml4_for_each (parent->pml4, duplicate_pte, parent)){
+		printf("_do_fork pml4 for each error!\n");
+		goto error;}
+
 #endif
 
 	/* TODO: Your code goes here.
@@ -226,7 +236,15 @@ __do_fork (void *aux) {
 	// 이것때문에 쓴거같다..
 
 	current->self = file_duplicate(parent->self);
-
+	for (int i = 0; i < 64; i++)
+    {
+        struct file *file = parent->fdt[i];
+        if (file == NULL)
+            continue;
+        if (file > 2)
+            file = file_duplicate(file);
+        current->fdt[i] = file;
+    }
 	// 엥 이제보니 file duplicate가 자기 자신이 아니라?
 	// FDT의 요소들을 복제하는거라고? 
 
@@ -238,8 +256,9 @@ __do_fork (void *aux) {
 	if (succ)
 		do_iret (&if_);
 error:
+	printf("_do_fork error! \n");
 	sema_up(&current->fork_wait);
-	thread_exit ();
+	thread_exit();
 }
 
 /* Switch the current execution context to the f_name.
@@ -382,6 +401,7 @@ process_wait (tid_t child_tid) {
 
 	sema_down(&child->wait);
 	int exit_status = child->exit_status;
+	printf("process wait child exit status : %d\n", exit_status);
 	list_remove(&child->child_elem);
 	return exit_status;
 	

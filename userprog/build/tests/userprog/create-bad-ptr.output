@@ -13,14 +13,16 @@ Boot complete.
 Putting 'create-bad-ptr' into the file system...
 Executing 'create-bad-ptr':
 (create-bad-ptr) begin
+exit cur name : create-bad-ptr
 create-bad-ptr: exit(-1)
+process wait child exit status : -1
 Execution of 'create-bad-ptr' complete.
-Timer: 61 ticks
-Thread: 30 idle ticks, 30 kernel ticks, 1 user ticks
+Timer: 66 ticks
+Thread: 30 idle ticks, 34 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 234 writes
 hd1:0: 103 reads, 0 writes
-Console: 860 characters output
+Console: 927 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

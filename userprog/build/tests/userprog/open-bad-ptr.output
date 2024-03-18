@@ -13,14 +13,16 @@ Boot complete.
 Putting 'open-bad-ptr' into the file system...
 Executing 'open-bad-ptr':
 (open-bad-ptr) begin
+exit cur name : open-bad-ptr
 open-bad-ptr: exit(-1)
+process wait child exit status : -1
 Execution of 'open-bad-ptr' complete.
 Timer: 62 ticks
-Thread: 30 idle ticks, 32 kernel ticks, 1 user ticks
+Thread: 30 idle ticks, 30 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 234 writes
 hd1:0: 103 reads, 0 writes
-Console: 846 characters output
+Console: 911 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

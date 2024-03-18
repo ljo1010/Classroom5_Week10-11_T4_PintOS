@@ -16,14 +16,16 @@ Executing 'write-boundary':
 (write-boundary) begin
 (write-boundary) open "sample.txt"
 (write-boundary) end
+exit cur name : write-boundary
 write-boundary: exit(0)
+process wait child exit status : 0
 Execution of 'write-boundary' complete.
-Timer: 67 ticks
-Thread: 30 idle ticks, 34 kernel ticks, 3 user ticks
+Timer: 65 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 120 reads, 257 writes
 hd1:0: 109 reads, 0 writes
-Console: 976 characters output
+Console: 1042 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

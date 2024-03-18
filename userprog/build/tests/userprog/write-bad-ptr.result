@@ -1,1 +1,26 @@
-PASS
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (write-bad-ptr) begin
+  (write-bad-ptr) open "sample.txt"
+  (write-bad-ptr) end
+  write-bad-ptr: exit(0)
+Differences in `diff -u' format:
+  (write-bad-ptr) begin
+  (write-bad-ptr) open "sample.txt"
+- (write-bad-ptr) end
+- write-bad-ptr: exit(0)
++ exit cur name : write-bad-ptr
++ write-bad-ptr: exit(-1)
++ process wait child exit status : -1
+Acceptable output:
+  (write-bad-ptr) begin
+  (write-bad-ptr) open "sample.txt"
+  write-bad-ptr: exit(-1)
+Differences in `diff -u' format:
+  (write-bad-ptr) begin
+  (write-bad-ptr) open "sample.txt"
++ exit cur name : write-bad-ptr
+  write-bad-ptr: exit(-1)
++ process wait child exit status : -1

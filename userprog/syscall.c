@@ -164,6 +164,7 @@ exit (int status) {
 	// pid에 exit status 저장
 	// 딱히 pid 가 없어서 thread... 안에 저장할까싶다
 	struct thread *curr = thread_current();
+	printf("exit cur name : %s\n", curr->name);
 	curr->exit_status = status;
 	printf("%s: exit(%d)\n", curr->name, status);
 	thread_exit();

@@ -15,14 +15,16 @@ Putting 'sample.txt' into the file system...
 Executing 'read-bad-ptr':
 (read-bad-ptr) begin
 (read-bad-ptr) open "sample.txt"
+exit cur name : read-bad-ptr
 read-bad-ptr: exit(-1)
+process wait child exit status : -1
 Execution of 'read-bad-ptr' complete.
-Timer: 63 ticks
-Thread: 30 idle ticks, 30 kernel ticks, 3 user ticks
+Timer: 65 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 111 reads, 248 writes
 hd1:0: 105 reads, 0 writes
-Console: 940 characters output
+Console: 1005 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

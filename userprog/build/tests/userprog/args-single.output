@@ -18,14 +18,16 @@ Executing 'args-single onearg':
 (args) argv[1] = 'onearg'
 (args) argv[2] = null
 (args) end
+exit cur name : args-single
 args-single: exit(0)
+process wait child exit status : 0
 Execution of 'args-single onearg' complete.
-Timer: 62 ticks
-Thread: 30 idle ticks, 29 kernel ticks, 3 user ticks
+Timer: 63 ticks
+Thread: 30 idle ticks, 31 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
-Console: 960 characters output
+Console: 1023 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

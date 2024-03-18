@@ -1,39 +1,17 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (fork-multiple) begin
-  (fork-multiple) child run
-  child: exit(4)
-  (fork-multiple) Parent: child exit status is 4
-  (fork-multiple) child run
-  child: exit(5)
-  (fork-multiple) Parent: child exit status is 5
-  (fork-multiple) child run
-  child: exit(6)
-  (fork-multiple) Parent: child exit status is 6
-  (fork-multiple) child run
-  child: exit(7)
-  (fork-multiple) Parent: child exit status is 7
-  (fork-multiple) end
-  fork-multiple: exit(0)
-Differences in `diff -u' format:
-  (fork-multiple) begin
-- (fork-multiple) child run
-- child: exit(4)
-- (fork-multiple) Parent: child exit status is 4
-- (fork-multiple) child run
-- child: exit(5)
-- (fork-multiple) Parent: child exit status is 5
-- (fork-multiple) child run
-- child: exit(6)
-- (fork-multiple) Parent: child exit status is 6
-- (fork-multiple) child run
-- child: exit(7)
-- (fork-multiple) Parent: child exit status is 7
-+ (fork-multiple) Parent: child exit status is 0
-+ (fork-multiple) Parent: child exit status is 0
-+ (fork-multiple) Parent: child exit status is 0
-+ (fork-multiple) Parent: child exit status is 0
-  (fork-multiple) end
-  fork-multiple: exit(0)
+Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x800421888e 0x800421d543 0x800421d728 0x8004209745 0x8004209b63 0x800421c816 0x800421dd10 0x800421d948 0x800421d79d 0x40013b 0x4001a7 0x400229 0x400cca
+Translation of call stack:
+0x000000800421888e: debug_panic (lib/kernel/debug.c:32)
+0x000000800421d543: kill (userprog/exception.c:103)
+0x000000800421d728: page_fault (userprog/exception.c:170 (discriminator 20))
+0x0000008004209745: intr_handler (threads/interrupt.c:352)
+0x0000008004209b63: intr_entry (threads/intr-stubs.o:?)
+0x000000800421c816: process_wait (userprog/process.c:387)
+0x000000800421dd10: wait (userprog/syscall.c:193)
+0x000000800421d948: syscall_handler (userprog/syscall.c:82)
+0x000000800421d79d: no_sti (userprog/syscall-entry.o:?)
+0x000000000040013b: (unknown)
+0x00000000004001a7: (unknown)
+0x0000000000400229: (unknown)
+0x0000000000400cca: (unknown)

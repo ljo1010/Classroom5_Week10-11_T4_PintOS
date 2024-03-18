@@ -17,14 +17,16 @@ Executing 'close-twice':
 (close-twice) open "sample.txt"
 (close-twice) close "sample.txt"
 (close-twice) close "sample.txt" again
+exit cur name : close-twice
 close-twice: exit(-1)
+process wait child exit status : -1
 Execution of 'close-twice' complete.
-Timer: 63 ticks
-Thread: 30 idle ticks, 30 kernel ticks, 4 user ticks
+Timer: 66 ticks
+Thread: 30 idle ticks, 34 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 111 reads, 248 writes
 hd1:0: 105 reads, 0 writes
-Console: 1004 characters output
+Console: 1068 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...
