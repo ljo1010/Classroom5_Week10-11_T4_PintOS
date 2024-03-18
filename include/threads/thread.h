@@ -128,11 +128,12 @@ struct thread {
 	struct list child_list; //존재하는 자식 스레드 리스트.
 	struct list_elem child_elem; // 자식 스레드로서 노드일떄.
 
-	struct file *self; // 자기 자신 file ptr
 	struct semaphore fork_wait;
 	struct semaphore exec_wait;
 
 	struct intr_frame parent_if;
+	struct file *running;
+
 
 	
 

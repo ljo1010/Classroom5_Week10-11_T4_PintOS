@@ -235,7 +235,6 @@ __do_fork (void *aux) {
 	// 생각해보니 process 시작 시점에 file 열때 그걸 thread 구조체 자체에 저장하는 메커니즘을
 	// 이것때문에 쓴거같다..
 
-	current->self = file_duplicate(parent->self);
 	for (int i = 0; i < 64; i++)
     {
         struct file *file = parent->fdt[i];
@@ -543,11 +542,11 @@ load (const char *file_name, struct intr_frame *if_) {
 	process_activate (thread_current ());
 
 
-
 	/* Open executable file. */
 	file = filesys_open (f_name);
-
-	t->self = file;
+	
+	t->running = file;
+	file_deny_write(t->running);
 
 	if (file == NULL) {
 		printf ("load: %s: open failed\n", f_name);
@@ -630,6 +629,7 @@ load (const char *file_name, struct intr_frame *if_) {
 
 done:
 	/* We arrive here whether the load is successful or not. */
+	file_allow_write(t->running);
 	file_close (file);
 	return success;
 }
