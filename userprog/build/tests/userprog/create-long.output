@@ -15,16 +15,14 @@ Executing 'create-long':
 (create-long) begin
 (create-long) create("x..."): 0
 (create-long) end
-exit cur name : create-long
 create-long: exit(0)
-process wait child exit status : 0
 Execution of 'create-long' complete.
 Timer: 64 ticks
 Thread: 30 idle ticks, 31 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 84 reads, 250 writes
 hd1:0: 103 reads, 0 writes
-Console: 951 characters output
+Console: 888 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

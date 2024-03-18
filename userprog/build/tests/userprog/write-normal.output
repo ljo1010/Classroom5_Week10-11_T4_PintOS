@@ -17,16 +17,14 @@ Executing 'write-normal':
 (write-normal) create "test.txt"
 (write-normal) open "test.txt"
 (write-normal) end
-exit cur name : write-normal
 write-normal: exit(0)
-process wait child exit status : 0
 Execution of 'write-normal' complete.
 Timer: 65 ticks
-Thread: 30 idle ticks, 31 kernel ticks, 4 user ticks
+Thread: 30 idle ticks, 31 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 144 reads, 266 writes
 hd1:0: 107 reads, 0 writes
-Console: 1053 characters output
+Console: 989 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

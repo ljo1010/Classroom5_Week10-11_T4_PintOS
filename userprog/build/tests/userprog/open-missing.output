@@ -14,16 +14,14 @@ Putting 'open-missing' into the file system...
 Executing 'open-missing':
 (open-missing) begin
 (open-missing) end
-exit cur name : open-missing
 open-missing: exit(0)
-process wait child exit status : 0
 Execution of 'open-missing' complete.
-Timer: 66 ticks
-Thread: 30 idle ticks, 32 kernel ticks, 4 user ticks
+Timer: 62 ticks
+Thread: 30 idle ticks, 30 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 97 reads, 234 writes
 hd1:0: 103 reads, 0 writes
-Console: 928 characters output
+Console: 864 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

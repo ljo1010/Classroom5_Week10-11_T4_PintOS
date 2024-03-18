@@ -164,7 +164,7 @@ exit (int status) {
 	// pid에 exit status 저장
 	// 딱히 pid 가 없어서 thread... 안에 저장할까싶다
 	struct thread *curr = thread_current();
-	printf("exit cur name : %s\n", curr->name);
+	// printf("exit cur name : %s\n", curr->name);
 	curr->exit_status = status;
 	printf("%s: exit(%d)\n", curr->name, status);
 	thread_exit();
@@ -251,14 +251,23 @@ int
 read (int fd, void *buffer, unsigned size) {
 
 	check_address(buffer);
+	lock_acquire(&filesys_lock);
 	if(fd == 0){
-		*(char *)buffer= input_getc();
+		unsigned count = size;
+		while(count--)
+			*((char *)buffer++)= input_getc();
+		lock_release(&filesys_lock);
 		return size;
+		// 여기서 페이지 폴트 방지용으로 pin address 라고 vme를 다루는 부분이 있는데 쉽지않다...
+		// 근데 이건 vm 파트인거같은데?
+	}
+	else if(fd == 1){
+		lock_release(&filesys_lock);
+		return -1;
 	}
 	
 	if(fd <64){
 		struct file *target_file = thread_current()->fdt[fd];
-		lock_acquire(&filesys_lock);
 		off_t byte_read =  file_read(target_file,buffer,size);
 		lock_release(&filesys_lock);
 		return byte_read;
@@ -283,12 +292,25 @@ write (int fd, const void *buffer, unsigned size) {
 		lock_release(&filesys_lock);
 		return size;
 	}
+	else if(fd == 0){
+		lock_release(&filesys_lock);
+		return -1;
+	}
+	else if(!is_user_vaddr(buffer+size)){
+		lock_release(&filesys_lock);
+		exit(-1);
+	}
 	else{
 		struct file *target_file = thread_current()->fdt[fd];
+		if(target_file == NULL){
+			lock_release(&filesys_lock);
+			return -1;
+		}
 		off_t byte_write = file_write(target_file,buffer,size);
 		lock_release(&filesys_lock);
 		return byte_write;
 	}
+	// 뭘해도 write bad ptr이 안 낫네..
 }
 
 void
@@ -322,6 +344,10 @@ close (int fd) {
 		exit(-1);
 	}
 	target_file = thread_current()->fdt[fd];
+
+	if(target_file == NULL){
+		return 0;
+	}
 
 	thread_current()->fdt[fd] = NULL; // 닫았으니 null로 초기화 
 	lock_acquire(&filesys_lock);

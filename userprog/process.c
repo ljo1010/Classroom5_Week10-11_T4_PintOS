@@ -198,7 +198,7 @@ __do_fork (void *aux) {
 
 	/* 1. Read the cpu context to local stack. */
 	memcpy (&if_, parent_if, sizeof (struct intr_frame));
-	if_.R.rax = 0;
+	// if_.R.rax = 0;
 	/* 2. Duplicate PT */
 	current->pml4 = pml4_create();
 	if (current->pml4 == NULL){
@@ -401,7 +401,7 @@ process_wait (tid_t child_tid) {
 
 	sema_down(&child->wait);
 	int exit_status = child->exit_status;
-	printf("process wait child exit status : %d\n", exit_status);
+	// printf("process wait child exit status : %d\n", exit_status);
 	list_remove(&child->child_elem);
 	return exit_status;
 	

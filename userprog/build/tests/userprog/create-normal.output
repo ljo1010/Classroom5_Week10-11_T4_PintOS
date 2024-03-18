@@ -15,16 +15,14 @@ Executing 'create-normal':
 (create-normal) begin
 (create-normal) create quux.dat
 (create-normal) end
-exit cur name : create-normal
 create-normal: exit(0)
-process wait child exit status : 0
 Execution of 'create-normal' complete.
-Timer: 63 ticks
+Timer: 64 ticks
 Thread: 30 idle ticks, 31 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 102 reads, 246 writes
 hd1:0: 103 reads, 0 writes
-Console: 970 characters output
+Console: 905 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

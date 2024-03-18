@@ -1,11 +1,1 @@
-FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (create-bad-ptr) begin
-  create-bad-ptr: exit(-1)
-Differences in `diff -u' format:
-  (create-bad-ptr) begin
-+ exit cur name : create-bad-ptr
-  create-bad-ptr: exit(-1)
-+ process wait child exit status : -1
+PASS
