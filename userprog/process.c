@@ -96,12 +96,17 @@ initd (void *f_name) {
 tid_t
 process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 
-	sema_down(&thread_current()->fork_wait); 
+
+	struct thread *cur = thread_current();
+	memcpy(&cur->parent_if, if_, sizeof(struct intr_frame));
 	/* Clone current thread to new thread.*/
-	tid_t tid = thread_create (name, PRI_DEFAULT, __do_fork, thread_current ());
-	// if(){
-	// 	return TID_ERROR;
-	// }
+	tid_t tid = thread_create (name, PRI_DEFAULT, __do_fork, cur);
+	// 그냥 process current로 넘기면 걔가 가지고 있는 tf는
+	// process fork로 넘어오는 if_를 가지고 있는건 아니라는 말이네...
+	if(tid == TID_ERROR){
+		return TID_ERROR;
+	}
+	sema_down(&thread_current()->fork_wait); 
 	return tid;
 }
 
@@ -221,12 +226,18 @@ __do_fork (void *aux) {
 
 	current->self = file_duplicate(parent->self);
 
-	process_init ();
+	// 엥 이제보니 file duplicate가 자기 자신이 아니라?
+	// FDT의 요소들을 복제하는거라고? 
+
+	current->next_fd = parent->next_fd;
+	
 	sema_up(&parent->fork_wait);
+	process_init ();
 	/* Finally, switch to the newly created process. */
 	if (succ)
 		do_iret (&if_);
 error:
+	sema_up(&parent->fork_wait);
 	thread_exit ();
 }
 

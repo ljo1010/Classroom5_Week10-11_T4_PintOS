@@ -91,6 +91,7 @@ typedef int pid_t;
  * only because they are mutually exclusive: only a thread in the
  * ready state is on the run queue, whereas only a thread in the
  * blocked state is on a semaphore wait list. */
+
 struct thread {
 	/* Owned by thread.c. */
 	tid_t tid;                          /* Thread identifier. */
@@ -119,6 +120,8 @@ struct thread {
 	int exit_status;
 	// userprog용 fdt
 	struct file *fdt[63];
+
+
 	int next_fd;
 	struct semaphore wait;
 	struct thread *parent; //부모 스레드 존재 확인용.
@@ -128,6 +131,10 @@ struct thread {
 	struct file *self; // 자기 자신 file ptr
 	struct semaphore fork_wait;
 	struct semaphore exec_wait;
+
+	struct intr_frame parent_if;
+
+	
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */

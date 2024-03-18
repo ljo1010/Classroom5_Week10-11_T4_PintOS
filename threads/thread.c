@@ -369,10 +369,10 @@ thread_exit (void) {
 	intr_disable ();
 	list_remove(&thread_current()->all_elem);
 
-	// 모든 파일 close()하는 함수.
-	for(int i = 0; i<=64 ;i++){
-		close(i);
-	}
+	// // 모든 파일 close()하는 함수.
+	// for(int i = 0; i<=64 ;i++){
+	// 	close(i);
+	// }
 
 	do_schedule (THREAD_DYING);
 	NOT_REACHED ();
