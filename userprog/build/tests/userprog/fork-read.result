@@ -18,6 +18,10 @@ Differences in `diff -u' format:
 - (fork-read) Child: pintos is funny!
 - (fork-read) end
 - child: exit(0)
++ process fork child thread name : child
++ is_kernel vaddr error!
++ _do_fork pml4 for each error!
++ _do_fork error! 
   (fork-read) Parent success
   (fork-read) end
   fork-read: exit(0)

@@ -127,7 +127,7 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	// 부모 페이지가 커널 페이지일경우 바로 리턴. 이건 부모 스레드가 커널인지 확인하면 될듯하다. 근데 어떻게?
 	if(is_kernel_vaddr(va)){
 		printf("is_kernel vaddr error!\n");
-		return true;
+		return false;
 	}
 
 	/* 2. Resolve VA from the parent's page map level 4. */

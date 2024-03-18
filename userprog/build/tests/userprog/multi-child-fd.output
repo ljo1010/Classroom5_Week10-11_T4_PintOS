@@ -16,17 +16,21 @@ Putting 'child-close' into the file system...
 Executing 'multi-child-fd':
 (multi-child-fd) begin
 (multi-child-fd) open "sample.txt"
+process fork child thread name : child-close
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (multi-child-fd) wait(exec()) = 0
 (multi-child-fd) verified contents of "sample.txt"
 (multi-child-fd) end
 multi-child-fd: exit(0)
 Execution of 'multi-child-fd' complete.
-Timer: 68 ticks
-Thread: 30 idle ticks, 34 kernel ticks, 4 user ticks
+Timer: 70 ticks
+Thread: 30 idle ticks, 35 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 149 reads, 488 writes
 hd1:0: 220 reads, 0 writes
-Console: 1124 characters output
+Console: 1239 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

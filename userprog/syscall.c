@@ -288,6 +288,13 @@ int
 write (int fd, const void *buffer, unsigned size) {
 	check_address(buffer);
 	lock_acquire(&filesys_lock);
+
+	if(fd >64 || fd <0){
+		lock_release(&filesys_lock);
+		exit(-1);
+
+	}
+
 	if(fd == 1){
 		putbuf(buffer, size);
 		lock_release(&filesys_lock);
@@ -341,6 +348,9 @@ void
 close (int fd) {
 
 	struct file *target_file;
+	if(fd >64 || fd <0){
+		exit(-1);
+	}
 	if(thread_current()->fdt[fd] == NULL){
 		exit(-1);
 	}

@@ -13,6 +13,10 @@ Differences in `diff -u' format:
 - (child-simple) run
 - child-simple: exit(81)
 - (wait-simple) wait(exec()) = 81
++ process fork child thread name : child-simple
++ is_kernel vaddr error!
++ _do_fork pml4 for each error!
++ _do_fork error! 
 + (wait-simple) wait(exec()) = 0
   (wait-simple) end
   wait-simple: exit(0)

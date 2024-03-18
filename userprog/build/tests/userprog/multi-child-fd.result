@@ -19,6 +19,10 @@ Differences in `diff -u' format:
 - (child-close) verified contents of "sample.txt"
 - (child-close) end
 - child-close: exit(0)
++ process fork child thread name : child-close
++ is_kernel vaddr error!
++ _do_fork pml4 for each error!
++ _do_fork error! 
   (multi-child-fd) wait(exec()) = 0
   (multi-child-fd) verified contents of "sample.txt"
   (multi-child-fd) end

@@ -1,4 +1,4 @@
-Kernel command line: -q -f put read-bad-fd run read-bad-fd
+Kernel command line: -q -f put fork-once run fork-once
 0 ~ 9fc00 1
 100000 ~ 13e0000 1
 Pintos booting with: 
@@ -10,17 +10,23 @@ hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM0000
 hd1:0: detected 103 sector (51 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 Formatting file system...done.
 Boot complete.
-Putting 'read-bad-fd' into the file system...
-Executing 'read-bad-fd':
-(read-bad-fd) begin
-read-bad-fd: exit(-1)
-Execution of 'read-bad-fd' complete.
-Timer: 61 ticks
-Thread: 30 idle ticks, 29 kernel ticks, 2 user ticks
+Putting 'fork-once' into the file system...
+Executing 'fork-once':
+(fork-once) begin
+process fork child thread name : child
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
+(fork-once) Parent: child exit status is 0
+(fork-once) end
+fork-once: exit(0)
+Execution of 'fork-once' complete.
+Timer: 64 ticks
+Thread: 30 idle ticks, 29 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 234 writes
 hd1:0: 103 reads, 0 writes
-Console: 839 characters output
+Console: 992 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

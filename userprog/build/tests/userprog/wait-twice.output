@@ -14,6 +14,10 @@ Putting 'wait-twice' into the file system...
 Putting 'child-simple' into the file system...
 Executing 'wait-twice':
 (wait-twice) begin
+process fork child thread name : child-simple
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (wait-twice) wait(exec()) = 0
 Page fault at 0x298: not present error reading page in kernel context.
 Interrupt 0x0e (#PF Page-Fault Exception) at rip=800420a79d
@@ -21,18 +25,18 @@ Interrupt 0x0e (#PF Page-Fault Exception) at rip=800420a79d
 rax 0000000000000298 rbx 0000000000000000 rcx 00000000004034aa rdx 0000000000000020
 rsp 0000008004240e70 rbp 0000008004240e90 rsi 0000000000000000 rdi 0000000000000298
 rip 000000800420a79d r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000216 r12 000000800421d7f0 r13 0000000000000000 r14 0000000000000000
+r11 0000000000000216 r12 000000800421d8fb r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000002
 es: 001b ds: 001b cs: 0008 ss: 0010
 Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421888e 0x800421d4bf 0x800421d6a4 0x8004209745 0x8004209b63 0x800421c7b2 0x800421dcc5 0x800421d8ba 0x800421d719 0x40014e 0x4001e1 0x400c82.
+Call stack: 0x800421888e 0x800421d5ca 0x800421d7af 0x8004209745 0x8004209b63 0x800421c8bd 0x800421dd71 0x800421d9cf 0x800421d824 0x40014e 0x4001e1 0x400c82.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 69 ticks
-Thread: 30 idle ticks, 32 kernel ticks, 7 user ticks
+Timer: 73 ticks
+Thread: 30 idle ticks, 35 kernel ticks, 8 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 107 reads, 446 writes
 hd1:0: 204 reads, 0 writes
-Console: 1867 characters output
+Console: 1983 characters output
 Key

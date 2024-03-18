@@ -15,33 +15,73 @@ Putting 'child-syn-wrt' into the file system...
 Executing 'syn-write':
 (syn-write) begin
 (syn-write) create "stuff"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 1 of 10: "child-syn-wrt 0"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 2 of 10: "child-syn-wrt 1"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 3 of 10: "child-syn-wrt 2"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 4 of 10: "child-syn-wrt 3"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 5 of 10: "child-syn-wrt 4"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 6 of 10: "child-syn-wrt 5"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 7 of 10: "child-syn-wrt 6"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 8 of 10: "child-syn-wrt 7"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 9 of 10: "child-syn-wrt 8"
+process fork child thread name : child-syn-wrt
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (syn-write) exec child 10 of 10: "child-syn-wrt 9"
 Interrupt 0x0d (#GP General Protection Exception) at rip=8004208817
  cr2=0000000000000000 error=               0
 rax ccccccccccccc9e4 rbx 0000000000000000 rcx 0000000000403816 rdx 0000000000000020
 rsp 0000008004240e60 rbp 0000008004240e90 rsi 0000000000000000 rdi 00000080042402c8
 rip 0000008004208817 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000216 r12 000000800421d7f0 r13 0000000000000000 r14 0000000000000000
+r11 0000000000000216 r12 000000800421d8fb r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000286
 es: 001b ds: 001b cs: 0008 ss: 0010
 Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421888e 0x800421d4bf 0x8004209745 0x8004209b63 0x800421c795 0x800421dcc5 0x800421d8ba 0x800421d719 0x4007b7 0x400196 0x400fa5 0x400fee.
+Call stack: 0x800421888e 0x800421d5ca 0x8004209745 0x8004209b63 0x800421c8a0 0x800421dd71 0x800421d9cf 0x800421d824 0x4007b7 0x400196 0x400fa5 0x400fee.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 75 ticks
-Thread: 30 idle ticks, 32 kernel ticks, 13 user ticks
+Timer: 93 ticks
+Thread: 30 idle ticks, 35 kernel ticks, 28 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 132 reads, 512 writes
 hd1:0: 226 reads, 0 writes
-Console: 2296 characters output
+Console: 3466 characters output
 Key

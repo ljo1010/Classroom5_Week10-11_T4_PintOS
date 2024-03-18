@@ -1,4 +1,4 @@
-Kernel command line: -q -f put create-exists run create-exists
+Kernel command line: -q -f put fork-recursive run fork-recursive
 0 ~ 9fc00 1
 100000 ~ 13e0000 1
 Pintos booting with: 
@@ -10,23 +10,23 @@ hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM0000
 hd1:0: detected 104 sector (52 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 Formatting file system...done.
 Boot complete.
-Putting 'create-exists' into the file system...
-Executing 'create-exists':
-(create-exists) begin
-(create-exists) create quux.dat
-(create-exists) create warble.dat
-(create-exists) try to re-create quux.dat
-(create-exists) create baffle.dat
-(create-exists) try to re-create quux.dat
-(create-exists) end
-create-exists: exit(0)
-Execution of 'create-exists' complete.
-Timer: 67 ticks
-Thread: 30 idle ticks, 29 kernel ticks, 8 user ticks
+Putting 'fork-recursive' into the file system...
+Executing 'fork-recursive':
+(fork-recursive) begin
+process fork child thread name : child
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
+(fork-recursive) Parent: child exit status is 0
+(fork-recursive) end
+fork-recursive: exit(0)
+Execution of 'fork-recursive' complete.
+Timer: 64 ticks
+Thread: 30 idle ticks, 29 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 163 reads, 304 writes
+hd0:1: 87 reads, 236 writes
 hd1:0: 104 reads, 0 writes
-Console: 1057 characters output
+Console: 1037 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

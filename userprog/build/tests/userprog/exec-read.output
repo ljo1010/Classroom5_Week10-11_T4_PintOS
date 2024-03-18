@@ -17,16 +17,20 @@ Executing 'exec-read':
 (exec-read) begin
 (exec-read) open "sample.txt"
 (exec-read) read "sample.txt" first 20 bytes
+process fork child thread name : child-read
+is_kernel vaddr error!
+_do_fork pml4 for each error!
+_do_fork error! 
 (exec-read) Parent success
 (exec-read) end
 exec-read: exit(0)
 Execution of 'exec-read' complete.
 Timer: 72 ticks
-Thread: 30 idle ticks, 38 kernel ticks, 4 user ticks
+Thread: 30 idle ticks, 36 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 145 reads, 506 writes
 hd1:0: 229 reads, 0 writes
-Console: 1064 characters output
+Console: 1178 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...
