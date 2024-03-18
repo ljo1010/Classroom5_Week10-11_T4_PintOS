@@ -251,12 +251,7 @@ thread_create (const char *name, int priority,
 
 	/* Initialize thread. */
 	init_thread (t, name, priority);
-	if(initial_thread && idle_thread){
-		tid = t->tid = allocate_tid ();
-	}
-	else{
-		tid = t->tid = cur->tid; // pid 를 일치시키는 과정과 유사.
-	}
+	tid = t->tid = allocate_tid ();
 
 	if(t != initial_thread && t != idle_thread){
 		// userprogram 용 자식, 부모 프로세스 리스트.
@@ -369,10 +364,6 @@ thread_exit (void) {
 	intr_disable ();
 	list_remove(&thread_current()->all_elem);
 
-	// // 모든 파일 close()하는 함수.
-	// for(int i = 0; i<=64 ;i++){
-	// 	close(i);
-	// }
 
 	do_schedule (THREAD_DYING);
 	NOT_REACHED ();
@@ -647,23 +638,12 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->fdt[0]= 0; //stdin
 	t->fdt[1]= 1; //stdout
 	t->next_fd = 2;
-	// printf("init_thread next_fd :%d\n", t->next_fd);
-	// printf("init thread name : %s\n", t->name);
 
-	// if(initial_thread){
-		for(int i=2; i<64;i++){
-			t->fdt[i] = NULL;
-			// printf("init_thread fdt[%d] : %p\n",i, t->fdt[i]);
-		} // 그 외는 초기화.
-	// }
-	// else{
-	// 	for(int j= 0; j<64; j++){
-	// 		t->fdt[j] = thread_current()->fdt[j];
-	// 	}
-	// }
-	// 자식 프로세스는 fdt를 그대로 상속받아야하지만,
-	// 포인터 복사로는 한쪽이 파일을 닫으면 그대로 닫힐 수 있음.
-	// 그래서 결국 파일을 재오픈 하는 과정까지 하려니 어려워서 일단 생략.
+
+	for(int i=2; i<64;i++){
+		t->fdt[i] = NULL;
+
+	} 
 
 	if(thread_mlfqs){
 		// mlfqs용
@@ -1017,12 +997,18 @@ increment_recent_cpu(void){
 
 }
 
-void
-test_max_priority(struct thread *t){
-	if(list_empty(&ready_list))
-		return;
-	if(!intr_context()&& t->priority > thread_current()->priority){
-		thread_yield();
-	
+
+struct thread*
+get_child_process(int pid){
+	struct thread *cur = thread_current();
+	struct list_elem *e;
+	for(e = list_begin(&cur->child_list); e != list_end(&cur->child_list); e= list_next(e)){
+		struct thread *t;
+		t = list_entry(e, struct thread, child_elem);
+		if(t->tid == pid){
+			return t;
+		}
 	}
+	return NULL;
+
 }

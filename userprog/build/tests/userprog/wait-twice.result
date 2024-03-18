@@ -1,20 +1,16 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (wait-twice) begin
-  (child-simple) run
-  child-simple: exit(81)
-  (wait-twice) wait(exec()) = 81
-  (wait-twice) wait(exec()) = -1
-  (wait-twice) end
-  wait-twice: exit(0)
-Differences in `diff -u' format:
-  (wait-twice) begin
-- (child-simple) run
-- child-simple: exit(81)
-- (wait-twice) wait(exec()) = 81
-+ (wait-twice) wait(exec()) = 0
-  (wait-twice) wait(exec()) = -1
-  (wait-twice) end
-  wait-twice: exit(0)
+Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x800421888e 0x800421d4bf 0x800421d6a4 0x8004209745 0x8004209b63 0x800421c7b2 0x800421dcc5 0x800421d8ba 0x800421d719 0x40014e 0x4001e1 0x400c82
+Translation of call stack:
+0x000000800421888e: debug_panic (lib/kernel/debug.c:32)
+0x000000800421d4bf: kill (userprog/exception.c:103)
+0x000000800421d6a4: page_fault (userprog/exception.c:170 (discriminator 20))
+0x0000008004209745: intr_handler (threads/interrupt.c:352)
+0x0000008004209b63: intr_entry (threads/intr-stubs.o:?)
+0x000000800421c7b2: process_wait (userprog/process.c:380)
+0x000000800421dcc5: wait (userprog/syscall.c:204)
+0x000000800421d8ba: syscall_handler (userprog/syscall.c:82)
+0x000000800421d719: no_sti (userprog/syscall-entry.o:?)
+0x000000000040014e: (unknown)
+0x00000000004001e1: (unknown)
+0x0000000000400c82: (unknown)

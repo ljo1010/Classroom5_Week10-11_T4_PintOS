@@ -17,7 +17,8 @@
 #include "lib/kernel/stdio.h"
 #include "lib/string.h"
 
-
+struct lock filesys_lock;
+typedef int pid_t;
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
 
@@ -118,7 +119,7 @@ syscall_handler (struct intr_frame *f) {
 		break;
 }
 	case SYS_TELL:{
-		unsigned int position =  tell((int)f->R.rdi);
+		unsigned int position = tell((int)f->R.rdi);
 		f->R.rax = position;
 		break;
 	}
@@ -133,15 +134,15 @@ syscall_handler (struct intr_frame *f) {
 }
 
 void
-check_address(void *addr){
+check_address(const uint64_t *addr){
 
-	if(is_user_vaddr(addr)){
-		
-		if(pml4_get_page(thread_current()->pml4, addr) == NULL){
-			exit(-1);
-		}
+	if(addr == NULL){
+		exit(-1);
 	}
-	else{
+	if(!is_user_vaddr(addr)){
+		exit(-1);
+	}
+	if(pml4_get_page(thread_current()->pml4, addr) == NULL){
 		exit(-1);
 	}
 }
@@ -156,13 +157,14 @@ exit (int status) {
 	// pid에 exit status 저장
 	// 딱히 pid 가 없어서 thread... 안에 저장할까싶다
 	struct thread *curr = thread_current();
-	curr->exit_status = EXIT_SUCCESS;
+	curr->exit_status = status;
 	printf("%s: exit(%d)\n", curr->name, status);
 	thread_exit();
 }
 
-pid_t
+pid_t 
 sys_fork (const char *thread_name){
+
 	struct intr_frame *f;
 	f = &thread_current()->tf;
 	tid_t child_tid;
@@ -181,17 +183,16 @@ sys_fork (const char *thread_name){
 
 int
 exec (const char *file) {
-
+	check_address(file);
 	tid_t tid;
 	char * f_name_copy;
-	f_name_copy = palloc_get_page(0);
-	strlcpy(f_name_copy, file, PGSIZE);
+	f_name_copy = palloc_get_page(PAL_ZERO);
+	strlcpy(f_name_copy, file, strlen(file)+1);
 
 	tid = process_exec((void *)f_name_copy);
 	if(tid == -1){
 		exit(-1);
 	}
-	return tid;
 
 }
 
@@ -204,6 +205,7 @@ wait (pid_t pid) {
 
 bool
 create (const char *file, unsigned initial_size) {
+	check_address(file);
 	lock_acquire(&filesys_lock);
 	bool is_create = filesys_create(file, initial_size);
 	lock_release(&filesys_lock);
@@ -213,7 +215,7 @@ create (const char *file, unsigned initial_size) {
 
 bool
 remove (const char *file) {
-
+	check_address(file);
 	// 바로 삭제하지 않고 열려있다면 그 파일은 close가 되지 않도록 처리.
 	lock_acquire(&filesys_lock);
 	bool is_remove = filesys_remove(file);
@@ -224,7 +226,7 @@ remove (const char *file) {
 
 int
 open (const char *file) {
-
+	check_address(file);
 	lock_acquire(&filesys_lock);
 	struct file *open_n = filesys_open(file);
 	lock_release(&filesys_lock);
@@ -234,13 +236,14 @@ open (const char *file) {
 	// printf("open thread_current name : %s\n", thread_current()->name);
 	int new_fd;
 	new_fd = thread_current()->next_fd;
+	thread_current()->next_fd += 1;
 	// printf("open next_fd : %d\n", thread_current()->next_fd);
 	// printf("open new_fd :%d\n",new_fd);
 	if(new_fd <2){
 		new_fd = 2; // 0이하가 인식 안되어 꼼수.
+		thread_current()->next_fd = 3;
 	}
 	thread_current()->fdt[new_fd] = open_n;
-	thread_current()->next_fd += 1;
 
 	return new_fd;
 }
@@ -258,10 +261,10 @@ filesize (int fd) {
 int
 read (int fd, void *buffer, unsigned size) {
 
-
+	check_address(buffer);
 	if(fd == 0){
-		int key = input_getc();
-		return key;
+		*(char *)buffer= input_getc();
+		return size;
 	}
 	
 	if(fd <64){
@@ -284,7 +287,7 @@ read (int fd, void *buffer, unsigned size) {
 
 int
 write (int fd, const void *buffer, unsigned size) {
-
+	check_address(buffer);
 	lock_acquire(&filesys_lock);
 	if(fd == 1){
 		putbuf(buffer, size);
@@ -324,6 +327,7 @@ tell (int fd) {
 
 void
 close (int fd) {
+
 	struct file *target_file;
 	if(thread_current()->fdt[fd] == NULL){
 		exit(-1);

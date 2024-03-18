@@ -194,7 +194,6 @@ bool thread_donation_priority_less(const struct list_elem *a, const struct list_
 void donate_priority(void);
 void donate_set_priority(struct thread *new);
 
-
 int convert_x_n(const signed int x);
 void calculating_recent_cpu(struct thread *t);
 void calculating_load_avg(void);
@@ -204,7 +203,7 @@ void calculating_therad_priority(struct thread *t);
 void set_thread_priority(void);
 int max_priority(void);
 void increment_recent_cpu(void);
-void test_max_priority(struct thread *t);
 
-void thread_yield_current (struct thread *cur);
+struct thread* get_child_process(int pid);
+
 #endif /* threads/thread.h */

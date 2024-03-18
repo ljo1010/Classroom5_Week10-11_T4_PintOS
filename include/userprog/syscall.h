@@ -22,8 +22,6 @@ typedef int off_t;
 #define EXIT_SUCCESS 0          /* Successful execution. */
 #define EXIT_FAILURE 1          /* Unsuccessful execution. */
 
-struct lock filesys_lock;
-
 void syscall_init (void);
 
 void halt (void) NO_RETURN;
@@ -40,7 +38,7 @@ int write (int fd, const void *buffer, unsigned length);
 void seek (int fd, unsigned position);
 unsigned tell (int fd);
 void close (int fd);
-void check_address(void *addr);
+void check_address(const uint64_t *addr);
 
 int dup2(int oldfd, int newfd);
 

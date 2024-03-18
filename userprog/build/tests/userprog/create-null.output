@@ -13,15 +13,14 @@ Boot complete.
 Putting 'create-null' into the file system...
 Executing 'create-null':
 (create-null) begin
-Kernel PANIC at ../../filesys/directory.c:133 in dir_add(): assertion `name != NULL' failed.
-Call stack: 0x8004218899 0x800421fe42 0x800421e639 0x800421dd7a 0x800421d9a3 0x800421d7c9 0x400102 0x400180 0x400c21.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 60 ticks
-Thread: 30 idle ticks, 29 kernel ticks, 1 user ticks
+create-null: exit(-1)
+Execution of 'create-null' complete.
+Timer: 61 ticks
+Thread: 30 idle ticks, 29 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 83 reads, 245 writes
+hd0:1: 80 reads, 234 writes
 hd1:0: 103 reads, 0 writes
-Console: 1145 characters output
-Key
+Console: 839 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...

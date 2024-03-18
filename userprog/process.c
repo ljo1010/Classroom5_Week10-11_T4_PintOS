@@ -61,9 +61,6 @@ process_create_initd (const char *file_name) {
 	strlcpy(buf,fn_copy, sizeof(buf));
 	char *f_name = strtok_r(buf, " ", &save_ptr);
 
-	// printf("yes");
-	// printf("%s", buf); // buf는 잘 들어갔음.
-	// printf("f_name: %s\n", f_name); //f_name도 잘 들어갔음
 
 	if (f_name == NULL) {
         palloc_free_page (fn_copy);
@@ -255,9 +252,6 @@ process_exec (void *f_name) {
 	_if.cs = SEL_UCSEG;
 	_if.eflags = FLAG_IF | FLAG_MBS;
 
-	// printf("hie\n");
-	// printf("process_exec file_name : %s\n", file_name); // 풀 네임인거 확인함.
-
 	//------------------------------
 
 	char *save_ptr;
@@ -268,7 +262,6 @@ process_exec (void *f_name) {
 	strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf)); // file_name 가져오기
 	strlcpy(full_name_buf, file_name, sizeof(full_name_buf)); //strtok에서 잘리길래 두개 복사해놓음..
 
-	// printf("process exec buf : %s\n", full_f_name_buf); // 잘 출력하는거 확인
 
 	char f_name_arg[128];
 	char *f_buf;
@@ -311,8 +304,6 @@ argument_passing(char *file_name,int count,void **rsp){
 
 	char full_f_name_buf[128];
 	strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf)); // file_name 가져오기
-	// printf("argument passing file_name : %s\n", file_name); // 잘 출력하는거 확인
-	// printf("argument passing full_f_name_buf : %s\n", full_f_name_buf); // 잘 출력하는거 확인
 
 	char *f_buf, *save_ptr;
 	int total_size = 0;
@@ -333,8 +324,6 @@ argument_passing(char *file_name,int count,void **rsp){
 
 			(*rsp)--;
 			**(char**)rsp=parse[i][j]; // char 형태로 넣어야해서 이중 포인터 안에 있는 값을 char 만큼 움직여 값 넣기.
-			// printf("argument passing rsp : %p\n", &rsp);
-			// printf("argument passing parse[i][j] : %p\n", &parse[i][j]); 
 
 			total_size += 1;
 		}
@@ -385,21 +374,12 @@ process_wait (tid_t child_tid) {
 	 * XXX:       to add infinite loop here before
 	 * XXX:       implementing the process_wait. */
 
+	struct thread *child =  get_child_process(child_tid);
 
-	struct list_elem *e;
-	struct thread *curr = thread_current();
-	if(list_empty(&curr->child_list)){
-	}
-	for(e = list_begin(&curr->child_list); e != list_end(&curr->child_list); e = list_next(e)){
-		struct thread *child = list_entry(e, struct thread , child_elem);
-		if(child->tid == child_tid){
-			sema_down(&child->wait);
-			int exit_status = child->exit_status;
-			list_remove(&child->child_elem);
-			return exit_status;
-		}
-	}
-
+	sema_down(&child->wait);
+	int exit_status = child->exit_status;
+	list_remove(&child->child_elem);
+	return exit_status;
 	
 	return -1;
 }
@@ -407,7 +387,6 @@ process_wait (tid_t child_tid) {
 /* Exit the process. This function is called by thread_exit (). */
 void
 process_exit (void) {
-	struct thread *curr = thread_current ();
 	/* TODO: Your code goes here.
 	 * TODO: Implement process termination message (see
 	 * TODO: project2/process_termination.html).
@@ -526,8 +505,6 @@ load (const char *file_name, struct intr_frame *if_) {
 	bool success = false;
 	int i;
 
-	// printf("load 진입\n");
-	// printf("load file_name :%s\n", file_name);
 
 	char f_name_buf[128];
 	// file naem 전달시 parse
@@ -624,94 +601,6 @@ load (const char *file_name, struct intr_frame *if_) {
 
 	/* Start address. */
 	if_->rip = ehdr.e_entry;
-
-
-
-
-	// //file name을 명령 인수 등과 나눠서 user stack에 push
-	// char *save_ptr;
-	// struct list file_arg;
-	// list_init(&file_arg);
-
-	// char full_f_name_buf[128];
-	// int count  = 0;
-	// strlcpy(full_f_name_buf, file_name,sizeof(full_f_name_buf));
-
-	// printf("load buf : %s\n", full_f_name_buf);
-
-	// char f_name_arg[128];
-	// char *f_buf;
-	// int count = 0;
-
-	// for(f_buf = strtok_r(full_f_name_buf," ", &save_ptr); f_buf != NULL;f_buf = strtok_r(NULL, " ", &save_ptr)){
-	// 	strlcpy(f_name_arg, f_buf, sizeof(f_name_arg));
-	// 	printf("load f_name_arg :%s\n", f_name_arg);
-	// 	count++;
-	// }
-
-	// for()
-
-	// for(token.s = strtok_r(full_f_name_buf, " ", &save_ptr);token.s != NULL; token.s = strtok_r(NULL, " ", &save_ptr)){
-	// 	list_push_front(&file_arg, &token.elem);
-    // 	snprintf(token.name, sizeof(token.name), "%d", count);
-	// 	printf("load token.s : %s\n", token.s);
-	// 	count += 1;
-	// }
-
-
-	// printf("스택 안에 넣어볼것임. \n");
-
-	// printf("%d개가 들어왔군.\n", count);
-	// struct list_elem *e;
-	// size_t data_size = 0;
-	// if (list_empty(&file_arg)) {
-	// 	printf("file_arg is empty\n");
-	// } else {
-	// 	printf("file_arg is not empty\n");
-	// }
-
-	// for(e =list_begin(&file_arg);e != list_end(&file_arg);){
-	// 	struct token *to= list_entry(e, struct token, elem);
-	// 	printf("List element: %s\n", to->s);
-	// 	char *s = to->s;
-	// 	size_t word_size = strlen(s) + 1; // 널문자 포함으로 +1
-	// 	data_size+= word_size; // padding용 총 길이 재기
-
-	// 	to->addr = (char *)if_->rsp; // 현재 data 주소값 저장
-		
-	// 	// 이거쓰짖말래
-	// 	// 그럼 그 주소에 값 s를 넣는건 어떻게 해야하지.... 
-	// 	memcpy((void *)if_->rsp, s, word_size);	
-	// 	if_->rsp -= word_size;
-	// 	printf("뭐라도 해봐\n");
-	// 	printf("Stack pointer after moving: %p\n", (void *)if_->rsp);
-	// 	e = list_next(e);
-	// 	break;
-	// }
-	// printf("for 넘어옴\n");
-
-	// if(data_size%8 != 0){
-	// 	// padding 해서 하는 만큼 push.
-	// 	size_t padding_size = 8 - (data_size%8);
-	// 	memset((void *)if_->rsp, 0, padding_size);
-	// 	if_->rsp -= padding_size;
-	// }
-
-	// // 마지막 인자 null용 char * push.
-	// *((char **)if_->rsp) = NULL;
-	// if_->rsp -= sizeof(char *);
-
-	// // arg의 주소값을 push
-	// for(e = list_back(&file_arg);e != list_begin(&file_arg);e = list_prev(e)){
-	// 	struct token *to= list_entry(e, struct token, elem);
-
-	// 	*((char **)if_->rsp) = to->addr;
-	// 	if_->rsp -= sizeof(char *);
-	// }
-
-	// //fake return addr을 push	
-	// *((void **)if_->rsp) = NULL;
-	// if_->rsp -= sizeof(void *);
 
 	success = true;
 
