@@ -196,6 +196,7 @@ exec (const char *file) {
 	char * f_name_copy;
 	f_name_copy = palloc_get_page(PAL_ZERO);
 	if(f_name_copy == NULL){
+		palloc_free_page(f_name_copy);
 		exit(-1);
 	}
 	strlcpy(f_name_copy, file, strlen(file)+1);

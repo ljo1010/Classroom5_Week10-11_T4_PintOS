@@ -386,8 +386,19 @@ process_exit (void) {
 	struct thread *cur = thread_current();
 	sema_up(&cur->wait);
 	file_close (thread_current()->running);
-	process_cleanup ();
+	for(int i = 2; i <63; i++){
+		file_close(cur->fdt[i]);
+	}
+	struct list_elem *e;
+	while(!list_empty(&cur->child_list)){
+		for(e = list_begin(&cur->child_list);e != list_end(&cur->child_list); e= list_next(e)){
+			struct thread *t = list_entry(e, struct thread, child_elem);
+			process_wait(t->tid);
+		}
+	}
 	sema_down(&cur->free_wait);
+	process_cleanup ();
+
 }
 
 /* Free the current process's resources. */
