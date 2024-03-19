@@ -156,7 +156,7 @@ page_fault (struct intr_frame *f) {
 
 	/* Count page faults. */
 	page_fault_cnt++;
-	// exit(-1);
+
 	if( null_ptr || kern_base_up){
 		exit(-1);
 	}

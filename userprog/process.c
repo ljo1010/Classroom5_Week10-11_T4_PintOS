@@ -203,7 +203,7 @@ __do_fork (void *aux) {
         if (file == NULL)
             continue;
         struct file *new_file;
-		if( file == 3){//3이 추가되는 정체불명의 주소가 있는데 스루....근데대체왜생기는거임?
+		if( i == 63){//맨끝에 정체불명 주소가 생겨서 스루...근데대체왜생기는거임?
 			continue;
 		}
 		if (file > 2){
@@ -222,9 +222,9 @@ __do_fork (void *aux) {
 	if (succ)
 		do_iret (&if_);
 error:
-	printf("_do_fork error! \n");
+	succ = false;
 	sema_up(&current->fork_wait);
-	thread_exit();
+	exit(-1);
 }
 
 /* Switch the current execution context to the f_name.

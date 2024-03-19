@@ -134,6 +134,8 @@ struct thread {
 	struct intr_frame parent_if;
 	struct file *running;
 
+	// struct file **f_fdt;
+	// int fd_next;
 
 
 	
