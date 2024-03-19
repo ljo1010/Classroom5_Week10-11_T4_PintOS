@@ -195,28 +195,20 @@ __do_fork (void *aux) {
 	 * TODO:       from the fork() until this function successfully duplicates
 	 * TODO:       the resources of parent.*/
 
-	// 여기선 file duplicate까지 하라고했지만
-	// 흠....해야.....하나?
-	// duplicate 한다고해도 위치가 똑같은거면 왜 의미있는거지
-	// 보니까 그냥 별도의 file에 관한 포인터를 가져옴. 하긴 프로세스마다 포인터를 독립적으로 쓰는게 낫겠지...
-	// 이제 문제는 부모 프로세스의 file 정보가 대체 어디있냐는거지...
-	// file_duplicate();
-
-	// 생각해보니 process 시작 시점에 file 열때 그걸 thread 구조체 자체에 저장하는 메커니즘을
-	// 이것때문에 쓴거같다..
-
 	for (int i = 0; i < 64; i++)
     {
         struct file *file = parent->fdt[i];
         if (file == NULL)
             continue;
-        if (file > 2)
-            file = file_duplicate(file);
-        current->fdt[i] = file;
+        struct file *new_file;
+		if (file > 2){
+			new_file = file_duplicate(file);
+		}
+		else{
+			new_file = file;
+		}
+        current->fdt[i] = new_file;
     }
-	// 엥 이제보니 file duplicate가 자기 자신이 아니라?
-	// FDT의 요소들을 복제하는거라고? 
-
 	current->next_fd = parent->next_fd;
 	
 	sema_up(&current->fork_wait);
