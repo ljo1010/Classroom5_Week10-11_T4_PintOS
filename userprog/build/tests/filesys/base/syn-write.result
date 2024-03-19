@@ -1,15 +1,15 @@
 FAIL
 Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421888e 0x800421d5ca 0x8004209745 0x8004209b63 0x800421c8a0 0x800421dd71 0x800421d9cf 0x800421d824 0x4007b7 0x400196 0x400fa5 0x400fee
+Call stack: 0x800421888e 0x800421d655 0x8004209745 0x8004209b63 0x800421c8f7 0x800421deb3 0x800421da83 0x800421d8af 0x4007b7 0x400196 0x400fa5 0x400fee
 Translation of call stack:
 0x000000800421888e: debug_panic (lib/kernel/debug.c:32)
-0x000000800421d5ca: kill (userprog/exception.c:103)
+0x000000800421d655: kill (userprog/exception.c:103)
 0x0000008004209745: intr_handler (threads/interrupt.c:352)
 0x0000008004209b63: intr_entry (threads/intr-stubs.o:?)
-0x000000800421c8a0: process_wait (userprog/process.c:400)
-0x000000800421dd71: wait (userprog/syscall.c:194)
-0x000000800421d9cf: syscall_handler (userprog/syscall.c:83)
-0x000000800421d824: no_sti (userprog/syscall-entry.o:?)
+0x000000800421c8f7: process_wait (userprog/process.c:408)
+0x000000800421deb3: wait (userprog/syscall.c:207)
+0x000000800421da83: syscall_handler (userprog/syscall.c:86)
+0x000000800421d8af: no_sti (userprog/syscall-entry.o:?)
 0x00000000004007b7: (unknown)
 0x0000000000400196: (unknown)
 0x0000000000400fa5: (unknown)

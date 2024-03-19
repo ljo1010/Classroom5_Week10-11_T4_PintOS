@@ -68,6 +68,7 @@ syscall_handler (struct intr_frame *f) {
 	}
 
 	case SYS_FORK:{
+
 		pid_t ppid = ffork ((const char *)f->R.rdi, f); //이름이 내장함수에 충돌된다고 컴파일이 울어서 고쳐줌.
 		f->R.rax = ppid;
 		break;
@@ -136,6 +137,16 @@ syscall_handler (struct intr_frame *f) {
 
 pid_t 
 ffork (const char *thread_name, struct intr_frame *f){
+
+	// if(is_user_vaddr(f)){
+	// 	printf("ffork intr_frame f : 유저 주소군요..\n");
+	// }
+	// else if(is_kernel_vaddr(f)){
+	// 	printf("ffork intr_frame f : 커널 주소군요...\n");
+	// }
+	// if(is_kernel_vaddr(&thread_current()->tf)){
+	// 	printf("ffork thread_current tf : 커널 주소네요...\n");
+	// }
 
 	return process_fork(thread_name, f);
 

@@ -95,7 +95,14 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 
 
 	struct thread *cur = thread_current();
+	printf("process fork cur thread name : %s\n", cur->name);
+	if(is_kernel_vaddr(cur)){
+		printf("process fork cur : 커널 출신이랍니다..\n");
+	}
 	memcpy(&cur->parent_if, if_, sizeof(struct intr_frame));
+	// if(is_kernel_vaddr(if_)){
+	// 	printf("process fork if :당연히 커널 주소입니다...\n");
+	// }
 	/* Clone current thread to new thread.*/
 	tid_t tid = thread_create (name, PRI_DEFAULT, __do_fork, cur);
 	// 그냥 process current로 넘기면 걔가 가지고 있는 tf는
@@ -104,7 +111,7 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 		return TID_ERROR;
 	}
 	struct thread *child = get_child_process(tid);
-	printf("process fork child thread name : %s\n", child->name);
+	// printf("process fork child thread name : %s\n", child->name);
 	sema_down(&child->fork_wait);
 	if(child->exit_status == -1){
 		return TID_ERROR;
@@ -127,7 +134,7 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	// 부모 페이지가 커널 페이지일경우 바로 리턴. 이건 부모 스레드가 커널인지 확인하면 될듯하다. 근데 어떻게?
 	if(is_kernel_vaddr(va)){
 		printf("is_kernel vaddr error!\n");
-		return false;
+		return true;
 	}
 
 	/* 2. Resolve VA from the parent's page map level 4. */
@@ -193,12 +200,18 @@ __do_fork (void *aux) {
 	struct thread *current = thread_current ();
 	/* TODO: somehow pass the parent_if. (i.e. process_fork()'s if_) */
 	struct intr_frame *parent_if;
+	if(is_kernel_vaddr(parent)){
+		printf("do fork parent : 저도 커널 출신이에요..\n");
+	}
 	bool succ = true;
 	parent_if = &parent->parent_if;
+	// if(is_kernel_vaddr(parent_if)){
+	// 	printf("do_fork parent if : 당연히 저도 커널 주소랍니다..\n");
+	// }
 
 	/* 1. Read the cpu context to local stack. */
 	memcpy (&if_, parent_if, sizeof (struct intr_frame));
-	// if_.R.rax = 0;
+	if_.R.rax = 0;
 	/* 2. Duplicate PT */
 	current->pml4 = pml4_create();
 	if (current->pml4 == NULL){
@@ -415,6 +428,7 @@ process_exit (void) {
 	 * TODO: project2/process_termination.html).
 	 * TODO: We recommend you to implement process resource cleanup here. */
 	sema_up(&thread_current()->wait);
+	file_close (thread_current()->running);
 	process_cleanup ();
 }
 
@@ -545,8 +559,6 @@ load (const char *file_name, struct intr_frame *if_) {
 	/* Open executable file. */
 	file = filesys_open (f_name);
 	
-	t->running = file;
-	file_deny_write(t->running);
 
 	if (file == NULL) {
 		printf ("load: %s: open failed\n", f_name);
@@ -618,6 +630,9 @@ load (const char *file_name, struct intr_frame *if_) {
 		}
 	}
 
+	t->running = file;
+	file_deny_write(t->running);
+
 	/* Set up stack. */
 	if (!setup_stack (if_))
 		goto done;
@@ -629,8 +644,6 @@ load (const char *file_name, struct intr_frame *if_) {
 
 done:
 	/* We arrive here whether the load is successful or not. */
-	file_allow_write(t->running);
-	file_close (file);
 	return success;
 }
 

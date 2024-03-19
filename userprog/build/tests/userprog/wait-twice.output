@@ -4,8 +4,8 @@ Kernel command line: -q -f put wait-twice put child-simple run wait-twice
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  157,081,600 loops/s.
-hd0:0: detected 321 sector (160 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+Calibrating timer...  117,760,000 loops/s.
+hd0:0: detected 329 sector (164 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 204 sector (102 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 Formatting file system...done.
@@ -14,7 +14,13 @@ Putting 'wait-twice' into the file system...
 Putting 'child-simple' into the file system...
 Executing 'wait-twice':
 (wait-twice) begin
+syscall hadler f : 커널 주소랍니다..
+ffork intr_frame f : 커널 주소군요...
+ffork thread_current tf : 커널 주소네요...
+process fork if :당연히 커널 주소입니다...
 process fork child thread name : child-simple
+do fork parent : 저도 커널 출신이에요..
+do_fork parent if : 당연히 저도 커널 주소랍니다..
 is_kernel vaddr error!
 _do_fork pml4 for each error!
 _do_fork error! 
@@ -23,20 +29,20 @@ Page fault at 0x298: not present error reading page in kernel context.
 Interrupt 0x0e (#PF Page-Fault Exception) at rip=800420a79d
  cr2=0000000000000298 error=               0
 rax 0000000000000298 rbx 0000000000000000 rcx 00000000004034aa rdx 0000000000000020
-rsp 0000008004240e70 rbp 0000008004240e90 rsi 0000000000000000 rdi 0000000000000298
+rsp 0000008004241e70 rbp 0000008004241e90 rsi 0000000000000000 rdi 0000000000000298
 rip 000000800420a79d r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000216 r12 000000800421d907 r13 0000000000000000 r14 0000000000000000
+r11 0000000000000216 r12 000000800421d986 r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000002
 es: 001b ds: 001b cs: 0008 ss: 0010
 Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421888e 0x800421d5d6 0x800421d7bb 0x8004209745 0x8004209b63 0x800421c895 0x800421dd7d 0x800421d9db 0x800421d830 0x40014e 0x4001e1 0x400c82.
+Call stack: 0x800421888e 0x800421d655 0x800421d83a 0x8004209745 0x8004209b63 0x800421c914 0x800421deb3 0x800421da83 0x800421d8af 0x40014e 0x4001e1 0x400c82.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 71 ticks
-Thread: 30 idle ticks, 33 kernel ticks, 8 user ticks
+Timer: 74 ticks
+Thread: 30 idle ticks, 35 kernel ticks, 9 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 107 reads, 446 writes
 hd1:0: 204 reads, 0 writes
-Console: 1983 characters output
+Console: 2284 characters output
 Key
