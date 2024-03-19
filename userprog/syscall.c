@@ -158,6 +158,22 @@ check_address(const uint64_t *addr){
 }
 
 void
+check_address_bad(const uint64_t *addr){
+
+	check_address(addr);
+	check_address(addr+3);
+}
+
+void
+check_address_string(const char* str, unsigned size){
+	while (size--)
+	{
+		check_address((void *)(str++));
+	}
+	
+}
+
+void
 halt (void) {
 	power_off();
 }
@@ -260,6 +276,8 @@ int
 read (int fd, void *buffer, unsigned size) {
 
 	check_address(buffer);
+	check_address_string(buffer, size);
+
 	lock_acquire(&filesys_lock);
 	if(fd == 0){
 		unsigned count = size;
@@ -267,8 +285,6 @@ read (int fd, void *buffer, unsigned size) {
 			*((char *)buffer++)= input_getc();
 		lock_release(&filesys_lock);
 		return size;
-		// 여기서 페이지 폴트 방지용으로 pin address 라고 vme를 다루는 부분이 있는데 쉽지않다...
-		// 근데 이건 vm 파트인거같은데?
 	}
 	else if(fd == 1){
 		lock_release(&filesys_lock);
@@ -304,6 +320,15 @@ write (int fd, const void *buffer, unsigned size) {
 	}
 
 	if(fd == 1){
+		// const char *ptr = (const char *)buffer;
+		// for (unsigned i = 0; i < size; i++) {
+		// 	if (*ptr == '\0') {
+		// 		// null 포인터를 발견한 경우
+		// 		exit(-1);
+		// 	}
+		// 	  printf("write buffer : %s\n", ptr);
+        // 	ptr++; // 다음 바이트로 이동
+		// }
 		putbuf(buffer, size);
 		lock_release(&filesys_lock);
 		return size;

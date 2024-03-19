@@ -11,6 +11,8 @@
         "filesys.h": "c",
         "interrupt.h": "c",
         "stddef.h": "c",
-        "process.h": "c"
+        "process.h": "c",
+        "file.h": "c",
+        "init.h": "c"
     }
 }
