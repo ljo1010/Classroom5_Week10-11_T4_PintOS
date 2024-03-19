@@ -14,22 +14,19 @@ Putting 'wait-twice' into the file system...
 Putting 'child-simple' into the file system...
 Executing 'wait-twice':
 (wait-twice) begin
-process fork cur thread name : wait-twice
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(wait-twice) wait(exec()) = 0
+(child-simple) run
+child-simple: exit(81)
+(wait-twice) wait(exec()) = 81
 (wait-twice) wait(exec()) = -1
 (wait-twice) end
 wait-twice: exit(0)
 Execution of 'wait-twice' complete.
-Timer: 67 ticks
-Thread: 30 idle ticks, 33 kernel ticks, 5 user ticks
+Timer: 68 ticks
+Thread: 30 idle ticks, 34 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 107 reads, 446 writes
+hd0:1: 159 reads, 446 writes
 hd1:0: 204 reads, 0 writes
-Console: 1136 characters output
+Console: 1018 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

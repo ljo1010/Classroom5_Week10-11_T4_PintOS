@@ -14,21 +14,19 @@ Putting 'wait-killed' into the file system...
 Putting 'child-bad' into the file system...
 Executing 'wait-killed':
 (wait-killed) begin
-process fork cur thread name : wait-killed
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(wait-killed) wait(exec()) = 0
+(child-bad) begin
+load: pintos: open failed
+child-bad: exit(-1)
+(wait-killed) wait(exec()) = -1
 (wait-killed) end
 wait-killed: exit(0)
 Execution of 'wait-killed' complete.
-Timer: 67 ticks
-Thread: 30 idle ticks, 32 kernel ticks, 5 user ticks
+Timer: 68 ticks
+Thread: 30 idle ticks, 33 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 107 reads, 450 writes
+hd0:1: 171 reads, 450 writes
 hd1:0: 206 reads, 0 writes
-Console: 1109 characters output
+Console: 1012 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

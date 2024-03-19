@@ -4,7 +4,7 @@ Kernel command line: -q -f put rox-multichild put child-rox run rox-multichild
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  130,867,200 loops/s.
+Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 321 sector (160 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 220 sector (110 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -18,20 +18,24 @@ Executing 'rox-multichild':
 (rox-multichild) read "child-rox"
 (rox-multichild) write "child-rox"
 (rox-multichild) exec "child-rox 5"
-process fork cur thread name : rox-multichild
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(rox-multichild) wait for child: FAILED
-rox-multichild: exit(1)
-Execution of 'rox-multichild' complete.
-Timer: 71 ticks
-Thread: 30 idle ticks, 35 kernel ticks, 6 user ticks
+Page fault at 0x3: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421f761
+ cr2=0000000000000003 error=               0
+rax 0000000000000003 rbx 0000000000000000 rcx 0000000000000014 rdx 0000000000000051
+rsp 0000008004248ea0 rbp 0000008004248ec0 rsi 0000000000000000 rdi 0000000000000003
+rip 000000800421f761 r8 0000000000000000  r9 0000000000000029 r10 0000008004239000
+r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
+r15 0000000000000000 rflags 00000206
+es: 0010 ds: 0010 cs: 0008 ss: 0010
+Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x800421888e 0x800421d576 0x800421d75b 0x8004209745 0x8004209b63 0x800421c29d 0x8004207a49.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 70 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 8 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 114 reads, 479 writes
 hd1:0: 220 reads, 0 writes
-Console: 1263 characters output
-Keyboard: 0 keys pressed
-Exception: 0 page faults
-Powering off...
+Console: 1935 characters output
+Key

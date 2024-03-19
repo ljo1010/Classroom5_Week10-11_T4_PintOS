@@ -1,26 +1,11 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (fork-close) begin
-  (fork-close) open "sample.txt"
-  (fork-close) child run
-  (fork-close) end
-  child: exit(0)
-  (fork-close) Parent success
-  (fork-close) end
-  fork-close: exit(0)
-Differences in `diff -u' format:
-  (fork-close) begin
-  (fork-close) open "sample.txt"
-- (fork-close) child run
-- (fork-close) end
-- child: exit(0)
-+ process fork cur thread name : fork-close
-+ do fork parent : 저도 커널 출신이에요..
-+ is_kernel vaddr error!
-+ _do_fork pml4 for each error!
-+ _do_fork error! 
-  (fork-close) Parent success
-  (fork-close) end
-  fork-close: exit(0)
+Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x800421888e 0x800421d576 0x800421d75b 0x8004209745 0x8004209b63 0x800421c29d 0x8004207a49
+Translation of call stack:
+0x000000800421888e: debug_panic (lib/kernel/debug.c:32)
+0x000000800421d576: kill (userprog/exception.c:103)
+0x000000800421d75b: page_fault (userprog/exception.c:170 (discriminator 20))
+0x0000008004209745: intr_handler (threads/interrupt.c:352)
+0x0000008004209b63: intr_entry (threads/intr-stubs.o:?)
+0x000000800421c29d: __do_fork (userprog/process.c:214)
+0x0000008004207a49: kernel_thread (threads/thread.c:607)

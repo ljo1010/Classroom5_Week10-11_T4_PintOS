@@ -18,77 +18,24 @@ Executing 'syn-read':
 (syn-read) open "data"
 (syn-read) write "data"
 (syn-read) close "data"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 1 of 10: "child-syn-read 0"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 2 of 10: "child-syn-read 1"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 3 of 10: "child-syn-read 2"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 4 of 10: "child-syn-read 3"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 5 of 10: "child-syn-read 4"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 6 of 10: "child-syn-read 5"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 7 of 10: "child-syn-read 6"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 8 of 10: "child-syn-read 7"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 9 of 10: "child-syn-read 8"
-process fork cur thread name : syn-read
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(syn-read) exec child 10 of 10: "child-syn-read 9"
-(syn-read) wait for child 1 of 10 returned 0 (expected 0)
-(syn-read) wait for child 2 of 10 returned 0 (expected 1)
-(syn-read) wait for child 2 of 10 returned 0 (expected 1): FAILED
-syn-read: exit(1)
-Execution of 'syn-read' complete.
-Timer: 92 ticks
-Thread: 30 idle ticks, 37 kernel ticks, 25 user ticks
+Page fault at 0x3: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421f761
+ cr2=0000000000000003 error=               0
+rax 0000000000000003 rbx 0000000000000000 rcx 0000000000000013 rdx 0000000000000051
+rsp 000000800423fea0 rbp 000000800423fec0 rsi 00000080053df000 rdi 0000000000000003
+rip 000000800421f761 r8 0000000000000000  r9 0000000000000029 r10 0000008004239000
+r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
+r15 0000000000000000 rflags 00000206
+es: 0010 ds: 0010 cs: 0008 ss: 0010
+Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x800421888e 0x800421d576 0x800421d75b 0x8004209745 0x8004209b63 0x800421c29d 0x8004207a49.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 74 ticks
+Thread: 30 idle ticks, 34 kernel ticks, 10 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 137 reads, 504 writes
 hd1:0: 225 reads, 0 writes
-Console: 3257 characters output
-Keyboard: 0 keys pressed
-Exception: 0 page faults
-Powering off...
+Console: 1873 characters output
+Key

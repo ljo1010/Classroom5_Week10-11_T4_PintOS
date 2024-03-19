@@ -14,22 +14,19 @@ Putting 'exec-boundary' into the file system...
 Putting 'child-simple' into the file system...
 Executing 'exec-boundary':
 (exec-boundary) begin
-process fork cur thread name : exec-boundary
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
+(child-simple) run
+child-simple: exit(81)
 (exec-boundary) fork
 (exec-boundary) wait
-(exec-boundary) wait: FAILED
-exec-boundary: exit(1)
+(exec-boundary) end
+exec-boundary: exit(0)
 Execution of 'exec-boundary' complete.
-Timer: 69 ticks
-Thread: 30 idle ticks, 35 kernel ticks, 4 user ticks
+Timer: 70 ticks
+Thread: 30 idle ticks, 33 kernel ticks, 7 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 107 reads, 452 writes
+hd0:1: 159 reads, 452 writes
 hd1:0: 207 reads, 0 writes
-Console: 1153 characters output
+Console: 1022 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

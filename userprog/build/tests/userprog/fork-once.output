@@ -13,21 +13,18 @@ Boot complete.
 Putting 'fork-once' into the file system...
 Executing 'fork-once':
 (fork-once) begin
-process fork cur thread name : fork-once
-do fork parent : 저도 커널 출신이에요..
-is_kernel vaddr error!
-_do_fork pml4 for each error!
-_do_fork error! 
-(fork-once) Parent: child exit status is 0
+(fork-once) child run
+child: exit(81)
+(fork-once) Parent: child exit status is 81
 (fork-once) end
 fork-once: exit(0)
 Execution of 'fork-once' complete.
-Timer: 64 ticks
-Thread: 30 idle ticks, 30 kernel ticks, 4 user ticks
+Timer: 63 ticks
+Thread: 30 idle ticks, 30 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 234 writes
 hd1:0: 103 reads, 0 writes
-Console: 1043 characters output
+Console: 922 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...
