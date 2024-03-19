@@ -138,15 +138,6 @@ syscall_handler (struct intr_frame *f) {
 pid_t 
 ffork (const char *thread_name, struct intr_frame *f){
 
-	// if(is_user_vaddr(f)){
-	// 	printf("ffork intr_frame f : 유저 주소군요..\n");
-	// }
-	// else if(is_kernel_vaddr(f)){
-	// 	printf("ffork intr_frame f : 커널 주소군요...\n");
-	// }
-	// if(is_kernel_vaddr(&thread_current()->tf)){
-	// 	printf("ffork thread_current tf : 커널 주소네요...\n");
-	// }
 
 	return process_fork(thread_name, f);
 
@@ -188,6 +179,9 @@ exec (const char *file) {
 	tid_t tid;
 	char * f_name_copy;
 	f_name_copy = palloc_get_page(PAL_ZERO);
+	if(f_name_copy == NULL){
+		exit(-1);
+	}
 	strlcpy(f_name_copy, file, strlen(file)+1);
 
 	tid = process_exec((void *)f_name_copy);

@@ -55,13 +55,8 @@ Differences in `diff -u' format:
 - (fork-recursive) Parent: child exit status is 5
 - child: exit(4)
 - (fork-recursive) Parent: child exit status is 4
-+ syscall hadler f : 커널 주소랍니다..
-+ ffork intr_frame f : 커널 주소군요...
-+ ffork thread_current tf : 커널 주소네요...
-+ process fork if :당연히 커널 주소입니다...
-+ process fork child thread name : child
++ process fork cur thread name : fork-recursive
 + do fork parent : 저도 커널 출신이에요..
-+ do_fork parent if : 당연히 저도 커널 주소랍니다..
 + is_kernel vaddr error!
 + _do_fork pml4 for each error!
 + _do_fork error! 

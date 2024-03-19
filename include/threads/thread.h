@@ -129,10 +129,11 @@ struct thread {
 	struct list_elem child_elem; // 자식 스레드로서 노드일떄.
 
 	struct semaphore fork_wait;
-	struct semaphore exec_wait;
+	struct semaphore free_wait;
 
 	struct intr_frame parent_if;
 	struct file *running;
+
 
 
 	

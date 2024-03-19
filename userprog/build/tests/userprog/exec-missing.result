@@ -1,11 +1,1 @@
-FAIL
-Kernel panic in run: PANIC at ../../filesys/file.c:120 in file_deny_write(): assertion `file != NULL' failed.
-Call stack: 0x800421888e 0x800421fb0b 0x800421cb21 0x800421c5b6 0x800421de7a 0x800421da57 0x800421d8af
-Translation of call stack:
-0x000000800421888e: debug_panic (lib/kernel/debug.c:32)
-0x000000800421fb0b: file_deny_write (filesys/file.c:121)
-0x000000800421cb21: load (userprog/process.c:560)
-0x000000800421c5b6: process_exec (userprog/process.c:313)
-0x000000800421de7a: exec (userprog/syscall.c:195)
-0x000000800421da57: syscall_handler (userprog/syscall.c:80)
-0x000000800421d8af: no_sti (userprog/syscall-entry.o:?)
+PASS

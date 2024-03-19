@@ -5,7 +5,7 @@ Pintos booting with:
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
 Calibrating timer...  157,081,600 loops/s.
-hd0:0: detected 329 sector (164 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:0: detected 321 sector (160 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 113 sector (56 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 Formatting file system...done.
@@ -14,25 +14,20 @@ Putting 'multi-recurse' into the file system...
 Executing 'multi-recurse 15':
 (multi-recurse) begin 15
 (multi-recurse) exec("multi-recurse 14")
-syscall hadler f : 커널 주소랍니다..
-ffork intr_frame f : 커널 주소군요...
-ffork thread_current tf : 커널 주소네요...
-process fork if :당연히 커널 주소입니다...
-process fork child thread name : multi-recurse
+process fork cur thread name : multi-recurse
 do fork parent : 저도 커널 출신이에요..
-do_fork parent if : 당연히 저도 커널 주소랍니다..
 is_kernel vaddr error!
 _do_fork pml4 for each error!
 _do_fork error! 
 (multi-recurse) wait(exec("multi-recurse 14")) returned 0: FAILED
 multi-recurse: exit(1)
 Execution of 'multi-recurse 15' complete.
-Timer: 68 ticks
-Thread: 30 idle ticks, 31 kernel ticks, 7 user ticks
+Timer: 64 ticks
+Thread: 30 idle ticks, 31 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 87 reads, 254 writes
 hd1:0: 113 reads, 0 writes
-Console: 1391 characters output
+Console: 1137 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

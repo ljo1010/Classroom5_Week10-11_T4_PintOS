@@ -134,7 +134,7 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	// 부모 페이지가 커널 페이지일경우 바로 리턴. 이건 부모 스레드가 커널인지 확인하면 될듯하다. 근데 어떻게?
 	if(is_kernel_vaddr(va)){
 		printf("is_kernel vaddr error!\n");
-		return true;
+		return false;
 	}
 
 	/* 2. Resolve VA from the parent's page map level 4. */
@@ -179,6 +179,7 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	 *    permission. */
 	// 새 페이지를 자식 프로세스의 페이지 테이블에 추가. 가상 주소에 쓰기 가능 권한으로 추가.
 	if(!pml4_set_page(current->pml4, va, newpage,writable)){
+		palloc_free_page(newpage);
 		printf("pml4 set page error!\n");
 		return false;
 	}
@@ -205,9 +206,9 @@ __do_fork (void *aux) {
 	}
 	bool succ = true;
 	parent_if = &parent->parent_if;
-	// if(is_kernel_vaddr(parent_if)){
-	// 	printf("do_fork parent if : 당연히 저도 커널 주소랍니다..\n");
-	// }
+	if(is_kernel_vaddr(parent_if)){
+		printf("do_fork parent if : 당연히 저도 커널 주소랍니다..\n");
+	}
 
 	/* 1. Read the cpu context to local stack. */
 	memcpy (&if_, parent_if, sizeof (struct intr_frame));
@@ -410,14 +411,16 @@ process_wait (tid_t child_tid) {
 	 * XXX:       implementing the process_wait. */
 
 	struct thread *child =  get_child_process(child_tid);
+	if(child == NULL){
+		return -1;
+	}
 
 	sema_down(&child->wait);
 	int exit_status = child->exit_status;
 	// printf("process wait child exit status : %d\n", exit_status);
 	list_remove(&child->child_elem);
+	sema_up(&child->free_wait);
 	return exit_status;
-	
-	return -1;
 }
 
 /* Exit the process. This function is called by thread_exit (). */
@@ -427,9 +430,11 @@ process_exit (void) {
 	 * TODO: Implement process termination message (see
 	 * TODO: project2/process_termination.html).
 	 * TODO: We recommend you to implement process resource cleanup here. */
-	sema_up(&thread_current()->wait);
+	struct thread *cur = thread_current();
+	sema_up(&cur->wait);
 	file_close (thread_current()->running);
 	process_cleanup ();
+	sema_down(&cur->free_wait);
 }
 
 /* Free the current process's resources. */

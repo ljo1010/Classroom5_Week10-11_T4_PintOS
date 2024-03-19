@@ -633,7 +633,7 @@ init_thread (struct thread *t, const char *name, int priority) {
 
 	// userprog fdt용
 	sema_init(&t->wait, 0);
-	sema_init(&t->exec_wait, 0);
+	sema_init(&t->free_wait, 0);
 	sema_init(&t->fork_wait, 0);
 	t->fdt[0]= 0; //stdin
 	t->fdt[1]= 1; //stdout
