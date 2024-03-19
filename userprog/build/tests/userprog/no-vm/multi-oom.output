@@ -4,7 +4,7 @@ Kernel command line: -q -f put multi-oom run multi-oom
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  130,867,200 loops/s.
+Calibrating timer...  107,929,600 loops/s.
 hd0:0: detected 321 sector (160 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 107 sector (53 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -13,24 +13,24 @@ Boot complete.
 Putting 'multi-oom' into the file system...
 Executing 'multi-oom':
 (multi-oom) begin
-Page fault at 0x8025421158: not present error writing page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421deec
- cr2=0000008025421158 error=               2
-rax 000000800423c428 rbx 0000000000000000 rcx 000000800423f000 rdx 000000000423c42a
-rsp 000000800423fec0 rbp 000000800423fee0 rsi 0000000000000000 rdi 0000000000000001
-rip 000000800421deec r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000216 r12 000000800421d8a7 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000246
-es: 001b ds: 001b cs: 0008 ss: 0010
+Page fault at 0x3f: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421f788
+ cr2=000000000000003f error=               0
+rax 000000000000003f rbx 0000000000000000 rcx 0000000000000050 rdx 0000000000000051
+rsp 000000800424fe90 rbp 000000800424feb0 rsi 0000000000000000 rdi 000000000000003f
+rip 000000800421f788 r8 0000000000000000  r9 0000000000000029 r10 0000008004239000
+r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
+r15 0000000000000000 rflags 00000206
+es: 0010 ds: 0010 cs: 0008 ss: 0010
 Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421888e 0x800421d576 0x800421d75b 0x8004209745 0x8004209b63 0x800421da0a 0x800421d7d0 0x40011c 0x4003a7 0x40044b 0x400fb0.
+Call stack: 0x800421888e 0x800421d58d 0x800421d772 0x8004209745 0x8004209b63 0x800421c2a7 0x8004207a49.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 71 ticks
-Thread: 30 idle ticks, 32 kernel ticks, 9 user ticks
+Timer: 77 ticks
+Thread: 30 idle ticks, 37 kernel ticks, 10 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 209 reads, 242 writes
+hd0:1: 207 reads, 242 writes
 hd1:0: 107 reads, 0 writes
-Console: 1757 characters output
+Console: 1714 characters output
 Key

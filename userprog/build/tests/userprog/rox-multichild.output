@@ -4,7 +4,7 @@ Kernel command line: -q -f put rox-multichild put child-rox run rox-multichild
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  52,377,600 loops/s.
+Calibrating timer...  105,062,400 loops/s.
 hd0:0: detected 321 sector (160 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 220 sector (110 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -18,24 +18,27 @@ Executing 'rox-multichild':
 (rox-multichild) read "child-rox"
 (rox-multichild) write "child-rox"
 (rox-multichild) exec "child-rox 5"
-Page fault at 0x3: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421f761
- cr2=0000000000000003 error=               0
-rax 0000000000000003 rbx 0000000000000000 rcx 0000000000000014 rdx 0000000000000051
-rsp 0000008004248ea0 rbp 0000008004248ec0 rsi 0000000000000000 rdi 0000000000000003
-rip 000000800421f761 r8 0000000000000000  r9 0000000000000029 r10 0000008004239000
+(child-rox) begin
+(child-rox) try to write "child-rox"
+(child-rox) exec "child-rox 4"
+Page fault at 0x4: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421f788
+ cr2=0000000000000004 error=               0
+rax 0000000000000004 rbx 0000000000000000 rcx 0000000000000014 rdx 0000000000000051
+rsp 0000008004250e90 rbp 0000008004250eb0 rsi 0000000000000000 rdi 0000000000000004
+rip 000000800421f788 r8 0000000000000000  r9 0000000000000029 r10 0000008004239000
 r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000206
 es: 0010 ds: 0010 cs: 0008 ss: 0010
 Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421888e 0x800421d576 0x800421d75b 0x8004209745 0x8004209b63 0x800421c29d 0x8004207a49.
+Call stack: 0x800421888e 0x800421d58d 0x800421d772 0x8004209745 0x8004209b63 0x800421c2a7 0x8004207a49.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 70 ticks
-Thread: 30 idle ticks, 31 kernel ticks, 9 user ticks
+Timer: 83 ticks
+Thread: 30 idle ticks, 41 kernel ticks, 12 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 114 reads, 479 writes
+hd0:1: 172 reads, 479 writes
 hd1:0: 220 reads, 0 writes
-Console: 1934 characters output
+Console: 2022 characters output
 Key

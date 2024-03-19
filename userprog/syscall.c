@@ -231,6 +231,9 @@ open (const char *file) {
 	// printf("open thread_current name : %s\n", thread_current()->name);
 	int new_fd;
 	new_fd = thread_current()->next_fd;
+	if(new_fd == 63){
+		return -1;
+	}
 	thread_current()->next_fd += 1;
 	// printf("open next_fd : %d\n", thread_current()->next_fd);
 	// printf("open new_fd :%d\n",new_fd);

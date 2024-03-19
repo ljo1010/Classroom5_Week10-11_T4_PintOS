@@ -640,11 +640,9 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->next_fd = 2;
 
 
-	// if(initial_thread){
-		for(int i=2; i<64;i++){
-			t->fdt[i] = NULL;
-			// printf("init_thread fdt[%d] : %p\n",i, t->fdt[i]);
-		} // 그 외는 초기화.
+	for(int i = 2; i < 64; i++) {
+		t->fdt[i] = NULL;
+	}
 	// }
 	// else{
 	// 	for(int j= 0; j<64; j++){

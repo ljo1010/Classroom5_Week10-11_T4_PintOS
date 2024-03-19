@@ -4,7 +4,7 @@ Kernel command line: -q -f put exec-read put sample.txt put child-read run exec-
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  130,867,200 loops/s.
+Calibrating timer...  106,496,000 loops/s.
 hd0:0: detected 321 sector (160 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 229 sector (114 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -17,24 +17,23 @@ Executing 'exec-read':
 (exec-read) begin
 (exec-read) open "sample.txt"
 (exec-read) read "sample.txt" first 20 bytes
-Page fault at 0x3: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421f75d
- cr2=0000000000000003 error=               0
-rax 0000000000000003 rbx 0000000000000000 rcx 0000000000000014 rdx 0000000000000051
-rsp 0000008004248e90 rbp 0000008004248eb0 rsi 0000000000000000 rdi 0000000000000003
-rip 000000800421f75d r8 0000000000000000  r9 0000000000000029 r10 0000008004239000
-r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 0010 ds: 0010 cs: 0008 ss: 0010
-Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421888e 0x800421d572 0x800421d757 0x8004209745 0x8004209b63 0x800421c299 0x8004207a49.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 73 ticks
-Thread: 30 idle ticks, 36 kernel ticks, 7 user ticks
+(child-read) begin
+(child-read) open "sample.txt"
+(child-read) read "sample.txt" first 20 bytes
+(child-read) read "sample.txt" remainders
+(child-read) Child success
+(child-read) end
+child-read: exit(0)
+(exec-read) Parent success
+(exec-read) end
+exec-read: exit(0)
+Execution of 'exec-read' complete.
+Timer: 82 ticks
+Thread: 30 idle ticks, 44 kernel ticks, 9 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 144 reads, 506 writes
+hd0:1: 208 reads, 506 writes
 hd1:0: 229 reads, 0 writes
-Console: 1908 characters output
-Key
+Console: 1266 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...

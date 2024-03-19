@@ -198,9 +198,14 @@ __do_fork (void *aux) {
 	for (int i = 0; i < 64; i++)
     {
         struct file *file = parent->fdt[i];
+		// printf("do_fork file : %p\n", file);
+		// printf("do_fork i : %d\n", i);
         if (file == NULL)
             continue;
         struct file *new_file;
+		if( file == 3){//3이 추가되는 정체불명의 주소가 있는데 스루....근데대체왜생기는거임?
+			continue;
+		}
 		if (file > 2){
 			new_file = file_duplicate(file);
 		}
