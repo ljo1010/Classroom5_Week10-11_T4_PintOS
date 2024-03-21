@@ -362,7 +362,9 @@ process_wait (tid_t child_tid) {
 	/* XXX: Hint) The pintos exit if process_wait (initd), we recommend you
 	 * XXX:       to add infinite loop here before
 	 * XXX:       implementing the process_wait. */
-
+	if(list_empty(&thread_current()->child_list)){
+		printf("리스트가 비엇어욤\n");
+	}
 	struct thread *child =  get_child_process(child_tid);
 	if(child == NULL){
 		return -1;

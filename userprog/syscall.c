@@ -157,21 +157,6 @@ check_address(const uint64_t *addr){
 	}
 }
 
-void
-check_address_bad(const uint64_t *addr){
-
-	check_address(addr);
-	check_address(addr+3);
-}
-
-void
-check_address_string(const char* str, unsigned size){
-	while (size--)
-	{
-		check_address((void *)(str++));
-	}
-	
-}
 
 void
 halt (void) {
@@ -196,7 +181,6 @@ exec (const char *file) {
 	char * f_name_copy;
 	f_name_copy = palloc_get_page(PAL_ZERO);
 	if(f_name_copy == NULL){
-		palloc_free_page(f_name_copy);
 		exit(-1);
 	}
 	strlcpy(f_name_copy, file, strlen(file)+1);

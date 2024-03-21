@@ -45,8 +45,7 @@ void seek (int fd, unsigned position);
 unsigned tell (int fd);
 void close (int fd);
 void check_address(const uint64_t *addr);
-struct file_elem* get_file_elem_fd(int fd);
-void check_address_bad(const uint64_t *addr);
+
 
 
 struct file* get_file_fd(int fd);
