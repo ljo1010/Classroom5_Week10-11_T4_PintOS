@@ -74,6 +74,7 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	hash_first(&i, &supli_pt);
 
 	while(hash_next(&i)){
+		
 		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
 		if (p->va == va){
 			return p;
@@ -133,6 +134,16 @@ vm_get_frame (void) {
 
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
+
+	frame = palloc_get_page(PAL_ZERO); // USER 선언 안 하면 커널에서 가져오는것.
+	if(frame == NULL){
+		frame = vm_evict_frame();
+	}
+	// palloc() 및 프레임 가져오기.
+	// 사용 가능 페이지가 없으면 희생자 페이지를 제거하고 반환. <- 이 아래는 Evict 함수로 구현하면 됨.(아마도.)
+	// 항상 유효한 주소를 반환할 것.
+	// 즉, 사용자 메모리가 가득 차면 프레임을 제거하여 사용 가능한 메모리 공간 확보.
+
 	return frame;
 }
 
@@ -171,6 +182,12 @@ bool
 vm_claim_page (void *va UNUSED) {
 	struct page *page = NULL;
 	/* TODO: Fill this function */
+	// va를 할당할 페이지를 요청.
+	// 먼저 페이지를 가져온다음, 페이지로 do_claim page 호출.
+	page = palloc_get_page(PAL_USER | PAL_ZERO);
+	if(page == NULL){
+		return false;
+	}
 
 	return vm_do_claim_page (page);
 }
@@ -185,6 +202,10 @@ vm_do_claim_page (struct page *page) {
 	page->frame = frame;
 
 	/* TODO: Insert page table entry to map page's VA to frame's PA. */
+		// claim page = 물리적 프레임, 페이지 할당.
+	// vm_get_frame으로 프레임을 얻고
+	// 페이지 테이블의 가상 주소 - 실제 주소 매핑 추가.
+	// 반환값은 작업 성공 여부.
 
 	return swap_in (page, frame->kva);
 }
