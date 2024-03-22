@@ -68,6 +68,17 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
 
+	struct hash supli_pt = spt->supli_pt;
+
+	struct hash_iterator i;
+	hash_first(&i, &supli_pt);
+
+	while(hash_next(&i)){
+		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
+		if (p->va == va){
+			return p;
+		}	
+	}
 	return page;
 }
 
@@ -77,6 +88,11 @@ spt_insert_page (struct supplemental_page_table *spt UNUSED,
 		struct page *page UNUSED) {
 	int succ = false;
 	/* TODO: Fill this function. */
+
+	struct hash supli_pt = spt->supli_pt;
+	struct hash_elem h = page->hash_elem;
+	
+	hash_insert(&supli_pt, &h);
 
 	return succ;
 }
@@ -176,6 +192,8 @@ vm_do_claim_page (struct page *page) {
 /* Initialize new supplemental page table */
 void
 supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
+
+	hash_init(&spt->supli_pt, page_hash, page_less, NULL);
 }
 
 /* Copy supplemental page table from src to dst */
@@ -210,8 +228,8 @@ struct page *
 page_lookup (const void *address){
 	 struct page p;
   	struct hash_elem *e;
-	struct thread *cur = thread_current();
+	struct supplemental_page_table supli_p = thread_current()->spt;
   	p.va = address;
-  	e = hash_find (&cur->suplie_pt, &p.hash_elem);
+  	e = hash_find (&supli_p.supli_pt, &p.hash_elem);
   	return e != NULL ? hash_entry (e, struct page, hash_elem) : NULL;
 }

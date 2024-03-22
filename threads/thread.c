@@ -641,11 +641,11 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->fdt[1]= 1; //stdout
 	t->next_fd = 2;
 
-	#ifdef VM
+	// #ifdef VM
 
-	hash_init(&t->suplie_pt, page_hash, page_less, NULL);
+	// hash_init(&t->suplie_pt, page_hash, page_less, NULL);
 
-	#endif
+	// #endif
 
 
 	for(int i = 2; i < 64; i++) {
