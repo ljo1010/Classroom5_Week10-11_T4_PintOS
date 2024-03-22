@@ -261,7 +261,6 @@ int
 read (int fd, void *buffer, unsigned size) {
 
 	check_address(buffer);
-	check_address_string(buffer, size);
 
 	lock_acquire(&filesys_lock);
 	if(fd == 0){
