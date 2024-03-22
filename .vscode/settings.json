@@ -13,6 +13,7 @@
         "stddef.h": "c",
         "process.h": "c",
         "file.h": "c",
-        "init.h": "c"
+        "init.h": "c",
+        "hash.h": "c"
     }
 }

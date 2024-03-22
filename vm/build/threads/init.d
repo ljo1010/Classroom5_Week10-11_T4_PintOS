@@ -14,8 +14,9 @@ threads/init.o: ../../threads/init.c ../../include/threads/init.h \
  ../../include/threads/vaddr.h ../../include/threads/palloc.h \
  ../../include/threads/thread.h ../../include/lib/kernel/list.h \
  ../../include/filesys/file.h ../../include/filesys/off_t.h \
- ../../include/threads/synch.h ../../include/vm/vm.h \
- ../../include/vm/uninit.h ../../include/vm/anon.h \
+ ../../include/threads/synch.h ../../include/lib/kernel/hash.h \
+ ../../include/lib/kernel/list.h ../../include/lib/kernel/hash.h \
+ ../../include/vm/vm.h ../../include/vm/uninit.h ../../include/vm/anon.h \
  ../../include/vm/file.h ../../include/userprog/process.h \
  ../../include/userprog/exception.h ../../include/userprog/gdt.h \
  ../../include/userprog/syscall.h ../../include/userprog/tss.h \

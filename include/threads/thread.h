@@ -7,6 +7,8 @@
 #include "threads/interrupt.h"
 #include "filesys/file.h"
 #include "threads/synch.h"
+#include <hash.h>
+#include "lib/kernel/hash.h"
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -148,6 +150,8 @@ struct thread {
 #ifdef VM
 	/* Table for whole virtual memory owned by thread. */
 	struct supplemental_page_table spt;
+	struct hash suplie_pt;
+
 #endif
 
 	/* Owned by thread.c. */
