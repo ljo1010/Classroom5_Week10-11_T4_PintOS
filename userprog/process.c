@@ -421,7 +421,7 @@ static void
 process_cleanup (void) {
 	struct thread *curr = thread_current ();
 
-#ifdef VM7
+#ifdef VM
 	supplemental_page_table_kill (&curr->spt);
 #endif
 

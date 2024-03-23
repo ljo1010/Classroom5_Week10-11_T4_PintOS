@@ -10,6 +10,10 @@
         "*.inc": "c",
         "synch.h": "c",
         "intq.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "palloc.h": "c",
+        "stdbool.h": "c",
+        "page_cache.h": "c",
+        "hash.h": "c"
     }
 }

@@ -1,5 +1,6 @@
 /* inspect.c: Testing utility for VM. */
 /* DO NOT MODIFY THIS FILE. */
+//*waring* 변경 안돼
 
 #include "threads/interrupt.h"
 #include "threads/thread.h"

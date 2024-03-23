@@ -1,5 +1,7 @@
 /* anon.c: Implementation of page for non-disk image (a.k.a. anonymous page). */
 
+//익명성 페이지
+
 #include "vm/vm.h"
 #include "devices/disk.h"
 

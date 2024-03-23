@@ -21,11 +21,18 @@ static void rehash (struct hash *);
 
 /* Initializes hash table H to compute hash values using HASH and
    compare hash elements using LESS, given auxiliary data AUX. */
+   //1번인자는 초기화할 해시 테이블을 가리키는 포인터 
+   //2번인자는 주어진 key를 val로 반환하는데 사용
+   //3번인자는 해시 요소들을 비교하기 위한 함수 포인터
+   //4번인자는 NULL로 하면 됨.  
 bool
 hash_init (struct hash *h,
 		hash_hash_func *hash, hash_less_func *less, void *aux) {
+	//저장된 elem수
 	h->elem_cnt = 0;
+	//버킷은 4가 기본값이고 
 	h->bucket_cnt = 4;
+	//해시 테이블을 포인터로 가리키고 버킷에 할당 
 	h->buckets = malloc (sizeof *h->buckets * h->bucket_cnt);
 	h->hash = hash;
 	h->less = less;

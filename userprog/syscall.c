@@ -10,7 +10,7 @@
 #include "filesys/filesys.h"
 #include "filesys/file.h"
 #include "intrinsic.h"
-#include "threads/synch.h"
+#include "threads/synch.h"`
 #include "devices/input.h"
 #include "lib/kernel/stdio.h"
 #include "threads/palloc.h"
