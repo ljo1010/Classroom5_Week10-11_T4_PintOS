@@ -5,6 +5,7 @@
 #include "vm/inspect.h"
 #include <hash.h>
 #include "lib/kernel/hash.h"
+#include "threads/mmu.h"
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
@@ -135,7 +136,7 @@ vm_get_frame (void) {
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
 
-	frame = palloc_get_page(PAL_ZERO); // USER 선언 안 하면 커널에서 가져오는것.
+	frame = palloc_get_page(PAL_ZERO | PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
 	if(frame == NULL){
 		frame = vm_evict_frame();
 	}
@@ -184,11 +185,11 @@ vm_claim_page (void *va UNUSED) {
 	/* TODO: Fill this function */
 	// va를 할당할 페이지를 요청.
 	// 먼저 페이지를 가져온다음, 페이지로 do_claim page 호출.
-	page = palloc_get_page(PAL_USER | PAL_ZERO);
+	struct thread *cur = thread_current();
+	page = pml4_get_page(cur->pml4,va);
 	if(page == NULL){
 		return false;
 	}
-
 	return vm_do_claim_page (page);
 }
 
@@ -206,6 +207,9 @@ vm_do_claim_page (struct page *page) {
 	// vm_get_frame으로 프레임을 얻고
 	// 페이지 테이블의 가상 주소 - 실제 주소 매핑 추가.
 	// 반환값은 작업 성공 여부.
+
+	struct thread *cur = thread_current();
+	hash_insert(&cur->spt.supli_pt, &page->hash_elem);
 
 	return swap_in (page, frame->kva);
 }
