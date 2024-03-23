@@ -759,6 +759,16 @@ install_page (void *upage, void *kpage, bool writable) {
 
 static bool
 lazy_load_segment (struct page *page, void *aux) {
+
+	
+	struct page_load_data *aux_d = aux;
+
+	if(file_read(aux_d->file, page, aux_d->read_bytes) != (int)aux_d->read_bytes){
+		destroy(page);
+		return false;
+	}
+
+	memset(page+aux_d->read_bytes, 0, aux_d->zero_bytes);
 	/* TODO: Load the segment from the file */
 	/* TODO: This called when the first page fault occurs on address VA. */
 	/* TODO: VA is available when calling this function. */
@@ -793,9 +803,12 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		size_t page_zero_bytes = PGSIZE - page_read_bytes;
 
 		/* TODO: Set up aux to pass information to the lazy_load_segment. */
-
+		file_seek(file, ofs);
+		struct page_load_data *aux = NULL;
+		aux->file = file;
+		aux->read_bytes = read_bytes;
+		aux->zero_bytes = zero_bytes;
 		
-		void *aux = NULL;
 		if (!vm_alloc_page_with_initializer (VM_ANON, upage,
 					writable, lazy_load_segment, aux))
 			return false;

@@ -26,20 +26,6 @@ enum vm_type {
 	VM_MARKER_END = (1 << 31),
 };
 
-enum valid_type {
-    VALID = 0,
-    INVALID = 1
-};
-
-enum accessed_type {
-    ACCESSED = 0,
-    DENIED_ACCESS = 1
-};
-
-enum dirty_type {
-    CLEAN = 0,
-    DIRTY = 1
-};
 
 #include "vm/uninit.h"
 #include "vm/anon.h"
@@ -50,20 +36,6 @@ enum dirty_type {
 
 struct page_operations;
 struct thread;
-
-struct page_table_entry {
-	int vpn; // 가상 페이지 번호
-	int fn; // 프레임 번호
-
-   	enum valid_type valid_bit;
-    enum accessed_type accessed_bit;
-    enum dirty_type dirty_bit;
-	
-	struct hash_elem hash_elem;
-
-	struct page *page;
-	struct frame *frame;
-};
 
 #define VM_TYPE(type) ((type) & 7)
 

@@ -16,6 +16,8 @@
         "init.h": "c",
         "hash.h": "c",
         "palloc.h": "c",
-        "uninit.h": "c"
+        "uninit.h": "c",
+        "mmu.h": "c",
+        "vm.h": "c"
     }
 }

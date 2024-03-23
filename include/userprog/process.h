@@ -3,12 +3,11 @@
 
 #include "threads/thread.h"
 
-// struct token{
-//     char *s;
-//     struct list_elem elem;
-//     char *addr; //git book이 char*타입으로 저장하래서
-//     char name[16];
-// };
+struct page_load_data {
+    uint32_t read_bytes;
+    uint32_t zero_bytes;
+    struct file *file;
+};
 
 tid_t process_create_initd (const char *file_name);
 tid_t process_fork (const char *name, struct intr_frame *if_);

@@ -7,6 +7,7 @@
 #include "lib/kernel/hash.h"
 #include "threads/mmu.h"
 
+
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
 void
@@ -47,28 +48,32 @@ bool
 vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		vm_initializer *init, void *aux) {
 	bool ret;
+	struct page *page  = NULL;
 
 	ASSERT (VM_TYPE(type) != VM_UNINIT)
+	struct thread *cur = thread_current();
 
-	struct supplemental_page_table *spt = &thread_current ()->spt;
+	struct supplemental_page_table *spt = &cur->spt;
 
 	/* Check wheter the upage is already occupied or not. */
-	if(spt_find_page(spt, upage) != NULL){
-		return true;
-	}
 	if (spt_find_page (spt, upage) == NULL) {
 		/* TODO: Create the page, fetch the initialier according to the VM type,
 		 * TODO: and then create "uninit" page struct by calling uninit_new. You
 		 * TODO: should modify the field after calling the uninit_new. */
-		struct page *page = palloc_get_page(PAL_USER | PAL_ZERO);
+		page = palloc_get_page(PAL_USER | PAL_ZERO);
 		if(page == NULL){
 			return false;
 		}
-		uninit_new(page, upage, page->uninit.init, page->operations->type,page->uninit.aux,page->uninit.page_initializer);
+		uninit_new(page, upage, init, type,aux,NULL); // 보통 initialize를 넣지만 unit 관련해서는 static이라 null로 넣어줌.
 		/* TODO: Insert the page into the spt. */
 		ret = spt_insert_page(spt, page);
-		return ret;
+		
 	}
+
+	ret = (pml4_get_page (cur->pml4, upage) == NULL
+			&& pml4_set_page (cur->pml4, upage, page, writable));
+
+	return ret;
 err:
 	return false;
 }
@@ -176,7 +181,9 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	struct page *page = NULL;
 
 	// page자체가 말이 되는지 안되는지 확인하는법...
-	// vm alloc 내에서 했네..
+	// 그냥 null일때가 아니라 아예 kernel등이 아닌지 확인.
+	page = spt_find_page(spt, addr);
+
 	vm_alloc_page_with_initializer(page->operations->type, addr, write, page->uninit.init, page->uninit.aux);
 	/* TODO: Validate the fault */
 	/* TODO: Your code goes here */
@@ -200,7 +207,7 @@ vm_claim_page (void *va UNUSED) {
 	// va를 할당할 페이지를 요청.
 	// 먼저 페이지를 가져온다음, 페이지로 do_claim page 호출.
 	struct thread *cur = thread_current();
-	page = pml4_get_page(cur->pml4,va);
+	page = vm_alloc_page(VM_UNINIT,va,true);
 	if(page == NULL){
 		return false;
 	}
