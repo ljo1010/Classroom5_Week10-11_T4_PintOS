@@ -46,18 +46,28 @@ static struct frame *vm_evict_frame (void);
 bool
 vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		vm_initializer *init, void *aux) {
+	bool ret;
 
 	ASSERT (VM_TYPE(type) != VM_UNINIT)
 
 	struct supplemental_page_table *spt = &thread_current ()->spt;
 
 	/* Check wheter the upage is already occupied or not. */
+	if(spt_find_page(spt, upage) != NULL){
+		return true;
+	}
 	if (spt_find_page (spt, upage) == NULL) {
 		/* TODO: Create the page, fetch the initialier according to the VM type,
 		 * TODO: and then create "uninit" page struct by calling uninit_new. You
 		 * TODO: should modify the field after calling the uninit_new. */
-
+		struct page *page = palloc_get_page(PAL_USER | PAL_ZERO);
+		if(page == NULL){
+			return false;
+		}
+		uninit_new(page, upage, page->uninit.init, page->operations->type,page->uninit.aux,page->uninit.page_initializer);
 		/* TODO: Insert the page into the spt. */
+		ret = spt_insert_page(spt, page);
+		return ret;
 	}
 err:
 	return false;
@@ -164,6 +174,10 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
 	struct supplemental_page_table *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
+
+	// page자체가 말이 되는지 안되는지 확인하는법...
+	// vm alloc 내에서 했네..
+	vm_alloc_page_with_initializer(page->operations->type, addr, write, page->uninit.init, page->uninit.aux);
 	/* TODO: Validate the fault */
 	/* TODO: Your code goes here */
 
