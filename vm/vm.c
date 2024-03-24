@@ -79,10 +79,8 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		if (!spt_insert_page(spt, page)) {
 			return false;
 		}
-		
+		return true;
 	}
-
-	return true;
 err:
 	return false;
 }
@@ -92,13 +90,19 @@ struct page *
 spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
-
-	page = malloc(sizeof(struct page));
+	printf(" spt find page va : %p\n", va);
+	page = (struct page*)malloc(sizeof(struct page));
 	struct hash_elem *e;
 
-	page->va = va;
+	page->va = pg_round_down(va);
+	printf(" spt find page page->va : %p\n", page->va);
+	printf(" spt find page spt : %p\n", spt);
+	printf(" spt find page spt supli pt: %p\n", spt->supli_pt);
+	printf(" spt find page page hash elem: %p\n", page->hash_elem);
 
 	e = hash_find(&spt->supli_pt,&page->hash_elem);
+
+	free(page);
 
 	if(e != NULL){
 		page =hash_entry(e, struct page, hash_elem);
@@ -126,11 +130,8 @@ spt_insert_page (struct supplemental_page_table *spt UNUSED,
 		struct page *page UNUSED) {
 	int succ = false;
 	/* TODO: Fill this function. */
-
-	struct hash supli_pt = spt->supli_pt;
-	struct hash_elem h = page->hash_elem;
 	
-	if(hash_insert(&supli_pt, &h) != NULL){
+	if(hash_insert(&spt->supli_pt, &page->hash_elem) != NULL){
 		succ = true;
 	}
 
@@ -174,7 +175,7 @@ vm_get_frame (void) {
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
 
-	void *kva = palloc_get_page(PAL_ZERO); // USER 선언 안 하면 커널에서 가져오는것.
+	void *kva = palloc_get_page(PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
 	if(kva == NULL){
 		PANIC("todo");
 	}
@@ -215,7 +216,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	}
 
 	if(not_present){
-		page = spt_find_page(spt, addr);
+		page = spt_find_page(&spt, addr);
 		if(page == NULL){
 			return false;
 		}
@@ -250,8 +251,8 @@ vm_claim_page (void *va UNUSED) {
 	// va를 할당할 페이지를 요청.
 	// 먼저 페이지를 가져온다음, 페이지로 do_claim page 호출.
 	struct thread *cur = thread_current();
-	
-	page = spt_find_page(&cur->spt.supli_pt, va);
+
+	page = spt_find_page(&cur->spt, va);
 	if(page == NULL){
 		return false;
 	}
@@ -284,6 +285,7 @@ void
 supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
 
 	hash_init(&spt->supli_pt, page_hash, page_less, NULL);
+
 }
 
 /* Copy supplemental page table from src to dst */

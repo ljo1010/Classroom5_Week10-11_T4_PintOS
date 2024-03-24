@@ -768,6 +768,7 @@ lazy_load_segment (struct page *page, void *aux) {
 	}
 
 	memset(page->frame->kva+aux_d->read_bytes, 0, aux_d->zero_bytes);
+	return true;
 	/* TODO: Load the segment from the file */
 	/* TODO: This called when the first page fault occurs on address VA. */
 	/* TODO: VA is available when calling this function. */
