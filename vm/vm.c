@@ -93,19 +93,31 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
 
-	struct hash supli_pt = spt->supli_pt;
+	page = malloc(sizeof(struct page));
+	struct hash_elem *e;
 
-	struct hash_iterator i;
-	hash_first(&i, &supli_pt);
+	page->va = va;
 
-	while(hash_next(&i)){
-		
-		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
-		if (p->va == va){
-			return p;
-		}	
+	e = hash_find(&spt->supli_pt,&page->hash_elem);
+
+	if(e != NULL){
+		page =hash_entry(e, struct page, hash_elem);
 	}
 	return page;
+
+	// struct hash supli_pt = spt->supli_pt;
+
+	// struct hash_iterator i;
+	// hash_first(&i, &supli_pt);
+
+	// while(hash_next(&i)){
+		
+	// 	struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
+	// 	if (p->va == va){
+	// 		return p;
+	// 	}	
+	// }
+	// return page;
 }
 
 /* Insert PAGE into spt with validation. */
@@ -118,7 +130,9 @@ spt_insert_page (struct supplemental_page_table *spt UNUSED,
 	struct hash supli_pt = spt->supli_pt;
 	struct hash_elem h = page->hash_elem;
 	
-	hash_insert(&supli_pt, &h);
+	if(hash_insert(&supli_pt, &h) != NULL){
+		succ = true;
+	}
 
 	return succ;
 }
@@ -160,10 +174,13 @@ vm_get_frame (void) {
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
 
-	frame = palloc_get_page(PAL_ZERO | PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
-	if(frame == NULL){
-		frame = vm_evict_frame();
+	void *kva = palloc_get_page(PAL_ZERO); // USER 선언 안 하면 커널에서 가져오는것.
+	if(kva == NULL){
+		PANIC("todo");
 	}
+
+	frame = malloc(sizeof(struct frame));
+	frame->kva = kva;
 	// palloc() 및 프레임 가져오기.
 	// 사용 가능 페이지가 없으면 희생자 페이지를 제거하고 반환. <- 이 아래는 Evict 함수로 구현하면 됨.(아마도.)
 	// 항상 유효한 주소를 반환할 것.
@@ -233,7 +250,7 @@ vm_claim_page (void *va UNUSED) {
 	// va를 할당할 페이지를 요청.
 	// 먼저 페이지를 가져온다음, 페이지로 do_claim page 호출.
 	struct thread *cur = thread_current();
-	vm_alloc_page(VM_ANON,va,true);
+	
 	page = spt_find_page(&cur->spt.supli_pt, va);
 	if(page == NULL){
 		return false;
