@@ -79,13 +79,6 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		if (!spt_insert_page(spt, page)) {
 			return false;
 		}
-
-
-		// if (!pml4_get_page(cur->pml4, upage) && 
-		// 	!pml4_set_page(cur->pml4, upage, page, writable)) {
-		// 	return false;
-		// } // 페이지맵에 추가하는 과정이 필요없나?
-
 		
 	}
 
