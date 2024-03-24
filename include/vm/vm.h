@@ -48,7 +48,7 @@ struct page {
 	const struct page_operations *operations;
 	void *va;              /* Address in terms of user space */
 	struct frame *frame;   /* Back reference for frame */
-
+	bool writable;
 	/* Your implementation */
 
 	/* Per-type data are binded into the union.

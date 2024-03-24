@@ -6,6 +6,7 @@
 #include <hash.h>
 #include "lib/kernel/hash.h"
 #include "threads/mmu.h"
+#include "vm/uninit.h"
 
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
@@ -60,20 +61,35 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		/* TODO: Create the page, fetch the initialier according to the VM type,
 		 * TODO: and then create "uninit" page struct by calling uninit_new. You
 		 * TODO: should modify the field after calling the uninit_new. */
-		page = palloc_get_page(PAL_USER | PAL_ZERO);
+
+
+		page = (struct page *)malloc(sizeof(struct page));
 		if(page == NULL){
 			return false;
 		}
-		uninit_new(page, upage, init, type,aux,NULL); // 보통 initialize를 넣지만 unit 관련해서는 static이라 null로 넣어줌.
+
+		if(type == VM_ANON){
+			uninit_new(page, upage, init, type,aux,anon_initializer); 
+		}
+		else if(type == VM_FILE){
+			uninit_new(page, upage, init, type,aux,file_backed_initializer); 				
+		}
+		page->writable = writable;
 		/* TODO: Insert the page into the spt. */
-		ret = spt_insert_page(spt, page);
+		if (!spt_insert_page(spt, page)) {
+			return false;
+		}
+
+
+		// if (!pml4_get_page(cur->pml4, upage) && 
+		// 	!pml4_set_page(cur->pml4, upage, page, writable)) {
+		// 	return false;
+		// } // 페이지맵에 추가하는 과정이 필요없나?
+
 		
 	}
 
-	ret = (pml4_get_page (cur->pml4, upage) == NULL
-			&& pml4_set_page (cur->pml4, upage, page, writable));
-
-	return ret;
+	return true;
 err:
 	return false;
 }
@@ -180,15 +196,32 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	struct supplemental_page_table *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
 
+	if(addr == NULL){
+		return false;
+	}
+
+	if(is_kernel_vaddr(addr)){
+		return false;
+	}
+
+	if(not_present){
+		page = spt_find_page(spt, addr);
+		if(page == NULL){
+			return false;
+		}
+		if(write == true && page->writable == false){
+			return false;
+		}
+		return vm_do_claim_page (page);
+	}
 	// page자체가 말이 되는지 안되는지 확인하는법...
 	// 그냥 null일때가 아니라 아예 kernel등이 아닌지 확인.
-	page = spt_find_page(spt, addr);
 
-	vm_alloc_page_with_initializer(page->operations->type, addr, write, page->uninit.init, page->uninit.aux);
+
 	/* TODO: Validate the fault */
 	/* TODO: Your code goes here */
 
-	return vm_do_claim_page (page);
+	return false;
 }
 
 /* Free the page.
@@ -207,7 +240,8 @@ vm_claim_page (void *va UNUSED) {
 	// va를 할당할 페이지를 요청.
 	// 먼저 페이지를 가져온다음, 페이지로 do_claim page 호출.
 	struct thread *cur = thread_current();
-	page = vm_alloc_page(VM_UNINIT,va,true);
+	vm_alloc_page(VM_ANON,va,true);
+	page = spt_find_page(&cur->spt.supli_pt, va);
 	if(page == NULL){
 		return false;
 	}
@@ -230,7 +264,7 @@ vm_do_claim_page (struct page *page) {
 	// 반환값은 작업 성공 여부.
 
 	struct thread *cur = thread_current();
-	hash_insert(&cur->spt.supli_pt, &page->hash_elem);
+	pml4_set_page(cur->pml4, page->va, frame->kva, page->writable);
 
 	return swap_in (page, frame->kva);
 }
