@@ -49,7 +49,7 @@ bool
 vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		vm_initializer *init, void *aux) {
 	bool ret;
-	struct page *page  = NULL;
+	struct page *page;
 
 	ASSERT (VM_TYPE(type) != VM_UNINIT)
 	struct thread *cur = thread_current();
@@ -94,14 +94,14 @@ err:
 
 /* Find VA from spt and return page. On error, return NULL. */
 struct page *
-spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
+spt_find_page (struct supplemental_page_table *spt, void *va) {
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
 	printf(" spt find page va : %p\n", va);
 	page = (struct page*)malloc(sizeof(struct page));
 	struct hash_elem *e;
 
-	page->va = pg_round_down(va);
+	page->va = va;
 	printf(" spt find page page->va : %p\n", page->va);
 	printf(" spt find page spt : %p\n", spt);
 	printf(" spt find page spt supli pt: %p\n", spt->supli_pt);
@@ -110,6 +110,7 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	e = hash_find(&spt->supli_pt,&page->hash_elem);
 	printf(" spt find page e: %p\n",e);
 	if(e == NULL){
+		printf("spt find page e == NULL\n");
 		return NULL;
 	}
 
@@ -136,13 +137,14 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 
 /* Insert PAGE into spt with validation. */
 bool
-spt_insert_page (struct supplemental_page_table *spt UNUSED,
-		struct page *page UNUSED) {
+spt_insert_page (struct supplemental_page_table *spt,
+		struct page *page) {
 	int succ = false;
 	/* TODO: Fill this function. */
 	printf("spt insert page spt supli_pt : %p\n", spt->supli_pt);
+	printf("spt insert page spt : %p\n", spt);
 	printf("spt insert page page hash elem : %p\n", page->hash_elem);
-	if(hash_insert(&spt->supli_pt, &page->hash_elem) != NULL){
+	if(!hash_insert(&spt->supli_pt, &page->hash_elem)){
 		printf("spt insert page hash insert succ\n");
 		succ = true;
 	}
@@ -266,6 +268,7 @@ vm_claim_page (void *va UNUSED) {
 
 	page = spt_find_page(&cur->spt, va);
 	if(page == NULL){
+		printf("vm claim page : page == NULL\n");
 		return false;
 	}
 	return vm_do_claim_page (page);

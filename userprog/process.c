@@ -590,17 +590,19 @@ load (const char *file_name, struct intr_frame *if_) {
 				break;
 		}
 	}
-
+	printf("load , load segment 완료\n");
 	t->running = file;
 	file_deny_write(t->running);
 
 	/* Set up stack. */
-	if (!setup_stack (if_))
+	if (!setup_stack (if_)){
+		printf("load setup stack이 문제다\n");
 		goto done;
+	}
 
 	/* Start address. */
 	if_->rip = ehdr.e_entry;
-
+	printf("load , success 직전까지 도달.\n");
 	success = true;
 
 done:
@@ -769,7 +771,7 @@ lazy_load_segment (struct page *page, void *aux) {
 		return false;
 	}
 
-	memset(page->frame->kva+aux_d->read_bytes, 0, aux_d->zero_bytes);
+	memset((page->frame->kva)+(aux_d->read_bytes), 0, aux_d->zero_bytes);
 	return true;
 	/* TODO: Load the segment from the file */
 	/* TODO: This called when the first page fault occurs on address VA. */
@@ -803,8 +805,12 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		/* Do calculate how to fill this page.
 		 * We will read PAGE_READ_BYTES bytes from FILE
 		 * and zero the final PAGE_ZERO_BYTES bytes. */
+		printf("load segment read bytes : %d\n", read_bytes);
+		printf("load segment zero bytes : %d\n", zero_bytes);
 		size_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
 		size_t page_zero_bytes = PGSIZE - page_read_bytes;
+		printf("load segment page- read bytes : %d\n", page_read_bytes);
+		printf("load segment page zero bytes : %d\n",page_zero_bytes);
 		/* TODO: Set up aux to pass information to the lazy_load_segment. */
 		struct page_load_data *aux;
 		aux->file = file;
@@ -813,8 +819,10 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		aux->ofs = ofs;
 		
 		if (!vm_alloc_page_with_initializer (VM_ANON, upage,
-					writable, lazy_load_segment, aux))
+					writable, lazy_load_segment, aux)){
+			printf("load segment vm allod page with initializer fail\n");
 			return false;
+					}
 
 		/* Advance. */
 		read_bytes -= page_read_bytes;
@@ -822,7 +830,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		upage += PGSIZE;
 		ofs += page_read_bytes;
 	}
-	printf("read byte 안탐?\n");
+	printf("load segment true 끝\n");
 	return true;
 }
 

@@ -92,8 +92,10 @@ struct hash_elem *
 hash_insert (struct hash *h, struct hash_elem *new) {
 	struct list *bucket = find_bucket (h, new);
 	struct hash_elem *old = find_elem (h, bucket, new);
-
+	printf("hash insert list bucket : %p\n", bucket);
+	printf("hash insert hash elem old : %p\n", old);
 	if (old == NULL)
+		printf("hash insert old is null \n");
 		insert_elem (h, bucket, new);
 
 	rehash (h);
@@ -382,6 +384,7 @@ rehash (struct hash *h) {
 static void
 insert_elem (struct hash *h, struct list *bucket, struct hash_elem *e) {
 	h->elem_cnt++;
+	printf("hash.c insert_elem 진입\n");
 	list_push_front (bucket, &e->list_elem);
 }
 

@@ -15,6 +15,10 @@ Putting 'lazy-anon' into the file system...
 Executing 'lazy-anon':
 load segment 진입
 load segment while 진입
+load segment read bytes : 20202
+load segment zero bytes : 278
+load segment page- read bytes : 4096
+load segment page zero bytes : 0
 vm alloc page with initializer 진입
  spt find page va : 0x400000
  spt find page page->va : 0x400000
@@ -22,24 +26,286 @@ vm alloc page with initializer 진입
  spt find page spt supli pt: 0x800f
  spt find page page hash elem: 0x800422bdf0
  spt find page e: 0
+spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
 vm alloc with initializer writable 설정
 spt insert page spt supli_pt : 0x8004243118
+spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
-vm alloc with initializer insert 실패
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment while 진입
+load segment read bytes : 16106
+load segment zero bytes : 278
+load segment page- read bytes : 4096
+load segment page zero bytes : 0
+vm alloc page with initializer 진입
+ spt find page va : 0x401000
+ spt find page page->va : 0x401000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243218
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment while 진입
+load segment read bytes : 12010
+load segment zero bytes : 278
+load segment page- read bytes : 4096
+load segment page zero bytes : 0
+vm alloc page with initializer 진입
+ spt find page va : 0x402000
+ spt find page page->va : 0x402000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243318
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment while 진입
+load segment read bytes : 7914
+load segment zero bytes : 278
+load segment page- read bytes : 4096
+load segment page zero bytes : 0
+vm alloc page with initializer 진입
+ spt find page va : 0x403000
+ spt find page page->va : 0x403000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243418
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment while 진입
+load segment read bytes : 3818
+load segment zero bytes : 278
+load segment page- read bytes : 3818
+load segment page zero bytes : 278
+vm alloc page with initializer 진입
+ spt find page va : 0x404000
+ spt find page page->va : 0x404000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243518
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment true 끝
+load segment 진입
+load segment while 진입
+load segment read bytes : 0
+load segment zero bytes : 20480
+load segment page- read bytes : 0
+load segment page zero bytes : 4096
+vm alloc page with initializer 진입
+ spt find page va : 0x604000
+ spt find page page->va : 0x604000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243618
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment while 진입
+load segment read bytes : 0
+load segment zero bytes : 16384
+load segment page- read bytes : 0
+load segment page zero bytes : 4096
+vm alloc page with initializer 진입
+ spt find page va : 0x605000
+ spt find page page->va : 0x605000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243718
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment while 진입
+load segment read bytes : 0
+load segment zero bytes : 12288
+load segment page- read bytes : 0
+load segment page zero bytes : 4096
+vm alloc page with initializer 진입
+ spt find page va : 0x606000
+ spt find page page->va : 0x606000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243818
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment while 진입
+load segment read bytes : 0
+load segment zero bytes : 8192
+load segment page- read bytes : 0
+load segment page zero bytes : 4096
+vm alloc page with initializer 진입
+ spt find page va : 0x607000
+ spt find page page->va : 0x607000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243918
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment while 진입
+load segment read bytes : 0
+load segment zero bytes : 4096
+load segment page- read bytes : 0
+load segment page zero bytes : 4096
+vm alloc page with initializer 진입
+ spt find page va : 0x608000
+ spt find page page->va : 0x608000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243a18
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+load segment true 끝
+load , load segment 완료
+vm alloc page with initializer 진입
+ spt find page va : 0x4747f000
+ spt find page page->va : 0x4747f000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer writable 설정
+spt insert page spt supli_pt : 0x8004243b18
+spt insert page spt : 0x8004242418
+spt insert page page hash elem : 0x800422bdf0
+hash insert list bucket : 0x8004243038
+hash insert hash elem old : 0
+hash insert old is null 
+hash.c insert_elem 진입
+spt insert page hash insert succ
+ spt find page va : 0x4747f000
+ spt find page page->va : 0x4747f000
+ spt find page spt : 0x8004242418
+ spt find page spt supli pt: 0x800f
+ spt find page page hash elem: 0x800422bdf0
+ spt find page e: 0
+spt find page e == NULL
+vm claim page : page == NULL
+load setup stack이 문제다
 Kernel PANIC at ../../userprog/process.c:86 in initd(): Fail to launch initd
 
-Call stack: 0x800421889a 0x800421bfa6 0x8004207a55.
+Call stack: 0x800421889a 0x800421c016 0x8004207a55.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 76 ticks
-Thread: 30 idle ticks, 34 kernel ticks, 12 user ticks
+Timer: 275 ticks
+Thread: 30 idle ticks, 36 kernel ticks, 209 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 39 reads, 238 writes
+hd0:1: 41 reads, 238 writes
 hd1:0: 105 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1746 characters output
+Console: 11027 characters output
 Key
