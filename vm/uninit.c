@@ -65,4 +65,8 @@ uninit_destroy (struct page *page) {
 	struct uninit_page *uninit UNUSED = &page->uninit;
 	/* TODO: Fill this function.
 	 * TODO: If you don't have anything to do, just return. */
+	if(VM_TYPE(page->uninit.type) == VM_ANON){
+	free(page->uninit.aux); // 여기에 malloc으로 정보 담고 있어서 free.
+
+	}
 }

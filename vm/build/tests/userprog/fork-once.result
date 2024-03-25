@@ -1,19 +1,16 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (fork-once) begin
-  (fork-once) child run
-  child: exit(81)
-  (fork-once) Parent: child exit status is 81
-  (fork-once) end
-  fork-once: exit(0)
-Differences in `diff -u' format:
-  (fork-once) begin
-- (fork-once) child run
-- child: exit(81)
-- (fork-once) Parent: child exit status is 81
-+ child: exit(-1)
-+ (fork-once) Parent: child exit status is -1
-  (fork-once) end
-  fork-once: exit(0)
+Kernel panic in run: PANIC at ../../threads/malloc.c:249 in block_to_arena(): assertion `a->magic == ARENA_MAGIC' failed.
+Call stack: 0x800421889a 0x800420ca8b 0x800420c854 0x8004222354 0x8004221fc4 0x800421c921 0x800421c8ed 0x8004207211 0x800421dccd 0x800421d962 0x800421d810 0x400c7d
+Translation of call stack:
+0x000000800421889a: debug_panic (lib/kernel/debug.c:32)
+0x000000800420ca8b: block_to_arena (threads/malloc.c:252)
+0x000000800420c854: free (threads/malloc.c:205)
+0x0000008004222354: anon_destroy (vm/anon.c:56)
+0x0000008004221fc4: spt_hash_kill (vm/vm.c:390)
+0x000000800421c921: process_cleanup (userprog/process.c:416)
+0x000000800421c8ed: process_exit (userprog/process.c:402)
+0x0000008004207211: thread_exit (threads/thread.c:366)
+0x000000800421dccd: exec (userprog/syscall.c:179)
+0x000000800421d962: syscall_handler (userprog/syscall.c:73)
+0x000000800421d810: no_sti (userprog/syscall-entry.o:?)
+0x0000000000400c7d: (unknown)

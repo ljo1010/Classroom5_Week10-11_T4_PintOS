@@ -265,7 +265,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	//printf("vm try handle fault 진입\n");
 	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE);
 	void *stack_top = (void *) (((uint8_t *) stack_bottom + (1<<20)));
-	printf(" vm try handle fault addr : %p\n", addr);
+	// printf(" vm try handle fault addr : %p\n", addr);
 	if(addr == NULL){
 		return false;
 	}
@@ -277,19 +277,19 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	// 	return true;
 	// }
 	if(is_kernel_vaddr(addr)){
-		printf("vm try handl fault kernel vaddr!\n");
+		// printf("vm try handl fault kernel vaddr!\n");
 		return false;
 	}
 
 	if(not_present){
-		printf("vm try handl fault not present!\n");
+		// printf("vm try handl fault not present!\n");
 		page = spt_find_page(spt, addr);
 		if(page == NULL){
-			printf("vm try handl fault not present and page == NULL!\n");
+			// printf("vm try handl fault not present and page == NULL!\n");
 			return false;
 		}
 		if(write == true && page->writable == false){
-			printf("vm try handl fault not present and write none!\n");
+			// printf("vm try handl fault not present and write none!\n");
 			return false;
 		}
 		return vm_do_claim_page (page);
@@ -362,6 +362,22 @@ spt_hash_init (struct hash *spt UNUSED) {
 bool
 spt_hash_copy (struct hash *dst UNUSED,
 		struct hash *src UNUSED) {
+
+	struct hash_iterator i;
+	hash_first(&i, src);
+	while(hash_next(&i)){
+		struct page *new_page = malloc(sizeof(struct page));
+		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
+		uninit_new(new_page, p->va, p->uninit.init, p->operations->type, p->uninit.aux, p->uninit.page_initializer);
+		new_page->writable = p->writable;
+		if(!spt_insert_page(dst, new_page)){
+			return false;
+		}
+		if(!vm_do_claim_page(new_page)){
+			return false;
+		}
+	}
+
 }
 
 /* Free the resource hold by the supplemental page table */
@@ -369,7 +385,14 @@ void
 spt_hash_kill (struct hash *spt UNUSED) {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
+	struct hash_iterator i;
+	hash_first(&i, spt);
+	while(hash_next(&i)){
+		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
+		destroy(p);
+		}
 }
+
 
 uint64_t
 page_hash (const struct hash_elem *p_, void *aux UNUSED){
