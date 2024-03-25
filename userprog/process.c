@@ -66,10 +66,14 @@ process_create_initd (const char *file_name) {
         palloc_free_page (fn_copy);
         return TID_ERROR; // 파일 이름이 존재하지 않는 경우
 		}
+
+	printf("process_create_initd thread create 직전\n");
 	/* Create a new thread to execute FILE_NAME. */
 	tid = thread_create (f_name, PRI_DEFAULT, initd, fn_copy); // file_name ->token
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
+
+	printf("process_create_initd return 직전\n");
 
 	return tid;
 }
@@ -564,6 +568,7 @@ load (const char *file_name, struct intr_frame *if_) {
 			case PT_SHLIB:
 				goto done;
 			case PT_LOAD:
+				printf("load PT_LOAD case\n");
 				if (validate_segment (&phdr, file)) {
 					bool writable = (phdr.p_flags & PF_W) != 0;
 					uint64_t file_page = phdr.p_offset & ~PGMASK;
@@ -764,15 +769,16 @@ static bool
 lazy_load_segment (struct page *page, void *aux) {
 
 	struct page_load_data *aux_d = aux;
-
+	printf("##########lazy load segmen###########t\n");
 	file_seek(aux_d->file, aux_d->ofs);
-
+	printf("##########lazy load segment 2222###########\n");
 	if(file_read(aux_d->file, page->frame->kva, aux_d->read_bytes) != (int)aux_d->read_bytes){
 		palloc_free_page(page->frame->kva);
 		return false;
 	}
-
+	printf("##########lazy load segment 3333###########\n");
 	memset((page->frame->kva)+(aux_d->read_bytes), 0, aux_d->zero_bytes);
+	printf("##########lazy load segment 4444###########\n");
 	return true;
 	/* TODO: Load the segment from the file */
 	/* TODO: This called when the first page fault occurs on address VA. */
@@ -845,7 +851,7 @@ setup_stack (struct intr_frame *if_) {
 	 * TODO: If success, set the rsp accordingly.
 	 * TODO: You should mark the page is stack. */
 	/* TODO: Your code goes here */
-
+	printf("setup stack stack_bottom : %p\n", stack_bottom);
 	if(vm_alloc_page(VM_ANON |VM_MARKER_0, stack_bottom, true)){
 		if(vm_claim_page(stack_bottom)){
 			if_->rsp = USER_STACK;

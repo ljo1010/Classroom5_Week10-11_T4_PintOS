@@ -103,7 +103,7 @@ spt_find_page (struct hash *spt, void *va) {
 	page = (struct page*)malloc(sizeof(struct page));
 	struct hash_elem *e;
 
-	page->va = va;
+	page->va = pg_round_down(va);
 	printf(" spt find page page->va : %p\n", page->va);
 	printf(" spt find page spt : %p\n", spt);
 	printf(" spt find page page hash elem: %p\n", page->hash_elem);

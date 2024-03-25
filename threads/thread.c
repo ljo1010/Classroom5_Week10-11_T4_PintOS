@@ -242,7 +242,7 @@ thread_create (const char *name, int priority,
 		thread_func *function, void *aux) {
 	struct thread *t;
 	tid_t tid;
-
+	printf("thread crate 진입\n");
 	struct thread *cur = thread_current();
 	ASSERT (function != NULL);
 
@@ -254,7 +254,7 @@ thread_create (const char *name, int priority,
 	/* Initialize thread. */
 	init_thread (t, name, priority);
 	tid = t->tid = allocate_tid ();
-
+	printf("thread crate init thread, allocate tid 이후\n");
 	if(t != initial_thread && t != idle_thread){
 		// userprogram 용 자식, 부모 프로세스 리스트.
 		list_push_back(&cur->child_list, &t->child_elem);

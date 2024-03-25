@@ -1,18 +1,18 @@
-Kernel command line: -q -f put args-none run args-none
+Kernel command line: -q -f put args-single run 'args-single onearg'
 0 ~ 9fc00 1
 100000 ~ 13e0000 1
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  130,867,200 loops/s.
+Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 102 sector (51 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
 Formatting file system...done.
 Boot complete.
-Putting 'args-none' into the file system...
-Executing 'args-none':
+Putting 'args-single' into the file system...
+Executing 'args-single onearg':
 initd
 spt hash init
 load segment 진입
@@ -26,7 +26,7 @@ vm alloc page with initializer 진입
  spt find page page->va : 0x400000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0
 spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
@@ -35,7 +35,7 @@ vm alloc with initializer page type : VM_ANON : uninit_new
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
-spt insert page thread_current() : args-none
+spt insert page thread_current() : args-single
 spt insert page page->va : 0x400000
 hash insert list bucket : 0x8004243038
 hash insert hash elem old : 0
@@ -52,7 +52,7 @@ vm alloc page with initializer 진입
  spt find page page->va : 0x401000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0
 spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
@@ -61,7 +61,7 @@ vm alloc with initializer page type : VM_ANON : uninit_new
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
-spt insert page thread_current() : args-none
+spt insert page thread_current() : args-single
 spt insert page page->va : 0x401000
 hash insert list bucket : 0x8004243038
 hash insert hash elem old : 0
@@ -78,7 +78,7 @@ vm alloc page with initializer 진입
  spt find page page->va : 0x402000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0
 spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
@@ -87,7 +87,7 @@ vm alloc with initializer page type : VM_ANON : uninit_new
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
-spt insert page thread_current() : args-none
+spt insert page thread_current() : args-single
 spt insert page page->va : 0x402000
 hash insert list bucket : 0x8004243038
 hash insert hash elem old : 0
@@ -104,7 +104,7 @@ vm alloc page with initializer 진입
  spt find page page->va : 0x403000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0
 spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
@@ -113,7 +113,7 @@ vm alloc with initializer page type : VM_ANON : uninit_new
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
-spt insert page thread_current() : args-none
+spt insert page thread_current() : args-single
 spt insert page page->va : 0x403000
 hash insert list bucket : 0x8004243038
 hash insert hash elem old : 0
@@ -130,7 +130,7 @@ vm alloc page with initializer 진입
  spt find page page->va : 0x404000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0
 spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
@@ -139,7 +139,7 @@ vm alloc with initializer page type : VM_ANON : uninit_new
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
-spt insert page thread_current() : args-none
+spt insert page thread_current() : args-single
 spt insert page page->va : 0x404000
 hash insert list bucket : 0x8004243038
 hash insert hash elem old : 0
@@ -158,7 +158,7 @@ vm alloc page with initializer 진입
  spt find page page->va : 0x604000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0
 spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
@@ -167,7 +167,7 @@ vm alloc with initializer page type : VM_ANON : uninit_new
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
-spt insert page thread_current() : args-none
+spt insert page thread_current() : args-single
 spt insert page page->va : 0x604000
 hash insert list bucket : 0x8004243038
 hash insert hash elem old : 0
@@ -184,7 +184,7 @@ vm alloc page with initializer 진입
  spt find page page->va : 0x605000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0
 spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
@@ -193,7 +193,7 @@ vm alloc with initializer page type : VM_ANON : uninit_new
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
-spt insert page thread_current() : args-none
+spt insert page thread_current() : args-single
 spt insert page page->va : 0x605000
 hash insert list bucket : 0x8004243038
 hash insert hash elem old : 0
@@ -207,7 +207,7 @@ vm alloc page with initializer 진입
  spt find page page->va : 0x4747f000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0
 spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
@@ -216,7 +216,7 @@ vm alloc with initializer page type : VM_ANON : uninit_new
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
-spt insert page thread_current() : args-none
+spt insert page thread_current() : args-single
 spt insert page page->va : 0x4747f000
 hash insert list bucket : 0x8004243078
 hash insert hash elem old : 0
@@ -227,7 +227,7 @@ spt insert page hash insert succ
  spt find page page->va : 0x4747f000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0x8004243818
 vm get frame frame page : 0
 vm do claim page
@@ -240,19 +240,19 @@ vm try handle fault 진입
  spt find page page->va : 0x400c7f
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-none
+spt find page thread_current() : args-single
  spt find page e: 0
 spt find page e == NULL
 Page fault at 0x400c7f: not present error reading page in user context.
-args-none: exit(-1)
-Execution of 'args-none' complete.
-Timer: 137 ticks
-Thread: 30 idle ticks, 31 kernel ticks, 76 user ticks
+args-single: exit(-1)
+Execution of 'args-single onearg' complete.
+Timer: 138 ticks
+Thread: 30 idle ticks, 29 kernel ticks, 79 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 41 reads, 232 writes
 hd1:0: 102 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 9075 characters output
+Console: 9146 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...

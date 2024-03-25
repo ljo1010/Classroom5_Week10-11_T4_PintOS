@@ -4,6 +4,8 @@ Kernel command line: -q -f put lazy-anon run lazy-anon
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
+thread crate 진입
+thread crate init thread, allocate tid 이후
 Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
@@ -13,12 +15,17 @@ Formatting file system...done.
 Boot complete.
 Putting 'lazy-anon' into the file system...
 Executing 'lazy-anon':
+process_create_initd thread create 직전
+thread crate 진입
+thread crate init thread, allocate tid 이후
+process_create_initd return 직전
 initd
 spt hash init
+load PT_LOAD case
 load segment 진입
 load segment while 진입
-load segment read bytes : 20202
-load segment zero bytes : 278
+load segment read bytes : 20234
+load segment zero bytes : 246
 load segment page- read bytes : 4096
 load segment page zero bytes : 0
 vm alloc page with initializer 진입
@@ -43,8 +50,8 @@ hash insert old is null
 hash.c insert_elem 진입
 spt insert page hash insert succ
 load segment while 진입
-load segment read bytes : 16106
-load segment zero bytes : 278
+load segment read bytes : 16138
+load segment zero bytes : 246
 load segment page- read bytes : 4096
 load segment page zero bytes : 0
 vm alloc page with initializer 진입
@@ -69,8 +76,8 @@ hash insert old is null
 hash.c insert_elem 진입
 spt insert page hash insert succ
 load segment while 진입
-load segment read bytes : 12010
-load segment zero bytes : 278
+load segment read bytes : 12042
+load segment zero bytes : 246
 load segment page- read bytes : 4096
 load segment page zero bytes : 0
 vm alloc page with initializer 진입
@@ -95,8 +102,8 @@ hash insert old is null
 hash.c insert_elem 진입
 spt insert page hash insert succ
 load segment while 진입
-load segment read bytes : 7914
-load segment zero bytes : 278
+load segment read bytes : 7946
+load segment zero bytes : 246
 load segment page- read bytes : 4096
 load segment page zero bytes : 0
 vm alloc page with initializer 진입
@@ -121,10 +128,10 @@ hash insert old is null
 hash.c insert_elem 진입
 spt insert page hash insert succ
 load segment while 진입
-load segment read bytes : 3818
-load segment zero bytes : 278
-load segment page- read bytes : 3818
-load segment page zero bytes : 278
+load segment read bytes : 3850
+load segment zero bytes : 246
+load segment page- read bytes : 3850
+load segment page zero bytes : 246
 vm alloc page with initializer 진입
  spt find page va : 0x404000
  spt find page page->va : 0x404000
@@ -147,6 +154,7 @@ hash insert old is null
 hash.c insert_elem 진입
 spt insert page hash insert succ
 load segment true 끝
+load PT_LOAD case
 load segment 진입
 load segment while 진입
 load segment read bytes : 0
@@ -280,6 +288,7 @@ hash.c insert_elem 진입
 spt insert page hash insert succ
 load segment true 끝
 load , load segment 완료
+setup stack stack_bottom : 0x4747f000
 vm alloc page with initializer 진입
  spt find page va : 0x4747f000
  spt find page page->va : 0x4747f000
@@ -314,23 +323,14 @@ vm do claim page
 load , success 직전까지 도달.
 process exec 거의 완료, argument passing 까지.
 vm try handle fault 진입
- spt find page va : 0x400e22
- spt find page page->va : 0x400e22
+ spt find page va : 0x400e38
+ spt find page page->va : 0x400000
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
 spt find page thread_current() : lazy-anon
- spt find page e: 0
-spt find page e == NULL
-Page fault at 0x400e22: not present error reading page in user context.
-lazy-anon: exit(-1)
-Execution of 'lazy-anon' complete.
-Timer: 304 ticks
-Thread: 30 idle ticks, 34 kernel ticks, 240 user ticks
-hd0:0: 0 reads, 0 writes
-hd0:1: 41 reads, 238 writes
-hd1:0: 105 reads, 0 writes
-hd1:1: 0 reads, 0 writes
-Console: 11860 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+ spt find page e: 0x8004243118
+vm get frame frame page : 0
+vm do claim page
+#############1111##############
+##############2222#############
+##########lazy load segmen###########t
