@@ -50,7 +50,8 @@ struct page {
 	/* Your implementation */
 	//해시테이블에서 사용하는 elem
 	struct hash_elem hash_elem;
-
+	//쓸수 있는지 없는지의 여부확인
+	int writable;
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */
 	union {

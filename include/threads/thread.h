@@ -145,7 +145,6 @@ struct thread {
 	struct file**fdt;
 	int next_fd;
 
-
 	struct intr_frame parent_if;
 	//자식 list와 elem추가
 	struct list child_list;

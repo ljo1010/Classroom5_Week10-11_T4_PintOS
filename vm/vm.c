@@ -4,7 +4,7 @@
 #include "vm/vm.h"
 #include "vm/inspect.h"
 #include <hash.h>
-#include <thread.h>
+#include "include/threads/thread.h"
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
@@ -40,11 +40,17 @@ static bool vm_do_claim_page (struct page *page);
 static struct frame *vm_evict_frame (void);
 
 
+
+unsigned hash_page(const struct hash_elem *p_, void *aux);
+bool hash_less(const struct hash_elem *a_, const struct hash_elem *b_, void *aux UNUSED);
+
+
+
 /* Create the pending page object with initializer. If you want to create a
  * page, do not create it directly and make it through this function or
  * `vm_alloc_page`. */
 //initalizer를 이용해서 보류 페이지를 만들기. 만약 페이지 만들기를 원한다면, 
-// 직접적으로 만들기말고 함수를 가져오기. 'vm_alloc_page' v
+// 직접적으로 만들기말고 함수를 가져오기. 'vm_alloc_page' 
 bool
 vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		vm_initializer *init, void *aux) {
@@ -59,8 +65,24 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		 * TODO: and then create "uninit" page struct by calling uninit_new. You
 		 * TODO: should modify the field after calling the uninit_new. */
 		//page table 추가해주기
-
+		struct page *page= (struct page *)malloc(sizeof(struct page));
 		/* TODO: Insert the page into the spt. */
+		bool (*page_initializer)(struct page *, enum vm_type, void *);
+		
+		switch (VM_TYPE(type))
+		{
+		case VM_ANON:
+			page_initializer = anon_initializer;		
+			break;
+		case VM_FILE:
+			page_initializer = file_backed_initializer;
+			break;
+		}
+
+		uninit_new(page, upage, init, type, aux, page_initializer);
+		page->writable = writable;
+
+		return spt_insert_page(spt, page);
 	}
 err:
 	return false;
@@ -81,11 +103,8 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	{
 		hash_entry(e, struct page, hash_elem);
 	}
-	else
-	{
-		return NULL;
-	}
-	//return page;
+	
+	return page;
 }
 
 /* Insert PAGE into spt with validation. */
@@ -163,15 +182,43 @@ vm_handle_wp (struct page *page UNUSED) {
 }
 
 /* Return true on success */
+/*각각의 인자들 설명
+1. 인터럽트를 처리하기 위한 구조체 포안터
+2. 페이지 부재가 발생한 가상 주소를 나타냄
+3. 페이지 부재가 사용자 모드에서 발생했는지 나타내는 bool값
+4. 페이지 부재가 쓰기 작업으로 인한 것인지 나타내는 bool값
+5. 페이지 부재가 발생한 페이지가 현재 메모리에 없는 상태인지를 나타내는 bool값*/
 bool
 vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
+
 	struct supplemental_page_table *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
 	/* TODO: Validate the fault */
 	/* TODO: Your code goes here */
+	/*페이지가 NULL일때 인터럽트를 하고 false를 반환*/
+	if(addr == NULL)
+	{
+		return false;
+	}
+	//페이지를 얻고 처리한다. supplmental page table
+	if(not_present)
+	{
 	
+	page = spt_find_page(spt, addr);
+	if(page == NULL)
+	{
+		return false;
+	}
+	if(write == 1 && page->writable == 0)
+	{
+		return false;
+	}
+	//페이지 클레임 페이지가 올바르게 처리되고 메모리에 올라간 뒤에 함수를 사용해 
+	//다른 스레드가 그것을 수정하지 못하게 하는 중요한 단계
 	return vm_do_claim_page (page);
+	}
+	return false;
 }
 
 /* Free the page.
