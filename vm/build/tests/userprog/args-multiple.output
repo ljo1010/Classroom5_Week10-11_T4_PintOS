@@ -1,4 +1,4 @@
-Kernel command line: -q -f put args-none run args-none
+Kernel command line: -q -f put args-multiple run 'args-multiple some arguments for you!'
 0 ~ 9fc00 1
 100000 ~ 13e0000 1
 Pintos booting with: 
@@ -11,22 +11,26 @@ hd1:0: detected 102 sector (51 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
 Formatting file system...done.
 Boot complete.
-Putting 'args-none' into the file system...
-Executing 'args-none':
+Putting 'args-multiple' into the file system...
+Executing 'args-multiple some arguments for you!':
 (args) begin
-(args) argc = 1
-(args) argv[0] = 'args-none'
-(args) argv[1] = null
+(args) argc = 5
+(args) argv[0] = 'args-multiple'
+(args) argv[1] = 'some'
+(args) argv[2] = 'arguments'
+(args) argv[3] = 'for'
+(args) argv[4] = 'you!'
+(args) argv[5] = null
 (args) end
-args-none: exit(0)
-Execution of 'args-none' complete.
-Timer: 63 ticks
-Thread: 30 idle ticks, 29 kernel ticks, 4 user ticks
+args-multiple: exit(0)
+Execution of 'args-multiple some arguments for you!' complete.
+Timer: 65 ticks
+Thread: 30 idle ticks, 30 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 156 reads, 232 writes
 hd1:0: 102 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1005 characters output
+Console: 1207 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

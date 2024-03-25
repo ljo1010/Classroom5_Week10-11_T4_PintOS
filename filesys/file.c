@@ -147,9 +147,16 @@ file_length (struct file *file) {
  * start of the file. */
 void
 file_seek (struct file *file, off_t new_pos) {
+	//printf("file seek 진입\n");
 	ASSERT (file != NULL);
+	//printf("file seek file != NULL\n");
 	ASSERT (new_pos >= 0);
+	//printf("file seek new_pos>=0.\n");
+	//printf("file seek file :%p\n", file);
+	//printf("file seek new_pos :%d\n", new_pos);
+	//printf("file seek flie pos : %d\n", file->pos);
 	file->pos = new_pos;
+	//printf("file seek 끝.\n");
 }
 
 /* Returns the current position in FILE as a byte offset from the

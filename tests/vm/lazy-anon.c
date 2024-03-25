@@ -18,7 +18,6 @@ test_main (void)
 {
 	size_t i, j;
 	void *pa;
-	printf("lazy anon test main\n");
 	msg ("initial pages status");
 	for (i = 0 ; i < CHUNK_PAGE_COUNT ; i++) {
 		// All pages for buf should not be loaded yet.

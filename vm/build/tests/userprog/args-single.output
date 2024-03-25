@@ -4,8 +4,8 @@ Kernel command line: -q -f put args-single run 'args-single onearg'
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  157,081,600 loops/s.
-hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+Calibrating timer...  130,867,200 loops/s.
+hd0:0: detected 329 sector (164 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 102 sector (51 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
@@ -13,246 +13,21 @@ Formatting file system...done.
 Boot complete.
 Putting 'args-single' into the file system...
 Executing 'args-single onearg':
-initd
-spt hash init
-load segment 진입
-load segment while 진입
-load segment read bytes : 19738
-load segment zero bytes : 742
-load segment page- read bytes : 4096
-load segment page zero bytes : 0
-vm alloc page with initializer 진입
- spt find page va : 0x400000
- spt find page page->va : 0x400000
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0
-spt find page e == NULL
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-spt insert page spt : 0x8004242418
-spt insert page page hash elem : 0
-spt insert page thread_current() : args-single
-spt insert page page->va : 0x400000
-hash insert list bucket : 0x8004243038
-hash insert hash elem old : 0
-hash insert old is null 
-hash.c insert_elem 진입
-spt insert page hash insert succ
-load segment while 진입
-load segment read bytes : 15642
-load segment zero bytes : 742
-load segment page- read bytes : 4096
-load segment page zero bytes : 0
-vm alloc page with initializer 진입
- spt find page va : 0x401000
- spt find page page->va : 0x401000
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0
-spt find page e == NULL
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-spt insert page spt : 0x8004242418
-spt insert page page hash elem : 0
-spt insert page thread_current() : args-single
-spt insert page page->va : 0x401000
-hash insert list bucket : 0x8004243038
-hash insert hash elem old : 0
-hash insert old is null 
-hash.c insert_elem 진입
-spt insert page hash insert succ
-load segment while 진입
-load segment read bytes : 11546
-load segment zero bytes : 742
-load segment page- read bytes : 4096
-load segment page zero bytes : 0
-vm alloc page with initializer 진입
- spt find page va : 0x402000
- spt find page page->va : 0x402000
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0
-spt find page e == NULL
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-spt insert page spt : 0x8004242418
-spt insert page page hash elem : 0
-spt insert page thread_current() : args-single
-spt insert page page->va : 0x402000
-hash insert list bucket : 0x8004243038
-hash insert hash elem old : 0
-hash insert old is null 
-hash.c insert_elem 진입
-spt insert page hash insert succ
-load segment while 진입
-load segment read bytes : 7450
-load segment zero bytes : 742
-load segment page- read bytes : 4096
-load segment page zero bytes : 0
-vm alloc page with initializer 진입
- spt find page va : 0x403000
- spt find page page->va : 0x403000
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0
-spt find page e == NULL
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-spt insert page spt : 0x8004242418
-spt insert page page hash elem : 0
-spt insert page thread_current() : args-single
-spt insert page page->va : 0x403000
-hash insert list bucket : 0x8004243038
-hash insert hash elem old : 0
-hash insert old is null 
-hash.c insert_elem 진입
-spt insert page hash insert succ
-load segment while 진입
-load segment read bytes : 3354
-load segment zero bytes : 742
-load segment page- read bytes : 3354
-load segment page zero bytes : 742
-vm alloc page with initializer 진입
- spt find page va : 0x404000
- spt find page page->va : 0x404000
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0
-spt find page e == NULL
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-spt insert page spt : 0x8004242418
-spt insert page page hash elem : 0
-spt insert page thread_current() : args-single
-spt insert page page->va : 0x404000
-hash insert list bucket : 0x8004243038
-hash insert hash elem old : 0
-hash insert old is null 
-hash.c insert_elem 진입
-spt insert page hash insert succ
-load segment true 끝
-load segment 진입
-load segment while 진입
-load segment read bytes : 0
-load segment zero bytes : 8192
-load segment page- read bytes : 0
-load segment page zero bytes : 4096
-vm alloc page with initializer 진입
- spt find page va : 0x604000
- spt find page page->va : 0x604000
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0
-spt find page e == NULL
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-spt insert page spt : 0x8004242418
-spt insert page page hash elem : 0
-spt insert page thread_current() : args-single
-spt insert page page->va : 0x604000
-hash insert list bucket : 0x8004243038
-hash insert hash elem old : 0
-hash insert old is null 
-hash.c insert_elem 진입
-spt insert page hash insert succ
-load segment while 진입
-load segment read bytes : 0
-load segment zero bytes : 4096
-load segment page- read bytes : 0
-load segment page zero bytes : 4096
-vm alloc page with initializer 진입
- spt find page va : 0x605000
- spt find page page->va : 0x605000
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0
-spt find page e == NULL
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-spt insert page spt : 0x8004242418
-spt insert page page hash elem : 0
-spt insert page thread_current() : args-single
-spt insert page page->va : 0x605000
-hash insert list bucket : 0x8004243038
-hash insert hash elem old : 0
-hash insert old is null 
-hash.c insert_elem 진입
-spt insert page hash insert succ
-load segment true 끝
-load , load segment 완료
-vm alloc page with initializer 진입
- spt find page va : 0x4747f000
- spt find page page->va : 0x4747f000
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0
-spt find page e == NULL
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-spt insert page spt : 0x8004242418
-spt insert page page hash elem : 0
-spt insert page thread_current() : args-single
-spt insert page page->va : 0x4747f000
-hash insert list bucket : 0x8004243078
-hash insert hash elem old : 0
-hash insert old is null 
-hash.c insert_elem 진입
-spt insert page hash insert succ
- spt find page va : 0x4747f000
- spt find page page->va : 0x4747f000
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0x8004243818
-vm get frame frame page : 0
-vm do claim page
-#############1111##############
-##############2222#############
-load , success 직전까지 도달.
-process exec 거의 완료, argument passing 까지.
-vm try handle fault 진입
- spt find page va : 0x400c7f
- spt find page page->va : 0x400c7f
- spt find page spt : 0x8004242418
- spt find page page hash elem: 0x800422bdf0
-spt find page thread_current() : args-single
- spt find page e: 0
-spt find page e == NULL
-Page fault at 0x400c7f: not present error reading page in user context.
-args-single: exit(-1)
+(args) begin
+(args) argc = 2
+(args) argv[0] = 'args-single'
+(args) argv[1] = 'onearg'
+(args) argv[2] = null
+(args) end
+args-single: exit(0)
 Execution of 'args-single onearg' complete.
-Timer: 138 ticks
-Thread: 30 idle ticks, 29 kernel ticks, 79 user ticks
+Timer: 66 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 41 reads, 232 writes
+hd0:1: 156 reads, 232 writes
 hd1:0: 102 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 9146 characters output
+Console: 1068 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

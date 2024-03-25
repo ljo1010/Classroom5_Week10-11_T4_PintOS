@@ -8,7 +8,8 @@ struct page_load_data {
     uint32_t zero_bytes;
     struct file *file;
     off_t ofs;
-
+    struct list_elem elem;
+    void *aux;
 };
 
 tid_t process_create_initd (const char *file_name);
