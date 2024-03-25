@@ -77,6 +77,7 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 			printf("vm alloc with initializer page type : VM_FILE\n");
 			uninit_new(page, upage, init, type,aux,file_backed_initializer); 				
 		}
+		printf("vm alloc with initializer page type : %p\n", type);
 		page->writable = writable;
 		printf("vm alloc with initializer writable 설정\n");
 		/* TODO: Insert the page into the spt. */
