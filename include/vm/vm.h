@@ -93,14 +93,13 @@ struct supplemental_page_table {
 };
 
 #include "threads/thread.h"
-void supplemental_page_table_init (struct supplemental_page_table *spt);
-bool supplemental_page_table_copy (struct supplemental_page_table *dst,
-		struct supplemental_page_table *src);
-void supplemental_page_table_kill (struct supplemental_page_table *spt);
-struct page *spt_find_page (struct supplemental_page_table *spt,
+void spt_hash_init (struct hash *spt UNUSED);
+bool spt_hash_copy (struct hash *dst UNUSED, struct hash *src UNUSED);
+void spt_hash_kill (struct hash *spt UNUSED);
+struct page *spt_find_page (struct hash *spt,
 		void *va);
-bool spt_insert_page (struct supplemental_page_table *spt, struct page *page);
-void spt_remove_page (struct supplemental_page_table *spt, struct page *page);
+bool spt_insert_page (struct hash *spt, struct page *page);
+void spt_remove_page (struct hash *spt, struct page *page);
 
 void vm_init (void);
 bool vm_try_handle_fault (struct intr_frame *f, void *addr, bool user,
@@ -114,7 +113,7 @@ void vm_dealloc_page (struct page *page);
 bool vm_claim_page (void *va);
 enum vm_type page_get_type (struct page *page);
 
-unsigned page_hash (const struct hash_elem *p_, void *aux UNUSED);
+uint64_t page_hash (const struct hash_elem *p_, void *aux UNUSED);
 bool page_less (const struct hash_elem *a_, const struct hash_elem *b_, void *aux UNUSED);
 struct page *page_lookup (const void *address); 
 

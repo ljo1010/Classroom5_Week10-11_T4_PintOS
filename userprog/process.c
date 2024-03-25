@@ -78,7 +78,8 @@ process_create_initd (const char *file_name) {
 static void
 initd (void *f_name) {
 #ifdef VM
-	supplemental_page_table_init (&thread_current ()->spt);
+	printf("initd\n");
+	spt_hash_init (&thread_current ()->spt);
 #endif
 
 	process_init ();
@@ -178,8 +179,8 @@ __do_fork (void *aux) {
 
 	process_activate (current);
 #ifdef VM
-	supplemental_page_table_init (&current->spt);
-	if (!supplemental_page_table_copy (&current->spt, &parent->spt))
+	spt_hash_init (&current->spt);
+	if (!spt_hash_copy (&current->spt, &parent->spt))
 		goto error;
 #else
 	if (!pml4_for_each (parent->pml4, duplicate_pte, parent)){
@@ -399,7 +400,7 @@ process_cleanup (void) {
 	struct thread *curr = thread_current ();
 
 #ifdef VM
-	supplemental_page_table_kill (&curr->spt);
+	spt_hash_kill (&curr->spt);
 #endif
 
 	uint64_t *pml4;

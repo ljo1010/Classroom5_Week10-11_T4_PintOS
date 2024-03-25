@@ -48,13 +48,12 @@ static struct frame *vm_evict_frame (void);
 bool
 vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		vm_initializer *init, void *aux) {
-	bool ret;
 	struct page *page;
 
 	ASSERT (VM_TYPE(type) != VM_UNINIT)
 	struct thread *cur = thread_current();
 
-	struct supplemental_page_table *spt = &cur->spt;
+	struct hash *spt = &cur->spt;
 	printf("vm alloc page with initializer 진입\n");
 	/* Check wheter the upage is already occupied or not. */
 	if (spt_find_page (spt, upage) == NULL) {
@@ -94,7 +93,7 @@ err:
 
 /* Find VA from spt and return page. On error, return NULL. */
 struct page *
-spt_find_page (struct supplemental_page_table *spt, void *va) {
+spt_find_page (struct hash *spt, void *va) {
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
 	printf(" spt find page va : %p\n", va);
@@ -104,10 +103,11 @@ spt_find_page (struct supplemental_page_table *spt, void *va) {
 	page->va = va;
 	printf(" spt find page page->va : %p\n", page->va);
 	printf(" spt find page spt : %p\n", spt);
-	printf(" spt find page spt supli pt: %p\n", spt->supli_pt);
 	printf(" spt find page page hash elem: %p\n", page->hash_elem);
 
-	e = hash_find(&spt->supli_pt,&page->hash_elem);
+	printf("spt find page thread_current() : %s\n", thread_current()->name);
+
+	e = hash_find(spt,&page->hash_elem);
 	printf(" spt find page e: %p\n",e);
 	if(e == NULL){
 		printf("spt find page e == NULL\n");
@@ -137,14 +137,17 @@ spt_find_page (struct supplemental_page_table *spt, void *va) {
 
 /* Insert PAGE into spt with validation. */
 bool
-spt_insert_page (struct supplemental_page_table *spt,
+spt_insert_page (struct hash *spt,
 		struct page *page) {
 	int succ = false;
 	/* TODO: Fill this function. */
-	printf("spt insert page spt supli_pt : %p\n", spt->supli_pt);
 	printf("spt insert page spt : %p\n", spt);
 	printf("spt insert page page hash elem : %p\n", page->hash_elem);
-	if(!hash_insert(&spt->supli_pt, &page->hash_elem)){
+
+	printf("spt insert page thread_current() : %s\n", thread_current()->name);
+
+	printf("spt insert page page->va : %p\n", page->va);
+	if(!hash_insert(spt, &page->hash_elem)){
 		printf("spt insert page hash insert succ\n");
 		succ = true;
 	}
@@ -153,7 +156,7 @@ spt_insert_page (struct supplemental_page_table *spt,
 }
 
 void
-spt_remove_page (struct supplemental_page_table *spt, struct page *page) {
+spt_remove_page (struct hash *spt, struct page *page) {
 	vm_dealloc_page (page);
 	return true;
 }
@@ -218,7 +221,7 @@ vm_handle_wp (struct page *page UNUSED) {
 bool
 vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
-	struct supplemental_page_table *spt UNUSED = &thread_current ()->spt;
+	struct hash *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
 	printf("vm try handle fault 진입\n");
 	if(addr == NULL){
@@ -230,7 +233,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	}
 
 	if(not_present){
-		page = spt_find_page(&spt, addr);
+		page = spt_find_page(spt, addr);
 		if(page == NULL){
 			return false;
 		}
@@ -297,26 +300,26 @@ vm_do_claim_page (struct page *page) {
 
 /* Initialize new supplemental page table */
 void
-supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
-
-	hash_init(&spt->supli_pt, page_hash, page_less, NULL);
+spt_hash_init (struct hash *spt UNUSED) {
+	printf("spt hash init\n");
+	hash_init(spt, page_hash, page_less, NULL);
 
 }
 
 /* Copy supplemental page table from src to dst */
 bool
-supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
-		struct supplemental_page_table *src UNUSED) {
+spt_hash_copy (struct hash *dst UNUSED,
+		struct hash *src UNUSED) {
 }
 
 /* Free the resource hold by the supplemental page table */
 void
-supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED) {
+spt_hash_kill (struct hash *spt UNUSED) {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
 }
 
-unsigned 
+uint64_t
 page_hash (const struct hash_elem *p_, void *aux UNUSED){
 
 	const struct page *p = hash_entry (p_, struct page, hash_elem);
@@ -335,8 +338,9 @@ struct page *
 page_lookup (const void *address){
 	 struct page p;
   	struct hash_elem *e;
-	struct supplemental_page_table supli_p = thread_current()->spt;
+	struct hash spt = thread_current()->spt;
   	p.va = address;
-  	e = hash_find (&supli_p.supli_pt, &p.hash_elem);
+  	e = hash_find (&spt, &p.hash_elem);
   	return e != NULL ? hash_entry (e, struct page, hash_elem) : NULL;
 }
+
