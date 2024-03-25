@@ -216,6 +216,12 @@ vm_get_frame (void) {
 /* Growing the stack. */
 static void
 vm_stack_growth (void *addr UNUSED) {
+	if(addr > ((USER_STACK - PGSIZE)+(1<< 20))){
+		return ;
+	}
+	addr = pg_round_down(addr);
+	
+	vm_alloc_page(VM_ANON, addr, true);
 }
 
 /* Handle the fault on write_protected page */
@@ -230,20 +236,29 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	struct hash *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
 	//printf("vm try handle fault 진입\n");
+
+	printf(" vm try handle fault addr : %p\n", addr);
 	if(addr == NULL){
 		return false;
 	}
-
+	// if(addr < USER_STACK - PGSIZE -8 && addr > 0){
+	// 	vm_stack_growth(addr);
+	// 	return true;
+	// }
 	if(is_kernel_vaddr(addr)){
+		printf("vm try handl fault kernel vaddr!\n");
 		return false;
 	}
 
 	if(not_present){
+		printf("vm try handl fault not present!\n");
 		page = spt_find_page(spt, addr);
 		if(page == NULL){
+			printf("vm try handl fault not present and page == NULL!\n");
 			return false;
 		}
 		if(write == true && page->writable == false){
+			printf("vm try handl fault not present and write none!\n");
 			return false;
 		}
 		return vm_do_claim_page (page);

@@ -28,7 +28,6 @@
 #endif
 
 
-static struct list aux_list;
 static void process_cleanup (void);
 static bool load (const char *file_name, struct intr_frame *if_);
 static void initd (void *f_name);
@@ -220,6 +219,7 @@ __do_fork (void *aux) {
 	process_init ();
 	/* Finally, switch to the newly created process. */
 	if (succ)
+	// 이 시점에도 rsp를 저장하나..?? 
 		do_iret (&if_);
 error:
 	succ = false;
@@ -282,6 +282,7 @@ process_exec (void *f_name) {
 	// hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
 
 	/* Start switched process. */
+	thread_current()->cur_rsp = _if.rsp;
 	do_iret (&_if);
 	NOT_REACHED ();
 }
@@ -813,7 +814,6 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 	ASSERT ((read_bytes + zero_bytes) % PGSIZE == 0);
 	ASSERT (pg_ofs (upage) == 0);
 	ASSERT (ofs % PGSIZE == 0);
-	list_init(&aux_list);
 	//printf("load segment 진입\n");
 	while (read_bytes > 0 || zero_bytes > 0) {
 		//printf("load segment while 진입\n");
@@ -829,8 +829,8 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		/* TODO: Set up aux to pass information to the lazy_load_segment. */
 		struct page_load_data *aux = malloc(sizeof(struct page_load_data));
 		aux->file = file;
-		aux->read_bytes = read_bytes;
-		aux->zero_bytes = zero_bytes;
+		aux->read_bytes = page_read_bytes;
+		aux->zero_bytes = page_zero_bytes;
 		aux->ofs = ofs;
 		
 		//printf("--------load segment aux ofs : %d-----------\n", aux->ofs);

@@ -135,11 +135,6 @@ struct thread {
 
 	struct intr_frame parent_if;
 	struct file *running;
-
-	// struct file **f_fdt;
-	// int fd_next;
-
-
 	
 
 #ifdef USERPROG
@@ -150,6 +145,7 @@ struct thread {
 #ifdef VM
 	/* Table for whole virtual memory owned by thread. */
 	struct hash spt;
+	uintptr_t cur_rsp;
 #endif
 
 	/* Owned by thread.c. */
