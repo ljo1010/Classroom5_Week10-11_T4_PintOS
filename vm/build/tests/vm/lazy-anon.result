@@ -1,7 +1,366 @@
 FAIL
-Kernel panic in run: PANIC at ../../userprog/process.c:87 in initd(): Fail to launch initd
-Call stack: 0x800421889a 0x800421c02c 0x8004207a55
-Translation of call stack:
-0x000000800421889a: debug_panic (lib/kernel/debug.c:32)
-0x000000800421c02c: initd (userprog/process.c:88)
-0x0000008004207a55: kernel_thread (threads/thread.c:609)
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (lazy-anon) begin
+  (lazy-anon) initial pages status
+  (lazy-anon) check if page is not loaded
+  (lazy-anon) check if page is not loaded
+  (lazy-anon) check if page is not loaded
+  (lazy-anon) load pages
+  (lazy-anon) load page [0]
+  (lazy-anon) check if page is loaded
+  (lazy-anon) check memory content
+  (lazy-anon) check if page is not loaded
+  (lazy-anon) check if page is not loaded
+  (lazy-anon) load page [1]
+  (lazy-anon) check if page is loaded
+  (lazy-anon) check memory content
+  (lazy-anon) check if page is loaded
+  (lazy-anon) check memory content
+  (lazy-anon) check if page is not loaded
+  (lazy-anon) load page [2]
+  (lazy-anon) check if page is loaded
+  (lazy-anon) check memory content
+  (lazy-anon) check if page is loaded
+  (lazy-anon) check memory content
+  (lazy-anon) check if page is loaded
+  (lazy-anon) check memory content
+  (lazy-anon) end
+Differences in `diff -u' format:
+- (lazy-anon) begin
+- (lazy-anon) initial pages status
+- (lazy-anon) check if page is not loaded
+- (lazy-anon) check if page is not loaded
+- (lazy-anon) check if page is not loaded
+- (lazy-anon) load pages
+- (lazy-anon) load page [0]
+- (lazy-anon) check if page is loaded
+- (lazy-anon) check memory content
+- (lazy-anon) check if page is not loaded
+- (lazy-anon) check if page is not loaded
+- (lazy-anon) load page [1]
+- (lazy-anon) check if page is loaded
+- (lazy-anon) check memory content
+- (lazy-anon) check if page is loaded
+- (lazy-anon) check memory content
+- (lazy-anon) check if page is not loaded
+- (lazy-anon) load page [2]
+- (lazy-anon) check if page is loaded
+- (lazy-anon) check memory content
+- (lazy-anon) check if page is loaded
+- (lazy-anon) check memory content
+- (lazy-anon) check if page is loaded
+- (lazy-anon) check memory content
+- (lazy-anon) end
++ initd
++ spt hash init
++ load segment 진입
++ load segment while 진입
++ load segment read bytes : 20202
++ load segment zero bytes : 278
++ load segment page- read bytes : 4096
++ load segment page zero bytes : 0
++ vm alloc page with initializer 진입
++  spt find page va : 0x400000
++  spt find page page->va : 0x400000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x400000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment while 진입
++ load segment read bytes : 16106
++ load segment zero bytes : 278
++ load segment page- read bytes : 4096
++ load segment page zero bytes : 0
++ vm alloc page with initializer 진입
++  spt find page va : 0x401000
++  spt find page page->va : 0x401000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x401000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment while 진입
++ load segment read bytes : 12010
++ load segment zero bytes : 278
++ load segment page- read bytes : 4096
++ load segment page zero bytes : 0
++ vm alloc page with initializer 진입
++  spt find page va : 0x402000
++  spt find page page->va : 0x402000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x402000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment while 진입
++ load segment read bytes : 7914
++ load segment zero bytes : 278
++ load segment page- read bytes : 4096
++ load segment page zero bytes : 0
++ vm alloc page with initializer 진입
++  spt find page va : 0x403000
++  spt find page page->va : 0x403000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x403000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment while 진입
++ load segment read bytes : 3818
++ load segment zero bytes : 278
++ load segment page- read bytes : 3818
++ load segment page zero bytes : 278
++ vm alloc page with initializer 진입
++  spt find page va : 0x404000
++  spt find page page->va : 0x404000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x404000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment true 끝
++ load segment 진입
++ load segment while 진입
++ load segment read bytes : 0
++ load segment zero bytes : 20480
++ load segment page- read bytes : 0
++ load segment page zero bytes : 4096
++ vm alloc page with initializer 진입
++  spt find page va : 0x604000
++  spt find page page->va : 0x604000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x604000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment while 진입
++ load segment read bytes : 0
++ load segment zero bytes : 16384
++ load segment page- read bytes : 0
++ load segment page zero bytes : 4096
++ vm alloc page with initializer 진입
++  spt find page va : 0x605000
++  spt find page page->va : 0x605000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x605000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment while 진입
++ load segment read bytes : 0
++ load segment zero bytes : 12288
++ load segment page- read bytes : 0
++ load segment page zero bytes : 4096
++ vm alloc page with initializer 진입
++  spt find page va : 0x606000
++  spt find page page->va : 0x606000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x606000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment while 진입
++ load segment read bytes : 0
++ load segment zero bytes : 8192
++ load segment page- read bytes : 0
++ load segment page zero bytes : 4096
++ vm alloc page with initializer 진입
++  spt find page va : 0x607000
++  spt find page page->va : 0x607000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x607000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment while 진입
++ load segment read bytes : 0
++ load segment zero bytes : 4096
++ load segment page- read bytes : 0
++ load segment page zero bytes : 4096
++ vm alloc page with initializer 진입
++  spt find page va : 0x608000
++  spt find page page->va : 0x608000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x608000
++ hash insert list bucket : 0x8004243038
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++ load segment true 끝
++ load , load segment 완료
++ vm alloc page with initializer 진입
++  spt find page va : 0x4747f000
++  spt find page page->va : 0x4747f000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ vm alloc page with initializer spt find page == NULL
++ vm alloc with initializer page type : VM_ANON
++ vm alloc with initializer page type : VM_ANON : uninit_new 
++ vm alloc with initializer writable 설정
++ spt insert page spt : 0x8004242418
++ spt insert page page hash elem : 0
++ spt insert page thread_current() : lazy-anon
++ spt insert page page->va : 0x4747f000
++ hash insert list bucket : 0x8004243078
++ hash insert hash elem old : 0
++ hash insert old is null 
++ hash.c insert_elem 진입
++ spt insert page hash insert succ
++  spt find page va : 0x4747f000
++  spt find page page->va : 0x4747f000
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0x8004243b18
++ vm get frame frame page : 0
++ vm do claim page
++ #############1111##############
++ ##############2222#############
++ load , success 직전까지 도달.
++ process exec 거의 완료, argument passing 까지.
++ vm try handle fault 진입
++  spt find page va : 0x400e22
++  spt find page page->va : 0x400e22
++  spt find page spt : 0x8004242418
++  spt find page page hash elem: 0x800422bdf0
++ spt find page thread_current() : lazy-anon
++  spt find page e: 0
++ spt find page e == NULL
++ Page fault at 0x400e22: not present error reading page in user context.
+
+(Process exit codes are excluded for matching purposes.)

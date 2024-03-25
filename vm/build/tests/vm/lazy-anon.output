@@ -32,7 +32,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -59,7 +58,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -86,7 +84,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -113,7 +110,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -140,7 +136,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -169,7 +164,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -196,7 +190,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -223,7 +216,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -250,7 +242,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -277,7 +268,6 @@ spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
 vm alloc with initializer page type : VM_ANON
 vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer page type : 0x1
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
 spt insert page page hash elem : 0
@@ -299,13 +289,14 @@ spt find page thread_current() : lazy-anon
  spt find page e: 0
 spt find page e == NULL
 vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : 0x9
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
 vm alloc with initializer writable 설정
 spt insert page spt : 0x8004242418
-spt insert page page hash elem : 0x800422bdf0
+spt insert page page hash elem : 0
 spt insert page thread_current() : lazy-anon
-spt insert page page->va : 0
-hash insert list bucket : 0x8004243038
+spt insert page page->va : 0x4747f000
+hash insert list bucket : 0x8004243078
 hash insert hash elem old : 0
 hash insert old is null 
 hash.c insert_elem 진입
@@ -315,21 +306,31 @@ spt insert page hash insert succ
  spt find page spt : 0x8004242418
  spt find page page hash elem: 0x800422bdf0
 spt find page thread_current() : lazy-anon
+ spt find page e: 0x8004243b18
+vm get frame frame page : 0
+vm do claim page
+#############1111##############
+##############2222#############
+load , success 직전까지 도달.
+process exec 거의 완료, argument passing 까지.
+vm try handle fault 진입
+ spt find page va : 0x400e22
+ spt find page page->va : 0x400e22
+ spt find page spt : 0x8004242418
+ spt find page page hash elem: 0x800422bdf0
+spt find page thread_current() : lazy-anon
  spt find page e: 0
 spt find page e == NULL
-vm claim page : page == NULL
-load setup stack이 문제다
-Kernel PANIC at ../../userprog/process.c:87 in initd(): Fail to launch initd
-
-Call stack: 0x800421889a 0x800421c02c 0x8004207a55.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 282 ticks
-Thread: 30 idle ticks, 36 kernel ticks, 216 user ticks
+Page fault at 0x400e22: not present error reading page in user context.
+lazy-anon: exit(-1)
+Execution of 'lazy-anon' complete.
+Timer: 304 ticks
+Thread: 30 idle ticks, 34 kernel ticks, 240 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 41 reads, 238 writes
 hd1:0: 105 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 11993 characters output
-Key
+Console: 11860 characters output
+Keyboard: 0 keys pressed
+Exception: 1 page faults
+Powering off...

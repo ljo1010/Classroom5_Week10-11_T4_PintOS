@@ -67,17 +67,19 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 			printf("vm alloc with initializer page == NULL\n");
 			return false;
 		}
-
-		if(type == VM_ANON){
+		switch (VM_TYPE(type))
+		{
+		case VM_ANON:
 			printf("vm alloc with initializer page type : VM_ANON\n");
 			uninit_new(page, upage, init, type,aux,anon_initializer); 
 			printf("vm alloc with initializer page type : VM_ANON : uninit_new \n");
-		}
-		else if(type == VM_FILE){
+			break;
+		case VM_FILE:
 			printf("vm alloc with initializer page type : VM_FILE\n");
-			uninit_new(page, upage, init, type,aux,file_backed_initializer); 				
+			uninit_new(page, upage, init, type,aux,file_backed_initializer); 	
+		default:
+			break;
 		}
-		printf("vm alloc with initializer page type : %p\n", type);
 		page->writable = writable;
 		printf("vm alloc with initializer writable 설정\n");
 		/* TODO: Insert the page into the spt. */
@@ -187,11 +189,8 @@ vm_evict_frame (void) {
  * space.*/
 static struct frame *
 vm_get_frame (void) {
-	struct frame *frame = NULL;
+	struct frame *frame;
 	/* TODO: Fill this function. */
-
-	ASSERT (frame != NULL);
-	ASSERT (frame->page == NULL);
 
 	void *kva = palloc_get_page(PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
 	if(kva == NULL){
@@ -200,10 +199,16 @@ vm_get_frame (void) {
 
 	frame = malloc(sizeof(struct frame));
 	frame->kva = kva;
+	frame->page = NULL;
+
+	printf("vm get frame frame page : %p\n",frame->page);
 	// palloc() 및 프레임 가져오기.
 	// 사용 가능 페이지가 없으면 희생자 페이지를 제거하고 반환. <- 이 아래는 Evict 함수로 구현하면 됨.(아마도.)
 	// 항상 유효한 주소를 반환할 것.
 	// 즉, 사용자 메모리가 가득 차면 프레임을 제거하여 사용 가능한 메모리 공간 확보.
+
+	ASSERT (frame != NULL);
+	ASSERT (frame->page == NULL);
 
 	return frame;
 }
@@ -282,11 +287,11 @@ vm_claim_page (void *va UNUSED) {
 static bool
 vm_do_claim_page (struct page *page) {
 	struct frame *frame = vm_get_frame ();
-
+	printf("vm do claim page\n");
 	/* Set links */
 	frame->page = page;
 	page->frame = frame;
-
+	printf("#############1111##############\n");
 	/* TODO: Insert page table entry to map page's VA to frame's PA. */
 		// claim page = 물리적 프레임, 페이지 할당.
 	// vm_get_frame으로 프레임을 얻고
@@ -295,7 +300,7 @@ vm_do_claim_page (struct page *page) {
 
 	struct thread *cur = thread_current();
 	pml4_set_page(cur->pml4, page->va, frame->kva, page->writable);
-
+	printf("##############2222#############\n");
 	return swap_in (page, frame->kva);
 }
 
