@@ -55,32 +55,39 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 	struct thread *cur = thread_current();
 
 	struct supplemental_page_table *spt = &cur->spt;
-
+	printf("vm alloc page with initializer 진입\n");
 	/* Check wheter the upage is already occupied or not. */
 	if (spt_find_page (spt, upage) == NULL) {
 		/* TODO: Create the page, fetch the initialier according to the VM type,
 		 * TODO: and then create "uninit" page struct by calling uninit_new. You
 		 * TODO: should modify the field after calling the uninit_new. */
-
+		printf("vm alloc page with initializer spt find page == NULL\n");
 
 		page = (struct page *)malloc(sizeof(struct page));
 		if(page == NULL){
+			printf("vm alloc with initializer page == NULL\n");
 			return false;
 		}
 
 		if(type == VM_ANON){
+			printf("vm alloc with initializer page type : VM_ANON\n");
 			uninit_new(page, upage, init, type,aux,anon_initializer); 
+			printf("vm alloc with initializer page type : VM_ANON : uninit_new \n");
 		}
 		else if(type == VM_FILE){
+			printf("vm alloc with initializer page type : VM_FILE\n");
 			uninit_new(page, upage, init, type,aux,file_backed_initializer); 				
 		}
 		page->writable = writable;
+		printf("vm alloc with initializer writable 설정\n");
 		/* TODO: Insert the page into the spt. */
 		if (!spt_insert_page(spt, page)) {
+			printf("vm alloc with initializer insert 실패\n");
 			return false;
 		}
 		return true;
 	}
+	printf("vm alloc page with initializer spt find not null\n");
 err:
 	return false;
 }
@@ -101,11 +108,14 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	printf(" spt find page page hash elem: %p\n", page->hash_elem);
 
 	e = hash_find(&spt->supli_pt,&page->hash_elem);
-
-	free(page);
+	printf(" spt find page e: %p\n",e);
+	if(e == NULL){
+		return NULL;
+	}
 
 	if(e != NULL){
 		page =hash_entry(e, struct page, hash_elem);
+		return page;
 	}
 	return page;
 
@@ -130,8 +140,10 @@ spt_insert_page (struct supplemental_page_table *spt UNUSED,
 		struct page *page UNUSED) {
 	int succ = false;
 	/* TODO: Fill this function. */
-	
+	printf("spt insert page spt supli_pt : %p\n", spt->supli_pt);
+	printf("spt insert page page hash elem : %p\n", page->hash_elem);
 	if(hash_insert(&spt->supli_pt, &page->hash_elem) != NULL){
+		printf("spt insert page hash insert succ\n");
 		succ = true;
 	}
 
@@ -206,7 +218,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
 	struct supplemental_page_table *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
-
+	printf("vm try handle fault 진입\n");
 	if(addr == NULL){
 		return false;
 	}

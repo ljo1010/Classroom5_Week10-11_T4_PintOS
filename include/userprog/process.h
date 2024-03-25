@@ -7,6 +7,8 @@ struct page_load_data {
     uint32_t read_bytes;
     uint32_t zero_bytes;
     struct file *file;
+    off_t ofs;
+
 };
 
 tid_t process_create_initd (const char *file_name);
