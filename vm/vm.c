@@ -216,12 +216,39 @@ vm_get_frame (void) {
 /* Growing the stack. */
 static void
 vm_stack_growth (void *addr UNUSED) {
-	if(addr > ((USER_STACK - PGSIZE)+(1<< 20))){
+
+	// 페이지식으로 정렬.
+	addr = pg_round_down(addr);
+
+	// 현 rsp 내에 addr이 있다면 이미 할당된거니 스루.
+	if(thread_current()->cur_rsp < addr){
 		return ;
 	}
-	addr = pg_round_down(addr);
-	
-	vm_alloc_page(VM_ANON, addr, true);
+
+	// 내가 늘려야하는 stack의 사이즈를 구하고
+	uint8_t size = addr - thread_current()->cur_rsp;
+	void * new_addr = thread_current()->cur_rsp;
+
+	// size 만큼 늘릴때까지 새 addr에 계속 할당.
+	while(size != 0){
+		int iter = size/PGSIZE;
+		if(iter > 0){
+			new_addr += PGSIZE;
+		}
+		else{
+			new_addr += (size%PGSIZE);
+		}
+		if(vm_alloc_page(VM_ANON, new_addr, true)){
+			if(vm_claim_page(new_addr)){
+				// 현 rsp를 갱신해야하는데 어디서 ..?!?!?!?!?! 
+				// 구조체에 어떻게 저장한다고 해도 현 진짜 intr_frame에 적용하는건 대체 어케하라는거..
+				// 별개의 함수를 만들어서 try handle fault로 넘어오는 Intr_frame을 갱신하는 일이 의미가 있나. 
+				thread_current()->tf.rsp -= PGSIZE;
+				thread_current()->cur_rsp -= PGSIZE;
+				size -= PGSIZE;
+			}
+		}
+	}
 }
 
 /* Handle the fault on write_protected page */
@@ -236,10 +263,14 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	struct hash *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
 	//printf("vm try handle fault 진입\n");
-
+	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE);
+	void *stack_top = (void *) (((uint8_t *) stack_bottom + (1<<20)));
 	printf(" vm try handle fault addr : %p\n", addr);
 	if(addr == NULL){
 		return false;
+	}
+	if(addr > stack_bottom && addr < stack_top){
+//		vm_stack_growth(addr);
 	}
 	// if(addr < USER_STACK - PGSIZE -8 && addr > 0){
 	// 	vm_stack_growth(addr);
