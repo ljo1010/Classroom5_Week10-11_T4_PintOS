@@ -51,6 +51,10 @@ anon_swap_out (struct page *page) {
 static void
 anon_destroy (struct page *page) {
 	struct anon_page *anon_page = &page->anon;
+	printf("anon destroy page :%p\n", page);
 
-	free(page->uninit.aux);
+	printf("anon destroy page uninit aux :%p\n", page->uninit.aux);
+	printf("anon destroy page uninit :%p\n", page->uninit);
+	
+	// free((struct page_load_data*)page->uninit.aux);
 }

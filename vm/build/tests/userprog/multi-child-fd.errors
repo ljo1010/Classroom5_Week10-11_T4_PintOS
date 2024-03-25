@@ -1,8 +1,0 @@
-Fatal Python error: Py_Initialize: can't initialize sys standard streams
-Traceback (most recent call last):
-  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 955, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 659, in _load_unlocked
-  File "<frozen importlib._bootstrap>", line 307, in __init__
-KeyboardInterrupt
-Aborted (core dumped)

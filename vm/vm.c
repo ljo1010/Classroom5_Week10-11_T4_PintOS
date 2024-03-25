@@ -362,21 +362,26 @@ spt_hash_init (struct hash *spt UNUSED) {
 bool
 spt_hash_copy (struct hash *dst UNUSED,
 		struct hash *src UNUSED) {
-
+	
+	printf("spt hash copy 진입\n");
 	struct hash_iterator i;
 	hash_first(&i, src);
 	while(hash_next(&i)){
+		printf("spt hash copy while hash next 도는중...\n");
 		struct page *new_page = malloc(sizeof(struct page));
 		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
 		uninit_new(new_page, p->va, p->uninit.init, p->operations->type, p->uninit.aux, p->uninit.page_initializer);
 		new_page->writable = p->writable;
 		if(!spt_insert_page(dst, new_page)){
+			printf("spt hash copy spt insert page fail\n");
 			return false;
 		}
 		if(!vm_do_claim_page(new_page)){
+			printf("spt hash copy vm do claim page fail\n");
 			return false;
 		}
 	}
+	return true;
 
 }
 

@@ -185,6 +185,7 @@ __do_fork (void *aux) {
 	process_activate (current);
 #ifdef VM
 	spt_hash_init (&current->spt);
+	printf("do fork spt hash init\n");
 	if (!spt_hash_copy (&current->spt, &parent->spt))
 		goto error;
 #else
@@ -193,10 +194,11 @@ __do_fork (void *aux) {
 		goto error;}
 
 #endif
-
+	printf("do fork file duplicate\n");
 	for (int i = 0; i < 64; i++)
     {
         struct file *file = parent->fdt[i];
+		// printf("do fork file duplicate file exist\n");
 		// //printf("do_fork file : %p\n", file);
 		// //printf("do_fork i : %d\n", i);
         if (file == NULL)
@@ -214,16 +216,17 @@ __do_fork (void *aux) {
         current->fdt[i] = new_file;
     }
 	current->next_fd = parent->next_fd;
-	
+	printf("do fork file duplicate complete\n");
 	sema_up(&current->fork_wait);
 	process_init ();
+	printf("do fork file process init complete\n");
 	/* Finally, switch to the newly created process. */
 	if (succ)
-	// 이 시점에도 rsp를 저장하나..?? 
 		do_iret (&if_);
 error:
 	succ = false;
 	sema_up(&current->fork_wait);
+	printf("do fork is error!\n");
 	exit(-1);
 }
 
