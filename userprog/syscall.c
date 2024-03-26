@@ -147,18 +147,25 @@ void
 check_address(const uint64_t *addr){
 	// printf("check address 진입\n");
 	if(addr == NULL){
-		printf("check address addr null!\n");
+
 		exit(-1);
 	}
 	if(!is_user_vaddr(addr)){
-		printf("check address is kernel addr!\n");
 		exit(-1);
 	}
-	#ifndef VM
-	if(pml4_get_page(thread_current()->pml4, addr) == NULL){
 
-		printf("check address pml4 get page 실패!\n");
+	#ifdef VM
+	struct page * p = spt_find_page(&thread_current()->spt, addr);
+
+	if(p != NULL && VM_TYPE(p->operations->type) != VM_UNINIT){
+
+	#endif
+		if(pml4_get_page(thread_current()->pml4, addr) == NULL){
+
+		// printf("check address pml4 get page 실패!\n");
 		exit(-1);
+	}
+	#ifdef VM
 	}
 	#endif
 }

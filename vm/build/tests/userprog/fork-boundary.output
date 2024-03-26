@@ -14,6 +14,20 @@ Boot complete.
 Putting 'fork-boundary' into the file system...
 Executing 'fork-boundary':
 (fork-boundary) begin
-Page fault at 0: not present error reading page in kernel context.
-child-simple: exit(-1)
-TIMEOUT
+(fork-boundary) child run
+child-simple: exit(54)
+(fork-boundary) fork
+(fork-boundary) wait
+(fork-boundary) end
+fork-boundary: exit(0)
+Execution of 'fork-boundary' complete.
+Timer: 65 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 4 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 80 reads, 240 writes
+hd1:0: 106 reads, 0 writes
+hd1:1: 0 reads, 0 writes
+Console: 1070 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...
