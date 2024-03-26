@@ -16,16 +16,16 @@ Putting 'sample.txt' into the file system...
 Executing 'write-bad-ptr':
 (write-bad-ptr) begin
 (write-bad-ptr) open "sample.txt"
-Page fault at 0x10123420: not present error reading page in kernel context.
-write-bad-ptr: exit(-1)
+(write-bad-ptr) should have exited with -1: FAILED
+write-bad-ptr: exit(1)
 Execution of 'write-bad-ptr' complete.
-Timer: 69 ticks
-Thread: 30 idle ticks, 33 kernel ticks, 6 user ticks
+Timer: 64 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 112 reads, 248 writes
+hd0:1: 112 reads, 249 writes
 hd1:0: 105 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1131 characters output
+Console: 1105 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

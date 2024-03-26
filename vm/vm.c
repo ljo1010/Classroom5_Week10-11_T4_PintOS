@@ -100,13 +100,13 @@ struct page *
 spt_find_page (struct hash *spt, void *va) {
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
-	printf(" spt find page va : %p\n", va);
+	//printf(" spt find page va : %p\n", va);
 	page = (struct page*)malloc(sizeof(struct page));
 	struct hash_elem *e;
 
 	page->va = pg_round_down(va);
 	
-	printf(" spt find page page->va : %p\n", page->va);
+	//printf(" spt find page page->va : %p\n", page->va);
 	if((page->operations->type) & VM_MARKER_0_MASK){
 		// 여기서 만약 stack bottom이하라면 거기로 이동하면 되지만,
 		// 그 이상의 값이라면 PGSIZE 만큼 이동한 spt page를 반환해야함.
@@ -117,9 +117,9 @@ spt_find_page (struct hash *spt, void *va) {
 	////printf("spt find page thread_current() : %s\n", thread_current()->name);
 
 	e = hash_find(spt,&page->hash_elem);
-	printf(" spt find page e: %p\n",e);
+	//printf(" spt find page e: %p\n",e);
 	if(e == NULL){
-		printf("spt find page e == NULL\n");
+		//printf("spt find page e == NULL\n");
 		return NULL;
 	}
 
@@ -224,34 +224,37 @@ static void
 vm_stack_growth (void *addr UNUSED) {
 
 	// 페이지식으로 정렬.
-	addr = pg_round_down(addr);
 
-	// 현 rsp 내에 addr이 있다면 이미 할당된거니 스루.
+	vm_alloc_page(VM_ANON | VM_MARKER_0, pg_round_down(addr), true);
+	// printf("vm stack growth addr : %p\n", addr);
+	// addr = pg_round_down(addr);
+	// printf("vm stack growth addr : %p\n", addr);
+	// // 현 rsp 내에 addr이 있다면 이미 할당된거니 스루.
 
-	// 내가 늘려야하는 stack의 사이즈를 구하고
-	uint8_t size = addr - thread_current()->cur_rsp;
-	void * new_addr = thread_current()->cur_rsp;
+	// // 내가 늘려야하는 stack의 사이즈를 구하고
+	// uint8_t size = addr - thread_current()->cur_rsp;
+	// void * new_addr = thread_current()->cur_rsp;
 
-	// size 만큼 늘릴때까지 새 addr에 계속 할당.
-	while(size != 0){
-		int iter = size/PGSIZE;
-		if(iter > 0){
-			new_addr += PGSIZE;
-		}
-		else{
-			new_addr += (size%PGSIZE);
-		}
-		if(vm_alloc_page(VM_ANON | VM_MARKER_0, new_addr, true)){
-			if(vm_claim_page(new_addr)){
-				// 현 rsp를 갱신해야하는데 어디서 ..?!?!?!?!?! 
-				// 구조체에 어떻게 저장한다고 해도 현 진짜 intr_frame에 적용하는건 대체 어케하라는거..
-				// 별개의 함수를 만들어서 try handle fault로 넘어오는 Intr_frame을 갱신하는 일이 의미가 있나. 
-				thread_current()->tf.rsp += PGSIZE;
-				thread_current()->cur_rsp += PGSIZE;
-				size -= PGSIZE;
-			}
-		}
-	}
+	// // size 만큼 늘릴때까지 새 addr에 계속 할당.
+	// while(size != 0){
+	// 	int iter = size/PGSIZE;
+	// 	if(iter > 0){
+	// 		new_addr += PGSIZE;
+	// 	}
+	// 	else{
+	// 		new_addr += (size%PGSIZE);
+	// 	}
+	// 	if(vm_alloc_page(VM_ANON | VM_MARKER_0, new_addr, true)){
+	// 		if(vm_claim_page(new_addr)){
+	// 			// 현 rsp를 갱신해야하는데 어디서 ..?!?!?!?!?! 
+	// 			// 구조체에 어떻게 저장한다고 해도 현 진짜 intr_frame에 적용하는건 대체 어케하라는거..
+	// 			// 별개의 함수를 만들어서 try handle fault로 넘어오는 Intr_frame을 갱신하는 일이 의미가 있나. 
+	// 			thread_current()->tf.rsp += PGSIZE;
+	// 			thread_current()->cur_rsp += PGSIZE;
+	// 			size -= PGSIZE;
+	// 		}
+	// 	}
+	// }
 }
 
 /* Handle the fault on write_protected page */
@@ -268,6 +271,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	////printf("vm try handle fault 진입\n");
 	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE); // 0x4747F000 USER_STACK 0x47480000
 	void *stack_max = (void *) (((uint8_t *) USER_STACK) - (1<<20)); //0x4757F000
+	uintptr_t rsp;
 	// //printf(" vm try handle fault addr : %p\n", addr);
 	if(addr == NULL){
 		return false;
@@ -276,11 +280,8 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		// //printf("vm try handl fault kernel vaddr!\n");
 		return false;
 	}
-	printf("vm try handl fault thread current cur rsp : %p\n",thread_current()->cur_rsp);
-	if(addr > stack_bottom){
-		printf("vm try handl fault stack growth 필요\n");
-		vm_stack_growth(addr);
-	}
+	//printf("vm try handl fault thread current cur rsp : %p\n",thread_current()->cur_rsp);
+	//printf("vm try handl fault addr :%p\n", addr);
 	// struct page *exam;
 	// exam = spt_find_page(spt, addr);
 	// if((exam->operations->type)& VM_MARKER_0_MASK){
@@ -288,11 +289,24 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	// }
 
 	if(not_present){
+		if(user){
+			rsp = f->rsp;
+		}
+		else{
+			rsp = thread_current()->cur_rsp;
+		}
+		if(stack_max<= rsp <= addr <= USER_STACK){
+			//printf("vm try handl fault stack growth 필요\n");
+			vm_stack_growth(addr);
+		}
+		else if((rsp-8) == addr && stack_max<= rsp-8 <= USER_STACK){
+			vm_stack_growth(addr);
+		}
 		// //printf("vm try handl fault not present!\n");
 		page = spt_find_page(spt, addr);
 		if(page == NULL){
 			
-			printf("vm try handl fault not present and page == NULL!\n");
+			//printf("vm try handl fault not present and page == NULL!\n");
 			return false;
 		}
 		if(write == true && page->writable == false){
