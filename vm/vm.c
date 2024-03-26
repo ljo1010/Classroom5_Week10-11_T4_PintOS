@@ -364,13 +364,14 @@ bool
 spt_hash_copy (struct hash *dst UNUSED,
 		struct hash *src UNUSED) {
 	
-	//printf("spt hash copy 진입\n");
+	printf("spt hash copy 진입\n");
 	struct hash_iterator i;
 	hash_first(&i, src);
 	while(hash_next(&i)){
-		//printf("spt hash copy while hash next 도는중...\n");
+		printf("spt hash copy while hash next 도는중...\n");
 
 		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
+		printf("spt hash copy page p :%p\n", p);
 		switch (VM_TYPE(p->operations->type))
 		{
 		case VM_UNINIT:
@@ -386,12 +387,19 @@ spt_hash_copy (struct hash *dst UNUSED,
 			}
 			break;
 		}
-		struct page * k;
-		k = spt_find_page(dst, p->va);
-		if(k == NULL){
-			return false;
+		if(p->operations->type != VM_UNINIT){
+			struct page *k;
+			printf("spt hash copy dst : %p\n", dst);
+			k = spt_find_page(dst, p->va);
+			printf("spt hash copy page k :%p\n");
+			// if(k == NULL){
+			// 	return false;
+			// }
+			printf("spt hash copy k frame kva : %d\n", k->frame->kva);
+			printf("spt hash copy p frame kva : %d\n", p->frame->kva);
+			memcpy(k->frame->kva, p->frame->kva, PGSIZE);
+			printf("spt hash copy memcpy 성공\n");
 		}
-		memcpy(k->frame->kva, p->frame->kva, PGSIZE);
 
 		// struct page *new_page = malloc(sizeof(struct page));
 		// struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
@@ -425,7 +433,7 @@ spt_hash_kill (struct hash *spt UNUSED) {
 	hash_clear(spt, page_entry_destroy);
 }
 
-hash_action_func *
+void
 page_entry_destroy(struct hash_elem *e, void *aux){
 
 	struct page *p = hash_entry(e, struct page, hash_elem);

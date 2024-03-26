@@ -69,7 +69,7 @@ syscall_handler (struct intr_frame *f) {
 	}
 
 	case SYS_FORK:{
-
+		printf("sys_fork\n");
 		pid_t ppid = ffork ((const char *)f->R.rdi, f); //이름이 내장함수에 충돌된다고 컴파일이 울어서 고쳐줌.
 		f->R.rax = ppid;
 		break;

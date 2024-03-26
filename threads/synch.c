@@ -59,7 +59,7 @@ sema_init (struct semaphore *sema, unsigned value) {
    sema_down function. */
 void
 sema_down (struct semaphore *sema) {
-	
+	// printf("sema down 시작\n");
 	enum intr_level old_level = intr_disable();
 	ASSERT (sema != NULL);
 	ASSERT (!intr_context ());

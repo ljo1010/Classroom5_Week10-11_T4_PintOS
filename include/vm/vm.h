@@ -118,6 +118,6 @@ bool page_less (const struct hash_elem *a_, const struct hash_elem *b_, void *au
 struct page *page_lookup (const void *address); 
 
 
-hash_action_func *page_entry_destroy(struct hash_elem *e, void *aux);
+void page_entry_destroy(struct hash_elem *e, void *aux);
 
 #endif  /* VM_VM_H */

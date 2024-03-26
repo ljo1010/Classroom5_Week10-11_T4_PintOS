@@ -1,0 +1,106 @@
+Kernel command line: -q -f put fork-close put sample.txt run fork-close
+0 ~ 9fc00 1
+100000 ~ 13e0000 1
+Pintos booting with: 
+	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
+	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
+Calibrating timer...  52,377,600 loops/s.
+hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
+hd1:0: detected 111 sector (55 kB) disk, model "QEMU HARDDISK", serial "QM00003"
+hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
+Formatting file system...done.
+Boot complete.
+Putting 'fork-close' into the file system...
+Putting 'sample.txt' into the file system...
+Executing 'fork-close':
+(fork-close) begin
+(fork-close) open "sample.txt"
+sys_fork
+process fork ###############11###########
+process fork ###############22###########
+process fork ###############33###########
+process fork ###############144###########
+process fork child : 0x800424c000
+process fork child fork_wait : 0x800f
+do fork 진입
+do fork memcpy 이후
+do fork pml4 create 이후
+do fork process activate 이후
+do fork hash init 이후
+spt hash copy 진입
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243918
+spt hash copy dst : 0x800424c418
+spt hash copy page k :0x8004243f18
+spt hash copy k frame kva : 77758464
+spt hash copy p frame kva : 77737984
+spt hash copy memcpy 성공
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243818
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243718
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243618
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243518
+spt hash copy dst : 0x800424c418
+spt hash copy page k :0x800424e498
+spt hash copy k frame kva : 77762560
+spt hash copy p frame kva : 77746176
+spt hash copy memcpy 성공
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243418
+spt hash copy dst : 0x800424c418
+spt hash copy page k :0x800424e698
+spt hash copy k frame kva : 77766656
+spt hash copy p frame kva : 77750272
+spt hash copy memcpy 성공
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243318
+spt hash copy dst : 0x800424c418
+spt hash copy page k :0x800424e898
+spt hash copy k frame kva : 77770752
+spt hash copy p frame kva : 77754368
+spt hash copy memcpy 성공
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243218
+spt hash copy dst : 0x800424c418
+spt hash copy page k :0x800424ea98
+spt hash copy k frame kva : 77774848
+spt hash copy p frame kva : 77742080
+spt hash copy memcpy 성공
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243118
+spt hash copy dst : 0x800424c418
+spt hash copy page k :0x800424ec98
+spt hash copy k frame kva : 77778944
+spt hash copy p frame kva : 77733888
+spt hash copy memcpy 성공
+spt hash copy while hash next 도는중...
+spt hash copy page p :0x8004243a18
+spt hash copy dst : 0x800424c418
+spt hash copy page k :0x800424ee98
+spt hash copy k frame kva : 77783040
+spt hash copy p frame kva : 77729792
+spt hash copy memcpy 성공
+do fork hash copy 이후
+do fork file duplicate
+(fork-close) child run
+(fork-close) end
+child: exit(0)
+process fork ###############55##########
+process fork ###############66##########
+fork close  get_boundary_area 직후
+fork-close: exit(-1)
+Execution of 'fork-close' complete.
+Timer: 130 ticks
+Thread: 30 idle ticks, 40 kernel ticks, 60 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 112 reads, 260 writes
+hd1:0: 111 reads, 0 writes
+hd1:1: 0 reads, 0 writes
+Console: 3616 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...
