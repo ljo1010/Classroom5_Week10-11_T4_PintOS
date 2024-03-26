@@ -7,6 +7,7 @@
 #include "lib/kernel/hash.h"
 #include "threads/mmu.h"
 #include "vm/uninit.h"
+#include "string.h"
 
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
@@ -363,23 +364,47 @@ bool
 spt_hash_copy (struct hash *dst UNUSED,
 		struct hash *src UNUSED) {
 	
-	printf("spt hash copy 진입\n");
+	//printf("spt hash copy 진입\n");
 	struct hash_iterator i;
 	hash_first(&i, src);
 	while(hash_next(&i)){
-		printf("spt hash copy while hash next 도는중...\n");
-		struct page *new_page = malloc(sizeof(struct page));
+		//printf("spt hash copy while hash next 도는중...\n");
+
 		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
-		uninit_new(new_page, p->va, p->uninit.init, p->operations->type, p->uninit.aux, p->uninit.page_initializer);
-		new_page->writable = p->writable;
-		if(!spt_insert_page(dst, new_page)){
-			printf("spt hash copy spt insert page fail\n");
+		switch (VM_TYPE(p->operations->type))
+		{
+		case VM_UNINIT:
+			if(!vm_alloc_page_with_initializer(p->uninit.type, p->va, p->writable, p->uninit.init,p->uninit.aux)){
+				return false;
+			}
+			break;
+		default:
+			if(vm_alloc_page(p->operations->type, p->va, p->writable)){
+				if(!vm_claim_page(p->va)){
+					return false;
+				}
+			}
+			break;
+		}
+		struct page * k;
+		k = spt_find_page(dst, p->va);
+		if(k == NULL){
 			return false;
 		}
-		if(!vm_do_claim_page(new_page)){
-			printf("spt hash copy vm do claim page fail\n");
-			return false;
-		}
+		memcpy(k->frame->kva, p->frame->kva, PGSIZE);
+
+		// struct page *new_page = malloc(sizeof(struct page));
+		// struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
+		// uninit_new(new_page, p->va, p->uninit.init, p->operations->type, p->uninit.aux, p->uninit.page_initializer);
+		// new_page->writable = p->writable;
+		// if(!spt_insert_page(dst, new_page)){
+		// 	printf("spt hash copy spt insert page fail\n");
+		// 	return false;
+		// }
+		// if(!vm_do_claim_page(new_page)){
+		// 	printf("spt hash copy vm do claim page fail\n");
+		// 	return false;
+		// }
 	}
 	return true;
 
@@ -390,12 +415,24 @@ void
 spt_hash_kill (struct hash *spt UNUSED) {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
-	struct hash_iterator i;
-	hash_first(&i, spt);
-	while(hash_next(&i)){
-		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
-		destroy(p);
-		}
+	// struct hash_iterator i;
+	// hash_first(&i, spt);
+	// while(hash_next(&i)){
+	// 	struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
+	// 	destroy(p);
+	// 	}
+
+	hash_clear(spt, page_entry_destroy);
+}
+
+hash_action_func *
+page_entry_destroy(struct hash_elem *e, void *aux){
+
+	struct page *p = hash_entry(e, struct page, hash_elem);
+
+	destroy(p);
+	free(p);
+
 }
 
 
