@@ -6,6 +6,7 @@
 #include "vm/vm.h"
 #include "vm/inspect.h"
 
+
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
 void
@@ -44,7 +45,6 @@ static struct frame *vm_evict_frame (void);
 
 unsigned hash_page(const struct hash_elem *p_, void *aux);
 bool hash_less(const struct hash_elem *a_, const struct hash_elem *b_, void *aux UNUSED);
-
 
 
 /* Create the pending page object with initializer. If you want to create a
@@ -295,4 +295,14 @@ void supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED)
 {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
+	hash_clear(&spt->spt_table, hash_destory_page);
+}
+
+void hash_destory_page(struct hash_elem *e, void *aux)
+{
+	struct page *page = hash_entry(e, struct page, hash_elem);
+
+	destroy(page);
+	free(page);
+
 }

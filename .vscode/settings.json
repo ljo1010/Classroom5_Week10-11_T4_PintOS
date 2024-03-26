@@ -15,6 +15,7 @@
         "stdbool.h": "c",
         "page_cache.h": "c",
         "hash.h": "c",
-        "thread.h": "c"
+        "thread.h": "c",
+        "inspect.h": "c"
     }
 }
