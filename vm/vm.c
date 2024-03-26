@@ -222,9 +222,6 @@ vm_stack_growth (void *addr UNUSED) {
 	addr = pg_round_down(addr);
 
 	// 현 rsp 내에 addr이 있다면 이미 할당된거니 스루.
-	if(thread_current()->cur_rsp < addr){
-		return ;
-	}
 
 	// 내가 늘려야하는 stack의 사이즈를 구하고
 	uint8_t size = addr - thread_current()->cur_rsp;
@@ -239,13 +236,13 @@ vm_stack_growth (void *addr UNUSED) {
 		else{
 			new_addr += (size%PGSIZE);
 		}
-		if(vm_alloc_page(VM_ANON, new_addr, true)){
+		if(vm_alloc_page(VM_ANON | VM_MARKER_0, new_addr, true)){
 			if(vm_claim_page(new_addr)){
 				// 현 rsp를 갱신해야하는데 어디서 ..?!?!?!?!?! 
 				// 구조체에 어떻게 저장한다고 해도 현 진짜 intr_frame에 적용하는건 대체 어케하라는거..
 				// 별개의 함수를 만들어서 try handle fault로 넘어오는 Intr_frame을 갱신하는 일이 의미가 있나. 
-				thread_current()->tf.rsp -= PGSIZE;
-				thread_current()->cur_rsp -= PGSIZE;
+				thread_current()->tf.rsp += PGSIZE;
+				thread_current()->cur_rsp += PGSIZE;
 				size -= PGSIZE;
 			}
 		}
@@ -264,23 +261,25 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	struct hash *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
 	////printf("vm try handle fault 진입\n");
-	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE);
-	void *stack_top = (void *) (((uint8_t *) stack_bottom + (1<<20)));
+	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE); // 0x4747F000 USER_STACK 0x47480000
+	void *stack_max = (void *) (((uint8_t *) USER_STACK) - (1<<20)); //0x4757F000
 	// //printf(" vm try handle fault addr : %p\n", addr);
 	if(addr == NULL){
 		return false;
 	}
-	if(addr > stack_bottom && addr < stack_top){
-//		vm_stack_growth(addr);
-	}
-	// if(addr < USER_STACK - PGSIZE -8 && addr > 0){
-	// 	vm_stack_growth(addr);
-	// 	return true;
-	// }
 	if(is_kernel_vaddr(addr)){
 		// //printf("vm try handl fault kernel vaddr!\n");
 		return false;
 	}
+	printf("vm try handl fault thread current cur rsp : %p\n",thread_current()->cur_rsp);
+	if(stack_max > addr > stack_bottom && thread_current()->cur_rsp < addr){
+		vm_stack_growth(addr);
+	}
+	// struct page *exam;
+	// exam = spt_find_page(spt, addr);
+	// if((exam->operations->type)& VM_MARKER_0_MASK){
+	// 	vm_stack_growth(addr);
+	// }
 
 	if(not_present){
 		// //printf("vm try handl fault not present!\n");

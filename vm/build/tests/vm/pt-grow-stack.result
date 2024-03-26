@@ -6,9 +6,16 @@ Acceptable output:
   (pt-grow-stack) cksum: 3424492700
   (pt-grow-stack) end
 Differences in `diff -u' format:
++ vm try handl fault thread current cur rsp : 0x4747ffd8
++ vm try handl fault thread current cur rsp : 0x4747ffd8
++ vm try handl fault thread current cur rsp : 0x4747ffd8
++ vm try handl fault thread current cur rsp : 0x4747ffd8
++ vm try handl fault thread current cur rsp : 0x4747ffd8
++ vm try handl fault thread current cur rsp : 0x4747ffd8
   (pt-grow-stack) begin
 - (pt-grow-stack) cksum: 3424492700
 - (pt-grow-stack) end
++ vm try handl fault thread current cur rsp : 0x4747fe90
 + Page fault at 0x4747ee78: not present error writing page in user context.
 
 (Process exit codes are excluded for matching purposes.)

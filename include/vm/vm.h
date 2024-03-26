@@ -38,6 +38,9 @@ struct page_operations;
 struct thread;
 
 #define VM_TYPE(type) ((type) & 7)
+#define VM_MARKER_0_MASK (1 << 3) // 00001000
+#define VM_MARKER_1_MASK (1 << 4) // 00010000
+
 
 /* The representation of "page".
  * This is kind of "parent class", which has four "child class"es, which are

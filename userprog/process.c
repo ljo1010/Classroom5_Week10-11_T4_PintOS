@@ -291,11 +291,12 @@ process_exec (void *f_name) {
 
 	_if.R.rdi = count;
 	_if.R.rsi = _if.rsp+8;
+
+	thread_current()->cur_rsp = _if.rsp;
 	//printf("process exec 거의 완료, argument passing 까지.\n");
 	// hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
 
 	/* Start switched process. */
-	thread_current()->cur_rsp = _if.rsp;
 	do_iret (&_if);
 	NOT_REACHED ();
 }
@@ -881,6 +882,7 @@ setup_stack (struct intr_frame *if_) {
 	if(vm_alloc_page(VM_ANON |VM_MARKER_0, stack_bottom, true)){
 		if(vm_claim_page(stack_bottom)){
 			if_->rsp = USER_STACK;
+			thread_current()->cur_rsp = if_->rsp;
 			success = true;
 		}
 	}
