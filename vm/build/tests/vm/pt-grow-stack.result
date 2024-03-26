@@ -6,16 +6,77 @@ Acceptable output:
   (pt-grow-stack) cksum: 3424492700
   (pt-grow-stack) end
 Differences in `diff -u' format:
++  spt find page va : 0x400000
++  spt find page page->va : 0x400000
++  spt find page e: 0
++ spt find page e == NULL
++  spt find page va : 0x401000
++  spt find page page->va : 0x401000
++  spt find page e: 0
++ spt find page e == NULL
++  spt find page va : 0x402000
++  spt find page page->va : 0x402000
++  spt find page e: 0
++ spt find page e == NULL
++  spt find page va : 0x403000
++  spt find page page->va : 0x403000
++  spt find page e: 0
++ spt find page e == NULL
++  spt find page va : 0x404000
++  spt find page page->va : 0x404000
++  spt find page e: 0
++ spt find page e == NULL
++  spt find page va : 0x604000
++  spt find page page->va : 0x604000
++  spt find page e: 0
++ spt find page e == NULL
++  spt find page va : 0x605000
++  spt find page page->va : 0x605000
++  spt find page e: 0
++ spt find page e == NULL
++  spt find page va : 0x4747f000
++  spt find page page->va : 0x4747f000
++  spt find page e: 0
++ spt find page e == NULL
++  spt find page va : 0x4747f000
++  spt find page page->va : 0x4747f000
++  spt find page e: 0x8004243818
 + vm try handl fault thread current cur rsp : 0x4747ffd8
++  spt find page va : 0x400f68
++  spt find page page->va : 0x400000
++  spt find page e: 0x8004243118
 + vm try handl fault thread current cur rsp : 0x4747ffd8
++  spt find page va : 0x605ce8
++  spt find page page->va : 0x605000
++  spt find page e: 0x8004243718
 + vm try handl fault thread current cur rsp : 0x4747ffd8
++  spt find page va : 0x40135f
++  spt find page page->va : 0x401000
++  spt find page e: 0x8004243218
 + vm try handl fault thread current cur rsp : 0x4747ffd8
++  spt find page va : 0x4046a8
++  spt find page page->va : 0x404000
++  spt find page e: 0x8004243518
 + vm try handl fault thread current cur rsp : 0x4747ffd8
++  spt find page va : 0x402000
++  spt find page page->va : 0x402000
++  spt find page e: 0x8004243318
 + vm try handl fault thread current cur rsp : 0x4747ffd8
++  spt find page va : 0x403157
++  spt find page page->va : 0x403000
++  spt find page e: 0x8004243418
++  spt find page va : 0x6057e0
++  spt find page page->va : 0x605000
++  spt find page e: 0x8004243718
   (pt-grow-stack) begin
 - (pt-grow-stack) cksum: 3424492700
 - (pt-grow-stack) end
 + vm try handl fault thread current cur rsp : 0x4747fe90
++  spt find page va : 0x4747ee78
++  spt find page page->va : 0x4747e000
++  spt find page e: 0
++ spt find page e == NULL
++ vm try handl fault not present and page == NULL!
 + Page fault at 0x4747ee78: not present error writing page in user context.
 
 (Process exit codes are excluded for matching purposes.)

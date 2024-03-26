@@ -100,21 +100,26 @@ struct page *
 spt_find_page (struct hash *spt, void *va) {
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
-	////printf(" spt find page va : %p\n", va);
+	printf(" spt find page va : %p\n", va);
 	page = (struct page*)malloc(sizeof(struct page));
 	struct hash_elem *e;
 
 	page->va = pg_round_down(va);
-	////printf(" spt find page page->va : %p\n", page->va);
+	
+	printf(" spt find page page->va : %p\n", page->va);
+	if((page->operations->type) & VM_MARKER_0_MASK){
+		// 여기서 만약 stack bottom이하라면 거기로 이동하면 되지만,
+		// 그 이상의 값이라면 PGSIZE 만큼 이동한 spt page를 반환해야함.
+	}
 	////printf(" spt find page spt : %p\n", spt);
 	////printf(" spt find page page hash elem: %p\n", page->hash_elem);
 
 	////printf("spt find page thread_current() : %s\n", thread_current()->name);
 
 	e = hash_find(spt,&page->hash_elem);
-	////printf(" spt find page e: %p\n",e);
+	printf(" spt find page e: %p\n",e);
 	if(e == NULL){
-		////printf("spt find page e == NULL\n");
+		printf("spt find page e == NULL\n");
 		return NULL;
 	}
 
@@ -272,7 +277,8 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		return false;
 	}
 	printf("vm try handl fault thread current cur rsp : %p\n",thread_current()->cur_rsp);
-	if(stack_max > addr > stack_bottom && thread_current()->cur_rsp < addr){
+	if(addr > stack_bottom){
+		printf("vm try handl fault stack growth 필요\n");
 		vm_stack_growth(addr);
 	}
 	// struct page *exam;
@@ -285,7 +291,8 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		// //printf("vm try handl fault not present!\n");
 		page = spt_find_page(spt, addr);
 		if(page == NULL){
-			// //printf("vm try handl fault not present and page == NULL!\n");
+			
+			printf("vm try handl fault not present and page == NULL!\n");
 			return false;
 		}
 		if(write == true && page->writable == false){
