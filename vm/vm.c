@@ -1,10 +1,10 @@
 /* vm.c: Generic interface for virtual memory objects. */
 
 #include "threads/malloc.h"
+#include "threads/thread.h"
+#include "threads/mmu.h"
 #include "vm/vm.h"
 #include "vm/inspect.h"
-#include <hash.h>
-#include "include/threads/thread.h"
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
@@ -26,7 +26,8 @@ vm_init (void) {
 enum vm_type
 page_get_type (struct page *page) {
 	int ty = VM_TYPE (page->operations->type);
-	switch (ty) {
+	switch (ty) 
+	{
 		case VM_UNINIT:
 			return VM_TYPE (page->uninit.type);
 		default:
@@ -91,21 +92,21 @@ err:
 /* Find VA from spt and return page. On error, return NULL. */
 struct page *
 spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
+
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
-	page = malloc(sizeof(struct page));
+	page = (struct page *)malloc(sizeof(struct page));
 	struct hash_elem *e;
 
-	page->va = va;
-	e = hash_find(&spt, &page->hash_elem);
+	// va에 해당하는 hash_elem 찾기
+	page->va = pg_round_down(va); // page의 시작 주소 할당
+	e = hash_find(&spt->spt_table, &page->hash_elem);
+	free(page);
 
-	if(e != NULL)
-	{
-		hash_entry(e, struct page, hash_elem);
-	}
+	// 있으면 e에 해당하는 페이지 반환
+	return e != NULL ? hash_entry(e, struct page, hash_elem) : NULL;
 	
-	return page;
-}
+	}
 
 /* Insert PAGE into spt with validation. */
 bool
@@ -113,7 +114,7 @@ spt_insert_page (struct supplemental_page_table *spt UNUSED,
 		struct page *page UNUSED) {
 	int succ = false;
 	/* TODO: Fill this function. */
-	if(hash_insert(&spt, &page->hash_elem) == NULL)
+	if(hash_insert(&spt->spt_table, &page->hash_elem) == NULL)
 	{
 		return true;
 	}
@@ -161,8 +162,9 @@ vm_get_frame (void) {
 	if(kva == NULL)
 		PANIC("todo");
 
-	frame = malloc(sizeof(struct frame));
+	frame = (struct frame *)malloc(sizeof(struct frame));
 	frame->kva = kva;
+	frame->page = NULL;
 
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
@@ -261,12 +263,6 @@ vm_do_claim_page (struct page *page) {
 	return swap_in (page, frame->kva);
 }
 
-/* Initialize new supplemental page table */
-void
-supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
-	//첫 번째 인자는 
-	hash_init(spt, hash_page, hash_less, NULL);
-}
 unsigned hash_page(const struct hash_elem *p_, void *aux)
 {
 	const struct page *p = hash_entry(p_, struct page, hash_elem);
@@ -280,6 +276,14 @@ bool hash_less(const struct hash_elem *a_, const struct hash_elem *b_, void *aux
 
 	return a->va < b->va;
 }
+/* Initialize new supplemental page table */
+void
+supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
+ 
+	hash_init(&spt->spt_table, hash_page, hash_less, NULL);
+}
+
+
 /* Copy supplemental page table from src to dst */
 bool supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED, struct supplemental_page_table *src UNUSED) 
 {

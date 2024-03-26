@@ -50,7 +50,7 @@ process_create_initd (const char *file_name) {
 		return TID_ERROR;
 	strlcpy (fn_copy, file_name, PGSIZE);
 
-	//인자들을 파싱하고
+	//인자들을 파싱하고 뷁
 	char *save_ptr;
 	strtok_r(file_name, " ", &save_ptr);
 	//파싱한 인자들을 thread_create 함수의 첫 인자로 들어가야한다. 
@@ -98,7 +98,7 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	sema_down (&child->load_sema);
 
 	//예외케이스이라서 -2로 설정했음. 일반적인 종료가 아니기 때문
-	if(child->exit_status == -2)
+	if(child->exit_status == TID_ERROR)
 	{
 		sema_up(&child->exit_sema);
 
@@ -108,20 +108,6 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	return pid;
 }
 
-//child list에서 찾는 프로세스를 검색하는 함수
-struct thread *get_child_process(int pid)
-{
-	struct thread *curr = thread_current();
-	struct list *child_list = &curr->child_list;
-	for (struct list_elem *e = list_begin(child_list); e != list_end(child_list); e = list_next(e))
-	{
-		struct thread *t = list_entry(e, struct thread, child_elem);
-
-		if(t->tid == pid)
-			return t;
-	}
-	return NULL;
-}
 
 
 
@@ -205,17 +191,6 @@ __do_fork (void *aux) {
 	 * TODO:       in include/filesys/file.h. Note that parent should not return
 	 * TODO:       from the fork() until this function successfully duplicates
 	 * TODO:       the resources of parent.*/
-// 	struct file *
-// file_duplicate (struct file *file) {
-// 	struct file *nfile = file_open (inode_reopen (file->inode));
-// 	if (nfile) {
-// 		nfile->pos = file->pos;
-// 		if (file->deny_write)
-// 			file_deny_write (nfile);
-// 	}
-// 	return nfile;
-// } 이 함수를 활용 
-
 
 	for(int i = 0; i < FDT_COUNT_LIMIT; i++)
 	{
@@ -237,7 +212,7 @@ __do_fork (void *aux) {
 		do_iret (&if_);
 error:
 	sema_up(&current->load_sema);
-	exit(-2);
+	exit(TID_ERROR);
 }
 
 /* Switch the current execution context to the f_name.
@@ -322,51 +297,6 @@ void argument_stack(char **parse, int count, void **rsp)
 	**(char***)rsp = 0;
 }
 
-/*현재 스레드에 파일을 추가하고
-스레드에 저장된 next_fd(init에 추가한거)를 탐색하고 최대전까지 탐색하고
-할당 성공시 fd 실패시 -1리턴*/
-int process_add_file(struct file *f)
-{
-	struct thread*curr = thread_current();
-	struct file**fdt = curr->fdt;
-
-	//탐색을 계속해서 시작
-	while(curr->next_fd<FDT_COUNT_LIMIT&&fdt[curr->next_fd])
-		curr->next_fd++;
-		if(curr->next_fd == FDT_COUNT_LIMIT)
-			return -1;
-		fdt[curr->next_fd] = f;
-
-		return curr->next_fd;
-	
-}
-
-
-//디스크립터 내에서 검색할 수 있게 해주는 함수
-struct file*process_get_file(int fd)
-{
-	//fd 디폴트가 2이고 떄문에 그것보다 작거나 리미트 값 이상이 될 시에 
-	//NULL을 리턴해야한다. 
-	struct thread*curr = thread_current();
-	struct file**fdt = curr->fdt;
-	if(fd < 0 || fd > FDT_COUNT_LIMIT)
-		return NULL;
-	
-	return fdt[fd];
-
-}
-
-//디스크립터 내에서 close할때 필요한 함수도 만들어주기
-void process_close_file(int fd)
-{
-	struct thread*curr = thread_current();
-	struct file**fdt = curr->fdt;
-	if(fd < 0 || fd >= FDT_COUNT_LIMIT)
-	{
-		return NULL;
-	}
-	fdt[fd] = NULL;
-}
 
 /* Waits for thread TID to die and returns its exit status.  If
  * it was terminated by the kernel (i.e. killed due to an
@@ -778,11 +708,30 @@ install_page (void *upage, void *kpage, bool writable) {
  * If you want to implement the function for only project 2, implement it on the
  * upper block. */
 
+struct lazy_load_arg
+{
+	struct file *file;
+	off_t ofs;
+	uint32_t read_bytes;
+	uint32_t zero_bytes;
+};
+
 static bool
 lazy_load_segment (struct page *page, void *aux) {
 	/* TODO: Load the segment from the file */
 	/* TODO: This called when the first page fault occurs on address VA. */
 	/* TODO: VA is available when calling this function. */
+
+	struct lazy_load_arg *lazy_load_arg = (struct lazy_load_arg *)aux;
+	file_seek(lazy_load_arg->file, lazy_load_arg->ofs);
+	if (file_read(lazy_load_arg->file, page->frame->kva, lazy_load_arg->read_bytes) != (int)(lazy_load_arg->read_bytes))
+	{
+		palloc_free_page(page->frame->kva);
+		return false;
+	}
+	memset(page->frame->kva + lazy_load_arg->read_bytes, 0, lazy_load_arg->zero_bytes);
+
+	return true;
 }
 
 /* Loads a segment starting at offset OFS in FILE at address
@@ -814,15 +763,21 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		size_t page_zero_bytes = PGSIZE - page_read_bytes;
 
 		/* TODO: Set up aux to pass information to the lazy_load_segment. */
-		void *aux = NULL;
+		struct lazy_load_arg *lazy_load_arg = (struct lazy_load_arg *)malloc(sizeof(struct lazy_load_arg));
+		lazy_load_arg->file = file;
+		lazy_load_arg->ofs = ofs;
+		lazy_load_arg->read_bytes = page_read_bytes;
+		lazy_load_arg->zero_bytes = page_zero_bytes;
+
 		if (!vm_alloc_page_with_initializer (VM_ANON, upage,
-					writable, lazy_load_segment, aux))
+					writable, lazy_load_segment, lazy_load_arg))
 			return false;
 
 		/* Advance. */
 		read_bytes -= page_read_bytes;
 		zero_bytes -= page_zero_bytes;
 		upage += PGSIZE;
+		ofs += page_read_bytes;
 	}
 	return true;
 }
@@ -837,7 +792,73 @@ setup_stack (struct intr_frame *if_) {
 	 * TODO: If success, set the rsp accordingly.
 	 * TODO: You should mark the page is stack. */
 	/* TODO: Your code goes here */
-
+	if(vm_alloc_page_with_initializer(VM_ANON | VM_MARKER_0, stack_bottom, 1, NULL, NULL))
+		{
+			success = vm_claim_page(stack_bottom);
+			if(success)
+				if_->rsp = USER_STACK;
+		}
 	return success;
 }
 #endif /* VM */
+
+/*현재 스레드에 파일을 추가하고
+스레드에 저장된 next_fd(init에 추가한거)를 탐색하고 최대전까지 탐색하고
+할당 성공시 fd 실패시 -1리턴*/
+int process_add_file(struct file *f)
+{
+	struct thread*curr = thread_current();
+	struct file**fdt = curr->fdt;
+
+	//탐색을 계속해서 시작
+	while(curr->next_fd<FDT_COUNT_LIMIT&&fdt[curr->next_fd])
+		curr->next_fd++;
+		if(curr->next_fd == FDT_COUNT_LIMIT)
+			return -1;
+		fdt[curr->next_fd] = f;
+
+		return curr->next_fd;
+	
+}
+
+//디스크립터 내에서 검색할 수 있게 해주는 함수
+struct file*process_get_file(int fd)
+{
+	//fd 디폴트가 2이고 떄문에 그것보다 작거나 리미트 값 이상이 될 시에 
+	//NULL을 리턴해야한다. 
+	struct thread*curr = thread_current();
+	struct file**fdt = curr->fdt;
+	if(fd < 0 || fd > FDT_COUNT_LIMIT)
+		return NULL;
+	
+	return fdt[fd];
+
+}
+
+
+//디스크립터 내에서 close할때 필요한 함수도 만들어주기
+void process_close_file(int fd)
+{
+	struct thread *curr = thread_current();
+	struct file **fdt = curr->fdt;
+	if(fd < 2 || fd >= FDT_COUNT_LIMIT)
+	{
+		return NULL;
+	}
+	fdt[fd] = NULL;
+}
+
+//child list에서 찾는 프로세스를 검색하는 함수
+struct thread *get_child_process(int pid)
+{
+	struct thread *curr = thread_current();
+	struct list *child_list = &curr->child_list;
+	for (struct list_elem *e = list_begin(child_list); e != list_end(child_list); e = list_next(e))
+	{
+		struct thread *t = list_entry(e, struct thread, child_elem);
+
+		if(t->tid == pid)
+			return t;
+	}
+	return NULL;
+}

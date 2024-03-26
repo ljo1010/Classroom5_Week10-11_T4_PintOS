@@ -1,8 +1,8 @@
 #ifndef VM_VM_H
 #define VM_VM_H
 #include <stdbool.h>
-#include <hash.h>
 #include "threads/palloc.h"
+#include "hash.h"
 
 enum vm_type {
 	//4바이트로 나눈 것을 볼 수 있음. 
@@ -51,7 +51,7 @@ struct page {
 	//해시테이블에서 사용하는 elem
 	struct hash_elem hash_elem;
 	//쓸수 있는지 없는지의 여부확인
-	int writable;
+	bool writable;
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */
 	union {
@@ -68,6 +68,7 @@ struct page {
 struct frame {
 	void *kva;
 	struct page *page;
+	struct list_elem frame_elem;
 };
 
 /* The function table for page operations.
@@ -84,7 +85,8 @@ struct page_operations {
 #define swap_in(page, v) (page)->operations->swap_in ((page), v)
 #define swap_out(page) (page)->operations->swap_out (page)
 #define destroy(page) \
-	if ((page)->operations->destroy) (page)->operations->destroy (page)
+	if ((page)->operations->destroy) \
+	(page)->operations->destroy (page)
 
 /* Representation of current process's memory space.
  * We don't want to force you to obey any specific design for this struct.
@@ -98,9 +100,11 @@ struct supplemental_page_table {
 void supplemental_page_table_init (struct supplemental_page_table *spt);
 bool supplemental_page_table_copy (struct supplemental_page_table *dst,
 		struct supplemental_page_table *src);
+
 void supplemental_page_table_kill (struct supplemental_page_table *spt);
 struct page *spt_find_page (struct supplemental_page_table *spt,
 		void *va);
+
 bool spt_insert_page (struct supplemental_page_table *spt, struct page *page);
 void spt_remove_page (struct supplemental_page_table *spt, struct page *page);
 
@@ -112,8 +116,10 @@ bool vm_try_handle_fault (struct intr_frame *f, void *addr, bool user,
 	vm_alloc_page_with_initializer ((type), (upage), (writable), NULL, NULL)
 bool vm_alloc_page_with_initializer (enum vm_type type, void *upage,
 		bool writable, vm_initializer *init, void *aux);
+
 void vm_dealloc_page (struct page *page);
 bool vm_claim_page (void *va);
+
 enum vm_type page_get_type (struct page *page);
 
 #endif  /* VM_VM_H */
