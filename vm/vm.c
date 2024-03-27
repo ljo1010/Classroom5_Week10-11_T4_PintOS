@@ -175,12 +175,14 @@ vm_get_frame (void) {
 static void
 vm_stack_growth (void *addr UNUSED)
 {
-
+	
 }
 
 /* Handle the fault on write_protected page */
 static bool
-vm_handle_wp (struct page *page UNUSED) {
+vm_handle_wp (struct page *page UNUSED) 
+{
+
 }
 
 /* Return true on success */

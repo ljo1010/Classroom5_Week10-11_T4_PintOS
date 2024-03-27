@@ -54,6 +54,8 @@ hash_init (struct hash *h,
    functions hash_clear(), hash_destroy(), hash_insert(),
    hash_replace(), or hash_delete(), yields undefined behavior,
    whether done in DESTRUCTOR or elsewhere. */
+   /*hash_destory랑 비슷하게는 보이나 프레임을 완전히 없얘는 
+   것이 아니라서 프레임을 빈 껍데기로 만드는 함수이다. */
 void
 hash_clear (struct hash *h, hash_action_func *destructor) {
 	size_t i;
@@ -88,6 +90,7 @@ hash_clear (struct hash *h, hash_action_func *destructor) {
    hash_insert(), hash_replace(), or hash_delete(), yields
    undefined behavior, whether done in DESTRUCTOR or
    elsewhere. */
+   /*이거는 프레임을 완전히 없얘버리는 함수이다. */
 void
 hash_destroy (struct hash *h, hash_action_func *destructor) {
 	if (destructor != NULL)

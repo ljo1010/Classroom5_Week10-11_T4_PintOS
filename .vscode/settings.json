@@ -16,6 +16,7 @@
         "page_cache.h": "c",
         "hash.h": "c",
         "thread.h": "c",
-        "inspect.h": "c"
+        "inspect.h": "c",
+        "input.h": "c"
     }
 }
