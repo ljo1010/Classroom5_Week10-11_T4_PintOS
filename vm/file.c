@@ -124,19 +124,20 @@ do_munmap (void *addr) {
 	struct page *p;
 	p = spt_find_page(&thread_current()->spt, addr);
 	struct file *f;
-
+	//printf("do munmap spt find 직후\n");
 	if(p == NULL){
 		//printf("do munmap p == NULL\n");
 		exit(-1);
 	}
 	int count = p->mapping_count;
-	while(count!= 0){
+	//printf("do munmap count : %d\n", count);
+	for(count; count < p->mapping_count;count--){
+		//printf("do munmap while count 도는 중...\n");
 		if(p){
 			destroy(p);
 			addr += PGSIZE;
 			p = spt_find_page(&thread_current()->spt, addr);
-			count--;
-			
+			//printf("do munmap find p!\n");
 		}
 	}
 

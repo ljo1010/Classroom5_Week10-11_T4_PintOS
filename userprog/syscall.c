@@ -446,6 +446,8 @@ void *mmap (void *addr, size_t length, int writable, int fd, off_t offset){
 	
 
 void munmap (void *addr){
+	//printf("munmap\n");
 	check_address(addr);
+	//printf("-----munmap-------\n");
 	do_munmap(addr);
 }
