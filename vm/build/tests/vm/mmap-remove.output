@@ -20,16 +20,16 @@ Executing 'mmap-remove':
 (mmap-remove) remove "sample.txt"
 (mmap-remove) try to open "sample.txt"
 (mmap-remove) create "another"
-Page fault at 0x10000000: not present error reading page in user context.
-mmap-remove: exit(-1)
+(mmap-remove) end
+mmap-remove: exit(0)
 Execution of 'mmap-remove' complete.
-Timer: 67 ticks
-Thread: 30 idle ticks, 30 kernel ticks, 7 user ticks
+Timer: 70 ticks
+Thread: 30 idle ticks, 34 kernel ticks, 7 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 167 reads, 351 writes
 hd1:0: 110 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1249 characters output
+Console: 1192 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

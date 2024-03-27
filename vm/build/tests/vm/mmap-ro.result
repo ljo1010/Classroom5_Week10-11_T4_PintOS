@@ -11,7 +11,6 @@ Differences in `diff -u' format:
   (mmap-ro) open "large.txt"
   (mmap-ro) mmap "large.txt" with writable=0
   (mmap-ro) about to write into read-only mmap'd memory
-+ (mmap-ro) Error should have occured
-+ (mmap-ro) end
++ Page fault at 0x10000000: not present error writing page in user context.
 
 (Process exit codes are excluded for matching purposes.)

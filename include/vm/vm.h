@@ -58,6 +58,8 @@ struct page {
 	uint32_t read_bytes;
 	off_t ofs;
 
+	int mapping_count;
+
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */
 	union {

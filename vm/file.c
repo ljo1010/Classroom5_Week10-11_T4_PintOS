@@ -4,6 +4,7 @@
 #include "userprog/process.h"
 #include "threads/vaddr.h"
 #include "string.h"
+#include "threads/mmu.h"
 
 static bool file_backed_swap_in (struct page *page, void *kva);
 static bool file_backed_swap_out (struct page *page);
@@ -29,13 +30,18 @@ file_backed_initializer (struct page *page, enum vm_type type, void *kva) {
 	page->operations = &file_ops;
 
 	struct file_page *file_page = &page->file;
+	struct page_load_data *aux = (struct page_load_data *) page->uninit.aux;
+	file_page->file = aux->file;
+	file_page->ofs = aux->ofs;
+	file_page->read_bytes = aux->read_bytes;
+	file_page->zero_bytes = aux->zero_bytes;
 }
 
 /* Swap in the page by read contents from the file. */
 static bool
 file_backed_swap_in (struct page *page, void *kva) {
 	struct file_page *file_page UNUSED = &page->file;
-	printf("file backed swap in!\n");
+	//printf("file backed swap in!\n");
 }
 
 /* Swap out the page by writeback contents to the file. */
@@ -48,6 +54,12 @@ file_backed_swap_out (struct page *page) {
 static void
 file_backed_destroy (struct page *page) {
 	struct file_page *file_page UNUSED = &page->file;
+
+	if(pml4_is_dirty(thread_current()->pml4, page->va)){
+		file_write_at(file_page->file, page->va, file_page->read_bytes, file_page->ofs);
+		pml4_set_dirty(thread_current()->pml4, page->va, 0);
+	}
+	pml4_clear_page(thread_current()->pml4, page->va);
 }
 
 /* Do the mmap */
@@ -56,38 +68,46 @@ do_mmap (void *addr, size_t length, int writable,
 		struct file *file, off_t offset) {
 		
 	bool succ = false;
-
+	struct file * f = file_reopen(file);
 	void * new_addr = addr;
-	printf("do mmap \n");
-	printf("do mmap length : %d\n", length);
-	printf("do mmap addr : %p\n", addr);
-	while(length >0){
-		size_t page_read_bytes = length <PGSIZE ? length : PGSIZE;
+	int count = length <= PGSIZE ? 1 : (length%PGSIZE ? length/PGSIZE +1: length/PGSIZE);
+	// printf("do mmap \n");
+	// printf("do mmap length : %d\n", length);
+	// printf("do mmap addr : %p\n", addr);
+	
+	size_t read_bytes = file_length(f) < length ? file_length(f) : length;
+	size_t zero_bytes = PGSIZE - (read_bytes%PGSIZE) ;
+	while(read_bytes > 0 || zero_bytes > 0){
+		size_t page_read_bytes =  read_bytes <PGSIZE ? read_bytes: PGSIZE;
 		size_t page_zero_bytes = PGSIZE - page_read_bytes;
 		struct page_load_data *aux_d = malloc(sizeof(struct page_load_data));
-		aux_d->file = file_reopen(file);
-		printf("do mmap file reopen file : %p\n", aux_d->file);
+		aux_d->file = f;
+//		//printf("do mmap file reopen file : %p\n", aux_d->file);
 		aux_d->ofs = offset;
 		aux_d->read_bytes = page_read_bytes;
 		aux_d->zero_bytes = page_zero_bytes;
-		printf("do mmap aux_d ofs:%d\n",offset);
-		printf("do mmap aux_d  read bytes:%d\n",page_read_bytes);
-		printf("do mmap aux_d zero bytes : %d\n", page_zero_bytes);
+	//	//printf("do mmap aux_d ofs:%d\n",offset);
+		//printf("do mmap aux_d  read bytes:%d\n",page_read_bytes);
+		//printf("do mmap aux_d zero bytes : %d\n", page_zero_bytes);
 		if(!vm_alloc_page_with_initializer(VM_FILE, new_addr, writable, lazy_load, aux_d)){
-			printf("do mmap vm alloc page with initializer fail!\n");
+			//printf("do mmap vm alloc page with initializer fail!\n");
 			return NULL;
 		}
-		length -= page_read_bytes;
+		read_bytes -= page_read_bytes;
+		zero_bytes -= page_zero_bytes;
 		new_addr += PGSIZE;
 		offset += page_read_bytes;
+
 	}
-	if(length == 0){
-		printf(" do mmap length == 0!\n");
+	struct page *p = spt_find_page(&thread_current()->spt, addr);
+	p->mapping_count = count;
+	if(read_bytes== 0){
+		//printf(" do mmap length == 0!\n");
 		succ = true;
 	}
 	if(succ){
-		printf("do mmap success!\n");
-		printf("do mmap final addr : %p\n", addr);
+		//printf("do mmap success!\n");
+		//printf("do mmap final addr : %p\n", addr);
 		return addr;
 	}
 	else{
@@ -106,22 +126,32 @@ do_munmap (void *addr) {
 	struct file *f;
 
 	if(p == NULL){
-		printf("do munmap p == NULL\n");
+		//printf("do munmap p == NULL\n");
 		exit(-1);
 	}
-
-	if(VM_TYPE(p->operations->type) == VM_FILE){
-		if(p->modified){
-			file_seek(p->origin, p->ofs);
-			if(file_write(p->origin, p->frame->kva,p->read_bytes) != (int)p->read_bytes){
-				exit(-1);
-			}
-			vm_dealloc_page(p);
-		}
-		else{
-			vm_dealloc_page(p);
+	int count = p->mapping_count;
+	while(count!= 0){
+		if(p){
+			destroy(p);
+			addr += PGSIZE;
+			p = spt_find_page(&thread_current()->spt, addr);
+			count--;
+			
 		}
 	}
+
+	// if(VM_TYPE(p->operations->type) == VM_FILE){
+	// 	if(p->modified){
+	// 		file_seek(p->origin, p->ofs);
+	// 		if(file_write(p->origin, p->frame->kva,p->read_bytes) != (int)p->read_bytes){
+	// 			exit(-1);
+	// 		}
+	// 		vm_dealloc_page(p);
+	// 	}
+	// 	else{
+	// 		vm_dealloc_page(p);
+	// 	}
+	// }
 
 }
 
@@ -131,25 +161,32 @@ bool
 lazy_load (struct page *page, void *aux){
 	struct page_load_data *aux_d = (struct page_load_data *)aux;
 	struct file *file;
-	printf("file.c lazy load 진입\n");
+	//printf("file.c lazy load 진입\n");
 	uint32_t page_read_bytes = aux_d->read_bytes;
 	uint32_t page_zero_bytes = aux_d->zero_bytes;
 	file = aux_d->file;
-	printf("file.c lazy load aux_d read bytes: %d\n",page_read_bytes);
-	printf("file.c lazy load aux_d zero bytes: %d\n",page_zero_bytes);
-	printf("file.c lazy load aux_d file: %p\n",file);
-	printf("file.c lazy load aux_d ofs: %d\n",aux_d->ofs);
+	//printf("file.c lazy load aux_d read bytes: %d\n",page_read_bytes);
+	//printf("file.c lazy load aux_d zero bytes: %d\n",page_zero_bytes);
+	//printf("file.c lazy load aux_d file: %p\n",file);
+	//printf("file.c lazy load aux_d ofs: %d\n",aux_d->ofs);
 	file_seek(file, aux_d->ofs);
-	printf("file.c lazy load file read bytes : %d\n", file_read(file, page->frame->kva, page_read_bytes));
-	printf("file.c lazy load file size :%d\n", file_length(file));
-	if(file_read(file, page->frame->kva, page_read_bytes) != (int)page_read_bytes){
-		printf("file.c lazy loac file read fail!\n");
+	// printf("file.c lazy load file read bytes : %d\n", file_read(file, page->frame->kva, page_read_bytes));
+	// printf("file.c lazy load file size :%d\n", file_length(file));
+	uint32_t length = file_length(file);
+	if(length > page_read_bytes){
+		length = page_read_bytes;
+	}
+	if(file_read(file, page->frame->kva, length) != (int)length){
+		//printf("file.c lazy loac file read fail!\n");
 		palloc_free_page(page->frame->kva);
 		return false;
 	}
-	memset((page->frame->kva) +(page_read_bytes), 0, page_zero_bytes);
+	if(length < page_read_bytes){
+		page_zero_bytes = PGSIZE - length;
+	}
+	memset((page->frame->kva) +(length), 0, page_zero_bytes);
 	page->origin = file;
-	page->read_bytes = page_read_bytes;
+	page->read_bytes = length;
 	page->ofs = aux_d->ofs;
 	return true;
 

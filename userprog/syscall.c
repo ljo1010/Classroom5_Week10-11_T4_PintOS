@@ -414,7 +414,7 @@ int dup2(int oldfd, int newfd){
 void *mmap (void *addr, size_t length, int writable, int fd, off_t offset){
 
 	struct file *file = thread_current()->fdt[fd];
-	printf("mmap\n");
+	//printf("mmap\n");
 	if (fd >64 || fd <0){
 		return NULL;
 	}
@@ -430,7 +430,10 @@ void *mmap (void *addr, size_t length, int writable, int fd, off_t offset){
 	if(length == 0){
 		return NULL;
 	}
-	printf("mmap file :%p\n", file);
+	if(addr != pg_round_down(addr)){
+		return NULL;
+	}
+	//printf("mmap file :%p\n", file);
 	if(file != NULL){
 	return do_mmap(addr, length, writable, file, offset);
 	}

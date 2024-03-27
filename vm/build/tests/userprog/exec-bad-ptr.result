@@ -1,13 +1,20 @@
 FAIL
-Kernel panic in run: PANIC at ../../filesys/directory.c:110 in dir_lookup(): assertion `name != NULL' failed.
-Call stack: 0x800421889a 0x8004220153 0x800421eae9 0x800421caa0 0x800421c3eb 0x800421de4c 0x800421d9e7 0x800421d847 0xcccccccccccccccc
-Translation of call stack:
-0x000000800421889a: debug_panic (lib/kernel/debug.c:32)
-0x0000008004220153: dir_lookup (filesys/directory.c:112)
-0x000000800421eae9: filesys_open (filesys/filesys.c:87)
-0x000000800421caa0: load (userprog/process.c:543)
-0x000000800421c3eb: process_exec (userprog/process.c:284)
-0x000000800421de4c: exec (userprog/syscall.c:211)
-0x000000800421d9e7: syscall_handler (userprog/syscall.c:79)
-0x000000800421d847: no_sti (userprog/syscall-entry.o:?)
-0xcccccccccccccccc: (unknown)
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (exec-bad-ptr) begin
+  exec-bad-ptr: exit(-1)
+Differences in `diff -u' format:
+  (exec-bad-ptr) begin
++ Page fault at 0x20101234: not present error reading page in kernel context.
+  exec-bad-ptr: exit(-1)
+Acceptable output:
+  (exec-bad-ptr) begin
+  (exec-bad-ptr) end
+  exec-bad-ptr: exit(0)
+Differences in `diff -u' format:
+  (exec-bad-ptr) begin
+- (exec-bad-ptr) end
+- exec-bad-ptr: exit(0)
++ Page fault at 0x20101234: not present error reading page in kernel context.
++ exec-bad-ptr: exit(-1)

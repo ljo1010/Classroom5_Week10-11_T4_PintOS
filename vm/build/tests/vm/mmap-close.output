@@ -17,27 +17,16 @@ Executing 'mmap-close':
 (mmap-close) begin
 (mmap-close) open "sample.txt"
 (mmap-close) mmap "sample.txt"
-Page fault at 0x10000000: not present error reading page in user context.
-mmap-close: exit(-1)
+(mmap-close) end
+mmap-close: exit(0)
 Execution of 'mmap-close' complete.
-Timer: 64 ticks
-Thread: 30 idle ticks, 31 kernel ticks, 3 user ticks
+Timer: 66 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 122 reads, 256 writes
 hd1:0: 109 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1136 characters output
+Console: 1078 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
-Kernel PANIC at ../../threads/palloc.c:321 in palloc_free_multiple(): assertion `bitmap_all (pool->used_map, page_idx, page_cnt)' failed.
-Call stack: 0x800421889a 0x800420c184 0x800420c1d1 0x800420d500 0x800420d583 0x800420d606 0x800420d6cf 0x800421c980 0x800421c903 0x8004207211 0x800421ddbc 0x800421d7d2 0x8004209751 0x8004209b6fPage fault at 0x4747ff70: not present error reading page in kernel context.
-mmap-close: exit(-1)
-Kernel PANIC recursion at ../../filesys/inode.c:304 in inode_allow_write().
-Timer: 69 ticks
-Thread: 30 idle ticks, 36 kernel ticks, 3 user ticks
-hd0:0: 0 reads, 0 writes
-hd0:1: 122 reads, 256 writes
-hd1:0: 109 reads, 0 writes
-hd1:1: 0 reads, 0 writes
-Console: 1897 characters output
-Key
+Exception: 0 page faults
+Powering off...

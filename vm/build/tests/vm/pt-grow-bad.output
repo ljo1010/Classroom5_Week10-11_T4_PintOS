@@ -4,7 +4,7 @@ Kernel command line: -q -f put pt-grow-bad run pt-grow-bad
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  156,876,800 loops/s.
+Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 102 sector (51 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -13,82 +13,17 @@ Formatting file system...done.
 Boot complete.
 Putting 'pt-grow-bad' into the file system...
 Executing 'pt-grow-bad':
-vm alloc page with initializer 진입
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-vm alloc page with initializer 진입
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-vm alloc page with initializer 진입
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-vm alloc page with initializer 진입
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-vm alloc page with initializer 진입
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-vm alloc page with initializer 진입
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-vm alloc page with initializer 진입
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-vm alloc page with initializer 진입
-vm alloc page with initializer spt find page == NULL
-vm alloc with initializer page type : VM_ANON
-vm alloc with initializer page type : VM_ANON : uninit_new 
-vm alloc with initializer writable 설정
-vm try handle fault 진입
- vm try handle fault addr : 0x400bcc
-vm try handle fault not present!
-vm try handle fault 진입
- vm try handle fault addr : 0x605148
-vm try handle fault not present!
-vm try handle fault 진입
- vm try handle fault addr : 0x604c20
-vm try handle fault not present!
-vm try handle fault 진입
- vm try handle fault addr : 0x401000
-vm try handle fault not present!
-vm try handle fault 진입
- vm try handle fault addr : 0x4042f0
-vm try handle fault not present!
-vm try handle fault 진입
- vm try handle fault addr : 0x402dbb
-vm try handle fault not present!
-vm try handle fault 진입
- vm try handle fault addr : 0x40370a
-vm try handle fault not present!
 (pt-grow-bad) begin
-vm try handle fault 진입
- vm try handle fault addr : 0x4747ef90
-vm try handle fault not present!
-vm try handl fault not present and page == NULL!
 Page fault at 0x4747ef90: not present error reading page in user context.
 pt-grow-bad: exit(-1)
 Execution of 'pt-grow-bad' complete.
-Timer: 132 ticks
-Thread: 30 idle ticks, 39 kernel ticks, 63 user ticks
+Timer: 63 ticks
+Thread: 30 idle ticks, 31 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 3761 characters output
+Console: 1020 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...
