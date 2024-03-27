@@ -398,7 +398,6 @@ process_exit (void) {
 	 * TODO: project2/process_termination.html).
 	 * TODO: We recommend you to implement process resource cleanup here. */
 	struct thread *cur = thread_current();
-	sema_up(&cur->wait);
 	file_close (thread_current()->running);
 	for(int i = 2; i <63; i++){
 		file_close(cur->fdt[i]);
@@ -410,8 +409,10 @@ process_exit (void) {
 			process_wait(t->tid);
 		}
 	}
-	sema_down(&cur->free_wait);
+
+	sema_up(&cur->wait);
 	process_cleanup ();
+	sema_down(&cur->free_wait);
 
 }
 
@@ -782,7 +783,7 @@ install_page (void *upage, void *kpage, bool writable) {
  * If you want to implement the function for only project 2, implement it on the
  * upper block. */
 
-static bool
+bool
 lazy_load_segment (struct page *page, void *aux) {
 
 	struct page_load_data *aux_d = (struct page_load_data *)aux;

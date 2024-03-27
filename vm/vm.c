@@ -469,7 +469,9 @@ void
 page_entry_destroy(struct hash_elem *e, void *aux){
 
 	struct page *p = hash_entry(e, struct page, hash_elem);
-
+	// if(p->operations->type == VM_FILE){
+	// 	do_munmap(p->va);
+	// }
 	destroy(p);
 	free(p);
 

@@ -20,5 +20,6 @@ void process_exit (void);
 void process_activate (struct thread *next);
 
 void argument_passing(char *file_name,int count,void **rsp);
+bool lazy_load_segment (struct page *page, void *aux);
 
 #endif /* userprog/process.h */

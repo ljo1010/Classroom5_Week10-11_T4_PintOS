@@ -89,7 +89,7 @@ do_mmap (void *addr, size_t length, int writable,
 	//	//printf("do mmap aux_d ofs:%d\n",offset);
 		//printf("do mmap aux_d  read bytes:%d\n",page_read_bytes);
 		//printf("do mmap aux_d zero bytes : %d\n", page_zero_bytes);
-		if(!vm_alloc_page_with_initializer(VM_FILE, new_addr, writable, lazy_load, aux_d)){
+		if(!vm_alloc_page_with_initializer(VM_FILE, new_addr, writable, lazy_load_segment, aux_d)){
 			//printf("do mmap vm alloc page with initializer fail!\n");
 			return NULL;
 		}
@@ -174,10 +174,7 @@ lazy_load (struct page *page, void *aux){
 	// printf("file.c lazy load file read bytes : %d\n", file_read(file, page->frame->kva, page_read_bytes));
 	// printf("file.c lazy load file size :%d\n", file_length(file));
 	uint32_t length = file_length(file);
-	if(length > page_read_bytes){
-		length = page_read_bytes;
-	}
-	if(file_read(file, page->frame->kva, length) != (int)length){
+	if(file_read(file, page->frame->kva, page_read_bytes) != (int)length){
 		//printf("file.c lazy loac file read fail!\n");
 		palloc_free_page(page->frame->kva);
 		return false;
