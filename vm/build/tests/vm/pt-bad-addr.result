@@ -1,1 +1,2 @@
-PASS
+FAIL
+run: bad addr read as 0: FAILED

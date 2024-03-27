@@ -54,4 +54,7 @@ pid_t ffork (const char *thread_name, struct intr_frame *f);
 
 int dup2(int oldfd, int newfd);
 
+void *mmap (void *addr, size_t length, int writable, int fd, off_t offset);
+void munmap (void *addr);
+
 #endif /* userprog/syscall.h */

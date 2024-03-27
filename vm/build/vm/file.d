@@ -7,4 +7,5 @@ vm/file.o: ../../vm/file.c ../../include/vm/vm.h \
  ../../include/vm/anon.h ../../include/vm/file.h \
  ../../include/threads/thread.h ../../include/lib/debug.h \
  ../../include/lib/kernel/list.h ../../include/threads/interrupt.h \
- ../../include/threads/synch.h
+ ../../include/threads/synch.h ../../include/userprog/process.h \
+ ../../include/threads/vaddr.h ../../include/threads/loader.h

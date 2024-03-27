@@ -16,6 +16,7 @@
 #include "lib/kernel/console.h"
 #include "lib/kernel/stdio.h"
 #include "lib/string.h"
+#include "vm/file.h"
 
 struct lock filesys_lock;
 typedef int pid_t;
@@ -129,6 +130,15 @@ syscall_handler (struct intr_frame *f) {
 		close((int)f->R.rdi);
 		break;
 		}
+
+	case SYS_MMAP:{
+		f->R.rax = mmap(f->R.rdi, f->R.rsi, f->R.rdx, f->R.r10, f->R.r8);
+		break;
+	}
+	case SYS_MUNMAP:{
+		munmap(f->R.rdi);
+		break;
+	}
 	default:
 		exit(-1);
 		break;
@@ -397,5 +407,36 @@ close (int fd) {
 }
 
 int dup2(int oldfd, int newfd){
+
+}
+
+void *mmap (void *addr, size_t length, int writable, int fd, off_t offset){
+	struct file *file = thread_current()->fdt[fd];
+
+	if(fd == 0 || fd == 1){
+		return NULL;
+	}
+	if(addr == NULL || pg_ofs(addr) != 0){
+		return NULL;
+	} 
+	
+	if(length == 0){
+		return NULL;
+	}
+
+	if(filesize(fd)== 0){
+		return NULL;
+	}
+
+	if(file != NULL){
+	
+	return do_mmap(addr, length, writable, file, offset);
+	}
+
+	return NULL;
+}
+	
+
+void munmap (void *addr){
 
 }

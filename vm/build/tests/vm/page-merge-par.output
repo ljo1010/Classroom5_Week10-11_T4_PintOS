@@ -29,18 +29,18 @@ child-sort: exit(123)
 child-sort: exit(123)
 (page-merge-par) sort chunk 6
 child-sort: exit(123)
-child-sort: exit(123)
 (page-merge-par) sort chunk 7
+child-sort: exit(123)
 (page-merge-par) wait for child 0
 (page-merge-par) wait for child 1
 (page-merge-par) wait for child 2
 (page-merge-par) open "buf2": FAILED
 page-merge-par: exit(1)
 Execution of 'page-merge-par' complete.
-Timer: 254 ticks
-Thread: 30 idle ticks, 46 kernel ticks, 179 user ticks
+Timer: 239 ticks
+Thread: 30 idle ticks, 46 kernel ticks, 164 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 3275 reads, 6458 writes
+hd0:1: 3272 reads, 6458 writes
 hd1:0: 218 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1589 characters output
