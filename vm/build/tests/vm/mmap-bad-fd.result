@@ -1,13 +1,1 @@
-FAIL
-Kernel panic in run: PANIC at ../../filesys/file.c:142 in file_length(): assertion `file != NULL' failed.
-Call stack: 0x800421889a 0x800421fceb 0x800421e0ab 0x800421e60a 0x800421dc17 0x800421d847 0x40012d 0x400c03 0x400c4c
-Translation of call stack:
-0x000000800421889a: debug_panic (lib/kernel/debug.c:32)
-0x000000800421fceb: file_length (filesys/file.c:143)
-0x000000800421e0ab: filesize (userprog/syscall.c:278)
-0x000000800421e60a: mmap (userprog/syscall.c:428)
-0x000000800421dc17: syscall_handler (userprog/syscall.c:135)
-0x000000800421d847: no_sti (userprog/syscall-entry.o:?)
-0x000000000040012d: (unknown)
-0x0000000000400c03: (unknown)
-0x0000000000400c4c: (unknown)
+PASS

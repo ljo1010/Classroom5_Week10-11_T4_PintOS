@@ -412,20 +412,22 @@ int dup2(int oldfd, int newfd){
 }
 
 void *mmap (void *addr, size_t length, int writable, int fd, off_t offset){
+
 	struct file *file = thread_current()->fdt[fd];
 
+	if (fd >64 || fd <0){
+		return NULL;
+	}
 	if(fd == 0 || fd == 1){
 		return NULL;
 	}
 	if(addr == NULL || pg_ofs(addr) != 0){
 		return NULL;
 	} 
-	
-	if(length == 0){
-		return NULL;
+	if(file_length(file)== 0){
+		exit(-1);
 	}
-
-	if(filesize(fd)== 0){
+	if(length == 0){
 		return NULL;
 	}
 
