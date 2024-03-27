@@ -53,6 +53,10 @@ struct page {
 	struct frame *frame;   /* Back reference for frame */
 	bool writable;
 	/* Your implementation */
+	bool modified;
+	struct file *origin;
+	uint32_t read_bytes;
+	off_t ofs;
 
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */

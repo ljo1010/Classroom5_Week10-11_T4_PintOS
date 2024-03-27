@@ -77,7 +77,9 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 			break;
 		case VM_FILE:
 			////printf("vm alloc with initializer page type : VM_FILE\n");
-			uninit_new(page, upage, init, type,aux,file_backed_initializer); 	
+			uninit_new(page, upage, init, type,aux,file_backed_initializer);
+			page->modified = false;
+			
 		default:
 			break;
 		}
@@ -378,6 +380,7 @@ vm_do_claim_page (struct page *page) {
 void
 spt_hash_init (struct hash *spt UNUSED) {
 	////printf("spt hash init\n");
+	// spt = malloc(sizeof(struct hash));
 	hash_init(spt, page_hash, page_less, NULL);
 
 }

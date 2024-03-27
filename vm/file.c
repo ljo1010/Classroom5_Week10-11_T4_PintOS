@@ -3,6 +3,7 @@
 #include "vm/vm.h"
 #include "userprog/process.h"
 #include "threads/vaddr.h"
+#include "string.h"
 
 static bool file_backed_swap_in (struct page *page, void *kva);
 static bool file_backed_swap_out (struct page *page);
@@ -58,7 +59,7 @@ do_mmap (void *addr, size_t length, int writable,
 		size_t page_read_bytes = length <PGSIZE ? length : PGSIZE;
 		size_t page_zero_bytes = PGSIZE - page_read_bytes;
 		struct page_load_data *aux_d = malloc(sizeof(struct page_load_data));
-		aux_d->file = file;
+		aux_d->file = file_reopen(file);
 		aux_d->ofs = offset;
 		aux_d->read_bytes = page_read_bytes;
 		aux_d->zero_bytes = page_zero_bytes;
@@ -87,6 +88,28 @@ do_mmap (void *addr, size_t length, int writable,
 void
 do_munmap (void *addr) {
 
+	struct page *p;
+	p = spt_find_page(&thread_current()->spt, addr);
+	struct file *f;
+
+	if(p == NULL){
+		printf("do munmap p == NULL\n");
+		exit(-1);
+	}
+
+	if(VM_TYPE(p->operations->type) == VM_FILE){
+		if(p->modified){
+			file_seek(p->origin, p->ofs);
+			if(file_write(p->origin, p->frame->kva,p->read_bytes) != (int)p->read_bytes){
+				exit(-1);
+			}
+			vm_dealloc_page(p);
+		}
+		else{
+			vm_dealloc_page(p);
+		}
+	}
+
 }
 
 
@@ -97,13 +120,16 @@ lazy_load (struct page *page, void *aux){
 	struct file *file;
 	uint32_t page_read_bytes = aux_d->read_bytes;
 	uint32_t page_zero_bytes = aux_d->zero_bytes;
-	file = file_reopen(aux_d->file);
+	file = aux_d->file;
 	file_seek(file, aux_d->ofs);
 	if(file_read(file, page->frame->kva, page_read_bytes) != (int)page_read_bytes){
 		palloc_free_page(page->frame->kva);
 		return false;
 	}
 	memset((page->frame->kva) +(page_read_bytes), 0, page_zero_bytes);
+	page->origin = file;
+	page->read_bytes = page_read_bytes;
+	page->ofs = aux_d->ofs;
 	return true;
 
 }
