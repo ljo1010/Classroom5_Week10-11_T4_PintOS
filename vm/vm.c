@@ -410,8 +410,6 @@ spt_hash_copy (struct hash *dst UNUSED,
 				return false;
 			}
 			break;
-		case VM_FILE:
-		
 		default:
 			////printf("spt hash copy default\n");
 			if(vm_alloc_page(p->operations->type, p->va, p->writable)){

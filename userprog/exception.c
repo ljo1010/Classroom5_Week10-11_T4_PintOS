@@ -154,7 +154,7 @@ page_fault (struct intr_frame *f) {
 		return;}
 
 #endif
-
+	exit(-1);
 	/* Count page faults. */
 	page_fault_cnt++;
 	//printf("page fault cnt is ++!\n");
@@ -166,7 +166,7 @@ page_fault (struct intr_frame *f) {
 			user ? "user" : "kernel",
 			null_ptr ? "NULL ptr": "validate ptr",
 			kern_base_up ? "kernel address out": "kernel address in");
-	exit(-1);
+
 
 }
 

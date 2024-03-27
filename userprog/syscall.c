@@ -164,18 +164,19 @@ check_address(const uint64_t *addr){
 		exit(-1);
 	}
 
-	#ifdef VM
-	struct page * p = spt_find_page(&thread_current()->spt, addr);
-
-	if(p != NULL && VM_TYPE(p->operations->type) != VM_UNINIT){
-
-	#endif
+	#ifndef VM
 		if(pml4_get_page(thread_current()->pml4, addr) == NULL){
-
 		// printf("check address pml4 get page 실패!\n");
 		exit(-1);
 	}
+	#endif
 	#ifdef VM
+	struct page * p = spt_find_page(&thread_current()->spt, addr);
+	if(p != NULL && VM_TYPE(p->operations->type) != VM_UNINIT){
+		if(pml4_get_page(thread_current()->pml4, addr) == NULL){
+		// printf("check address pml4 get page 실패!\n");
+		exit(-1);
+	}
 	}
 	#endif
 }
@@ -412,7 +413,9 @@ int dup2(int oldfd, int newfd){
 }
 
 void *mmap (void *addr, size_t length, int writable, int fd, off_t offset){
-
+	if(is_kernel_vaddr(addr) || addr == KERN_BASE - PGSIZE){
+		return NULL;
+	}
 	struct file *file = thread_current()->fdt[fd];
 	//printf("mmap\n");
 	if (fd >64 || fd <0){

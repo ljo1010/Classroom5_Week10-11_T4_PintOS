@@ -14,16 +14,15 @@ Boot complete.
 Putting 'create-bad-ptr' into the file system...
 Executing 'create-bad-ptr':
 (create-bad-ptr) begin
-Page fault at 0x20101234: not present error reading page in kernel context.
 create-bad-ptr: exit(-1)
 Execution of 'create-bad-ptr' complete.
-Timer: 62 ticks
-Thread: 30 idle ticks, 29 kernel ticks, 3 user ticks
+Timer: 65 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 83 reads, 245 writes
 hd1:0: 103 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1043 characters output
+Console: 967 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

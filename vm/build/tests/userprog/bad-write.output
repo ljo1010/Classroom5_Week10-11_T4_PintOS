@@ -14,16 +14,15 @@ Boot complete.
 Putting 'bad-write' into the file system...
 Executing 'bad-write':
 (bad-write) begin
-Page fault at 0: not present error writing page in user context.
 bad-write: exit(-1)
 Execution of 'bad-write' complete.
 Timer: 61 ticks
-Thread: 30 idle ticks, 30 kernel ticks, 2 user ticks
+Thread: 30 idle ticks, 29 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 997 characters output
+Console: 932 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...
