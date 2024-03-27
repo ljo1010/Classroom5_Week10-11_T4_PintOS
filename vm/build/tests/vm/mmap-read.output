@@ -7,35 +7,187 @@ Pintos booting with:
 Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
-hd1:0: detected 109 sector (54 kB) disk, model "QEMU HARDDISK", serial "QM00003"
+hd1:0: detected 110 sector (55 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
 Formatting file system...done.
 Boot complete.
 Putting 'mmap-read' into the file system...
 Putting 'sample.txt' into the file system...
 Executing 'mmap-read':
+vm alloc page with initializer 진입
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+vm alloc page with initializer 진입
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+vm alloc page with initializer 진입
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+vm alloc page with initializer 진입
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+vm alloc page with initializer 진입
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+vm alloc page with initializer 진입
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+vm alloc page with initializer 진입
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+vm alloc page with initializer 진입
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_ANON
+vm alloc with initializer page type : VM_ANON : uninit_new 
+vm alloc with initializer writable 설정
+vm do claim page
+#############1111##############
+##############2222#############
+vm do claim page  page:0x8004243818
+vm do claim page frame kva : 0x8004a21000
+vm try handle fault 진입
+ vm try handle fault addr : 0x400d8d
+vm try handle fault not present!
+vm try handl fault vm do claim page직전!
+vm do claim page
+#############1111##############
+##############2222#############
+vm do claim page  page:0x8004243118
+vm do claim page frame kva : 0x8004a22000
+##########lazy load segmen###########t
+vm try handl fault fail!
+vm try handle fault 진입
+ vm try handle fault addr : 0x6056c8
+vm try handle fault not present!
+vm try handl fault vm do claim page직전!
+vm do claim page
+#############1111##############
+##############2222#############
+vm do claim page  page:0x8004243718
+vm do claim page frame kva : 0x8004a23000
+##########lazy load segmen###########t
+vm try handl fault fail!
+vm try handle fault 진입
+ vm try handle fault addr : 0x401184
+vm try handle fault not present!
+vm try handl fault vm do claim page직전!
+vm do claim page
+#############1111##############
+##############2222#############
+vm do claim page  page:0x8004243218
+vm do claim page frame kva : 0x8004a24000
+##########lazy load segmen###########t
+vm try handl fault fail!
+vm try handle fault 진입
+ vm try handle fault addr : 0x404560
+vm try handle fault not present!
+vm try handl fault vm do claim page직전!
+vm do claim page
+#############1111##############
+##############2222#############
+vm do claim page  page:0x8004243518
+vm do claim page frame kva : 0x8004a25000
+##########lazy load segmen###########t
+vm try handl fault fail!
+vm try handle fault 진입
+ vm try handle fault addr : 0x402f7c
+vm try handle fault not present!
+vm try handl fault vm do claim page직전!
+vm do claim page
+#############1111##############
+##############2222#############
+vm do claim page  page:0x8004243318
+vm do claim page frame kva : 0x8004a26000
+##########lazy load segmen###########t
+vm try handl fault fail!
+vm try handle fault 진입
+ vm try handle fault addr : 0x403017
+vm try handle fault not present!
+vm try handl fault vm do claim page직전!
+vm do claim page
+#############1111##############
+##############2222#############
+vm do claim page  page:0x8004243418
+vm do claim page frame kva : 0x8004a27000
+##########lazy load segmen###########t
+vm try handl fault fail!
 (mmap-read) begin
 (mmap-read) open "sample.txt"
 (mmap-read) mmap "sample.txt"
+mmap
+mmap file :0x800423e0b8
+do mmap 
+do mmap length : 4096
+do mmap addr : 0x10000000
+do mmap file reopen file : 0x800423e0c8
+do mmap aux_d ofs:0
+do mmap aux_d  read bytes:4096
+do mmap aux_d zero bytes : 0
+vm alloc page with initializer 진입
+vm alloc page with initializer spt find page == NULL
+vm alloc with initializer page type : VM_FILE
+vm alloc with initializer writable 설정
+ do mmap length == 0!
+do mmap success!
+do mmap final addr : 0x10000000
+mmap read mmap 이후
+vm try handle fault 진입
+ vm try handle fault addr : 0x604e80
+vm try handle fault not present!
+vm try handl fault vm do claim page직전!
+vm do claim page
+#############1111##############
+##############2222#############
+vm do claim page  page:0x8004243618
+vm do claim page frame kva : 0x8004a28000
+##########lazy load segmen###########t
+vm try handl fault fail!
+vm try handle fault 진입
+ vm try handle fault addr : 0x10000000
+vm try handle fault not present!
+vm try handl fault vm do claim page직전!
+vm do claim page
+#############1111##############
+##############2222#############
+vm do claim page  page:0x8004243e98
+vm do claim page frame kva : 0x8004a29000
+file.c lazy load 진입
+file.c lazy load aux_d read bytes: 4096
+file.c lazy load aux_d zero bytes: 0
+file.c lazy load aux_d file: 0x800423e0c8
+file.c lazy load aux_d ofs: 0
+file.c lazy load file read bytes : 794
+file.c lazy load file size :794
+file.c lazy loac file read fail!
+page fault cnt is ++!
 Page fault at 0x10000000: not present error reading page in user context.
 mmap-read: exit(-1)
 Execution of 'mmap-read' complete.
-Timer: 66 ticks
-Thread: 30 idle ticks, 33 kernel ticks, 3 user ticks
+Timer: 189 ticks
+Thread: 30 idle ticks, 37 kernel ticks, 122 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 123 reads, 256 writes
-hd1:0: 109 reads, 0 writes
+hd0:1: 123 reads, 258 Kernel PANIC at ../../threads/palloc.c:321 in palloc_free_multiple(): assertion `bitmap_all (pool->used_map, page_idx, page_cnt)' failed.
+Call stack: 0x800421889a 0x800420c184 0x800420c1d1 0x800420d500 0x800420d583 0x800420d606 0x800420d6cf 0x800421c980 0x800421c903 0x8004207211 0x800421ddfe 0x800421d815 0x8004209751 0x8004209b6fvm try handle fault 진입
+ vm try handle fault addr : 0x4747ff60
+vm try handle fault not present!
+vm try handwrites
+hd1:0: 110 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1127 characters output
-Keyboard: 0 keysKernel PANIC at ../../threads/palloc.c:321 in palloc_free_multiple(): assertion `bitmap_all (pool->used_map, page_idx, page_cnt)' failed.
-Call stack: 0x800421889a 0x800420c184 0x800420c1d1 0x800420d500 0x800420d583 0x800420d606 0x800420d6cf 0x800421c980 0x800421c903 0x8004207211 0x800421ddbc 0x800421d7d2 0x8004209751 0x8004209b6fPage fault at 0x4747ff60: not present error reading page in kernel context.
-mmap-read: exit(-1)
-Kernel PANIC recursion at ../../filesys/inode.c:304 in inode_allow_write().
-Timer: 71 ticks
-Thread: 30 idle ticks, 38 kernel ticks, 3 user ticks
-hd0:0: 0 reads, 0 writes
-hd0:1: 123 reads, 256 writes
-hd1:0: 109 reads, 0 writes
-hd1:1: 0 reads, 0 writes
-Console: 1853 characters output
-Key
+Console: 7261 characters output
+Keyboard: 0 keys pressed
+Exception: 1 page faults
+Powering off...

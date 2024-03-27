@@ -55,28 +55,28 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 	struct thread *cur = thread_current();
 
 	struct hash *spt = &cur->spt;
-	////printf("vm alloc page with initializer 진입\n");
+	printf("vm alloc page with initializer 진입\n");
 	/* Check wheter the upage is already occupied or not. */
 	if (spt_find_page (spt, upage) == NULL) {
 		/* TODO: Create the page, fetch the initialier according to the VM type,
 		 * TODO: and then create "uninit" page struct by calling uninit_new. You
 		 * TODO: should modify the field after calling the uninit_new. */
-		////printf("vm alloc page with initializer spt find page == NULL\n");
+		printf("vm alloc page with initializer spt find page == NULL\n");
 
 		page = (struct page *)malloc(sizeof(struct page));
 		if(page == NULL){
-			////printf("vm alloc with initializer page == NULL\n");
+			printf("vm alloc with initializer page == NULL\n");
 			return false;
 		}
 		switch (VM_TYPE(type))
 		{
 		case VM_ANON:
-			////printf("vm alloc with initializer page type : VM_ANON\n");
+			printf("vm alloc with initializer page type : VM_ANON\n");
 			uninit_new(page, upage, init, type,aux,anon_initializer); 
-			////printf("vm alloc with initializer page type : VM_ANON : uninit_new \n");
+			printf("vm alloc with initializer page type : VM_ANON : uninit_new \n");
 			break;
 		case VM_FILE:
-			////printf("vm alloc with initializer page type : VM_FILE\n");
+			printf("vm alloc with initializer page type : VM_FILE\n");
 			uninit_new(page, upage, init, type,aux,file_backed_initializer);
 			page->modified = false;
 			
@@ -84,10 +84,10 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 			break;
 		}
 		page->writable = writable;
-		////printf("vm alloc with initializer writable 설정\n");
+		printf("vm alloc with initializer writable 설정\n");
 		/* TODO: Insert the page into the spt. */
 		if (!spt_insert_page(spt, page)) {
-			////printf("vm alloc with initializer insert 실패\n");
+			printf("vm alloc with initializer insert 실패\n");
 			return false;
 		}
 		return true;
@@ -270,11 +270,11 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
 	struct hash *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
-	////printf("vm try handle fault 진입\n");
+	printf("vm try handle fault 진입\n");
 	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE); // 0x4747F000 USER_STACK 0x47480000
 	void *stack_max = (void *) (((uint8_t *) USER_STACK) - (1<<20)); //0x4757F000
 	uintptr_t rsp;
-	// //printf(" vm try handle fault addr : %p\n", addr);
+	printf(" vm try handle fault addr : %p\n", addr);
 	if(addr == NULL){
 		return false;
 	}
@@ -291,30 +291,32 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	// }
 
 	if(not_present){
+		printf("vm try handle fault not present!\n");
 		if(user){
 			rsp = f->rsp;
 		}
 		else{
 			rsp = thread_current()->cur_rsp;
 		}
-		if(stack_max<= rsp <= addr <= USER_STACK){
-			//printf("vm try handl fault stack growth 필요\n");
+		if(addr <= USER_STACK &&rsp <= addr && stack_max<= rsp){
+			printf("vm try handl fault stack growth 필요\n");
 			vm_stack_growth(addr);
 		}
-		else if((rsp-8) == addr && stack_max<= rsp-8 <= USER_STACK){
+		else if((rsp-8) == addr && stack_max<= rsp-8 && rsp-8 <= USER_STACK){
 			vm_stack_growth(addr);
 		}
 		// //printf("vm try handl fault not present!\n");
 		page = spt_find_page(spt, addr);
 		if(page == NULL){
 			
-			//printf("vm try handl fault not present and page == NULL!\n");
+			printf("vm try handl fault not present and page == NULL!\n");
 			return false;
 		}
 		if(write == true && page->writable == false){
 			// //printf("vm try handl fault not present and write none!\n");
 			return false;
 		}
+		printf("vm try handl fault vm do claim page직전!\n");
 		return vm_do_claim_page (page);
 	}
 	// page자체가 말이 되는지 안되는지 확인하는법...
@@ -356,23 +358,25 @@ vm_claim_page (void *va UNUSED) {
 static bool
 vm_do_claim_page (struct page *page) {
 	struct frame *frame = vm_get_frame ();
-	////printf("vm do claim page\n");
+	printf("vm do claim page\n");
 	/* Set links */
 	frame->page = page;
 	page->frame = frame;
-	////printf("#############1111##############\n");
+	printf("#############1111##############\n");
 	/* TODO: Insert page table entry to map page's VA to frame's PA. */
 		// claim page = 물리적 프레임, 페이지 할당.
 	// vm_get_frame으로 프레임을 얻고
 	// 페이지 테이블의 가상 주소 - 실제 주소 매핑 추가.
 	// 반환값은 작업 성공 여부.
-
+	
 	struct thread *cur = thread_current();
 	if(!pml4_set_page(cur->pml4, page->va, frame->kva, page->writable)){
-		//printf("vm do claim page pml4 set page fail!\n");
+		printf("vm do claim page pml4 set page fail!\n");
 		return false;
 	}
-	////printf("##############2222#############\n");
+	printf("##############2222#############\n");
+	printf("vm do claim page  page:%p\n", page);
+	printf("vm do claim page frame kva : %p\n", frame->kva);
 	return swap_in (page, frame->kva);
 }
 

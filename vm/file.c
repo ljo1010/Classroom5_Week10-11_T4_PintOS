@@ -35,6 +35,7 @@ file_backed_initializer (struct page *page, enum vm_type type, void *kva) {
 static bool
 file_backed_swap_in (struct page *page, void *kva) {
 	struct file_page *file_page UNUSED = &page->file;
+	printf("file backed swap in!\n");
 }
 
 /* Swap out the page by writeback contents to the file. */
@@ -53,28 +54,40 @@ file_backed_destroy (struct page *page) {
 void *
 do_mmap (void *addr, size_t length, int writable,
 		struct file *file, off_t offset) {
-
+		
 	bool succ = false;
+
+	void * new_addr = addr;
+	printf("do mmap \n");
+	printf("do mmap length : %d\n", length);
+	printf("do mmap addr : %p\n", addr);
 	while(length >0){
 		size_t page_read_bytes = length <PGSIZE ? length : PGSIZE;
 		size_t page_zero_bytes = PGSIZE - page_read_bytes;
 		struct page_load_data *aux_d = malloc(sizeof(struct page_load_data));
 		aux_d->file = file_reopen(file);
+		printf("do mmap file reopen file : %p\n", aux_d->file);
 		aux_d->ofs = offset;
 		aux_d->read_bytes = page_read_bytes;
 		aux_d->zero_bytes = page_zero_bytes;
-
-		if(!vm_alloc_page_with_initializer(VM_FILE, addr, writable, lazy_load, aux_d)){
+		printf("do mmap aux_d ofs:%d\n",offset);
+		printf("do mmap aux_d  read bytes:%d\n",page_read_bytes);
+		printf("do mmap aux_d zero bytes : %d\n", page_zero_bytes);
+		if(!vm_alloc_page_with_initializer(VM_FILE, new_addr, writable, lazy_load, aux_d)){
+			printf("do mmap vm alloc page with initializer fail!\n");
 			return NULL;
 		}
 		length -= page_read_bytes;
-		addr += PGSIZE;
+		new_addr += PGSIZE;
 		offset += page_read_bytes;
 	}
 	if(length == 0){
+		printf(" do mmap length == 0!\n");
 		succ = true;
 	}
 	if(succ){
+		printf("do mmap success!\n");
+		printf("do mmap final addr : %p\n", addr);
 		return addr;
 	}
 	else{
@@ -118,11 +131,19 @@ bool
 lazy_load (struct page *page, void *aux){
 	struct page_load_data *aux_d = (struct page_load_data *)aux;
 	struct file *file;
+	printf("file.c lazy load 진입\n");
 	uint32_t page_read_bytes = aux_d->read_bytes;
 	uint32_t page_zero_bytes = aux_d->zero_bytes;
 	file = aux_d->file;
+	printf("file.c lazy load aux_d read bytes: %d\n",page_read_bytes);
+	printf("file.c lazy load aux_d zero bytes: %d\n",page_zero_bytes);
+	printf("file.c lazy load aux_d file: %p\n",file);
+	printf("file.c lazy load aux_d ofs: %d\n",aux_d->ofs);
 	file_seek(file, aux_d->ofs);
+	printf("file.c lazy load file read bytes : %d\n", file_read(file, page->frame->kva, page_read_bytes));
+	printf("file.c lazy load file size :%d\n", file_length(file));
 	if(file_read(file, page->frame->kva, page_read_bytes) != (int)page_read_bytes){
+		printf("file.c lazy loac file read fail!\n");
 		palloc_free_page(page->frame->kva);
 		return false;
 	}

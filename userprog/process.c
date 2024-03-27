@@ -791,7 +791,7 @@ lazy_load_segment (struct page *page, void *aux) {
 	//printf("-----lazy load segment aux_d ofs: %p\n", aux_d->ofs);
 	//printf("--------lazy load segment aux_d read bytes: %d\n", aux_d->read_bytes);
 	//printf("--------lazy load segment aux_d zero bytes: %d\n", aux_d->zero_bytes);
-	//printf("##########lazy load segmen###########t\n");
+	printf("##########lazy load segmen###########t\n");
 	//printf("lazy load aux_d ofs : %d\n", aux_d->ofs);
 	file_seek(aux_d->file, aux_d->ofs);
 	//printf("##########lazy load segment 2222###########\n");
