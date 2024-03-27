@@ -1,11 +1,11 @@
 FAIL
-Kernel panic in run: PANIC at ../../vm/vm.c:203 in vm_get_frame(): todo
-Call stack: 0x800421889a 0x8004221a4d 0x8004221d54 0x8004221c7f 0x800421d6d7 0x8004209751 0x8004209b6f 0x400cac 0x400cf5
+Kernel panic in run: PANIC at ../../vm/vm.c:205 in vm_get_frame(): todo
+Call stack: 0x800421889a 0x8004221bc4 0x8004221ecb 0x8004221df6 0x800421d6d7 0x8004209751 0x8004209b6f 0x400cac 0x400cf5
 Translation of call stack:
 0x000000800421889a: debug_panic (lib/kernel/debug.c:32)
-0x0000008004221a4d: vm_get_frame (vm/vm.c:206)
-0x0000008004221d54: vm_do_claim_page (vm/vm.c:356)
-0x0000008004221c7f: vm_try_handle_fault (vm/vm.c:316)
+0x0000008004221bc4: vm_get_frame (vm/vm.c:208)
+0x0000008004221ecb: vm_do_claim_page (vm/vm.c:358)
+0x0000008004221df6: vm_try_handle_fault (vm/vm.c:318)
 0x000000800421d6d7: page_fault (userprog/exception.c:152)
 0x0000008004209751: intr_handler (threads/interrupt.c:352)
 0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)

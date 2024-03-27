@@ -15,5 +15,6 @@ Differences in `diff -u' format:
   (mmap-write) mmap "sample.txt"
 - (mmap-write) compare read data against written data
 - (mmap-write) end
++ Page fault at 0x10000000: not present error writing page in user context.
 
 (Process exit codes are excluded for matching purposes.)

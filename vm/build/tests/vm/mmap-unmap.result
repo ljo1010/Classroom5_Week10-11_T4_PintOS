@@ -14,4 +14,5 @@ Differences in `diff -u' format:
   (mmap-unmap) mmap "sample.txt"
 - (mmap-unmap) memory is readable 540884285
 - (mmap-unmap) memory is readable 540888381
++ Page fault at 0x10000000: not present error reading page in user context.
   mmap-unmap: exit(-1)

@@ -10,6 +10,8 @@ Differences in `diff -u' format:
   (mmap-ro) begin
   (mmap-ro) open "large.txt"
   (mmap-ro) mmap "large.txt" with writable=0
-- (mmap-ro) about to write into read-only mmap'd memory
+  (mmap-ro) about to write into read-only mmap'd memory
++ (mmap-ro) Error should have occured
++ (mmap-ro) end
 
 (Process exit codes are excluded for matching purposes.)

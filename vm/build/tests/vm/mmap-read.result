@@ -1,15 +1,18 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (mmap-read) begin
-  (mmap-read) open "sample.txt"
-  (mmap-read) mmap "sample.txt"
-  (mmap-read) end
-Differences in `diff -u' format:
-  (mmap-read) begin
-  (mmap-read) open "sample.txt"
-  (mmap-read) mmap "sample.txt"
-- (mmap-read) end
-
-(Process exit codes are excluded for matching purposes.)
+Kernel panic in run: PANIC at ../../threads/palloc.c:321 in palloc_free_multiple(): assertion `bitmap_all (pool->used_map, page_idx, page_cnt)' failed.
+Call stack: 0x800421889a 0x800420c184 0x800420c1d1 0x800420d500 0x800420d583 0x800420d606 0x800420d6cf 0x800421c980 0x800421c903 0x8004207211 0x800421ddbc 0x800421d7d2 0x8004209751 0x8004209b6f
+Translation of call stack:
+0x000000800421889a: debug_panic (lib/kernel/debug.c:32)
+0x000000800420c184: palloc_free_multiple (threads/palloc.c:322)
+0x000000800420c1d1: palloc_free_page (threads/palloc.c:329)
+0x000000800420d500: pt_destroy (threads/mmu.c:160 (discriminator 2))
+0x000000800420d583: pgdir_destroy (threads/mmu.c:170 (discriminator 2))
+0x000000800420d606: pdpe_destroy (threads/mmu.c:180 (discriminator 2))
+0x000000800420d6cf: pml4_destroy (threads/mmu.c:199)
+0x000000800421c980: process_cleanup (userprog/process.c:443)
+0x000000800421c903: process_exit (userprog/process.c:416)
+0x0000008004207211: thread_exit (threads/thread.c:366)
+0x000000800421ddbc: exec (userprog/syscall.c:201)
+0x000000800421d7d2: page_fault (userprog/exception.c:153)
+0x0000008004209751: intr_handler (threads/interrupt.c:352)
+0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)

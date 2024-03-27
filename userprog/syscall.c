@@ -356,6 +356,7 @@ write (int fd, const void *buffer, unsigned size) {
 		}
 		off_t byte_write = file_write(target_file,buffer,size);
 		lock_release(&filesys_lock);
+		
 		return byte_write;
 	}
 	// 뭘해도 write bad ptr이 안 낫네..
