@@ -287,7 +287,40 @@ supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
 /* Copy supplemental page table from src to dst */
 bool supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED, struct supplemental_page_table *src UNUSED) 
 {
+	struct hash_iterator iter;
+	hash_first(&iter, &src->spt_table);
+	while (hash_next(&iter))
+	{
+		//소스들이 가져야하는 정보들
+		struct page *src_p = hash_entry(hash_cur(&iter), struct page, hash_elem);
+		enum vm_type type = src_p->operations->type;
+		void *upage = src_p->va;
+		bool writable = src_p->writable;
 
+		if(type == VM_UNINIT)
+		{
+			//소스 타입이 VM_UNINIT일때
+			//uninit을 만들고 초기화 애야한다. 
+			vm_initializer *init = src_p->uninit.init;
+			void *aux = src_p->uninit.aux;
+			vm_alloc_page_with_initializer(VM_ANON, upage, writable, init, aux);
+			continue;
+		}
+
+		if(!vm_alloc_page_with_initializer(type, upage, writable, NULL, NULL))
+		{
+			return false;
+		}
+
+		if(!vm_claim_page(upage))
+		{
+			return false;
+		}
+		struct page *dst_p = spt_find_page(dst, upage);
+		memcpy(dst_p->frame->kva, src_p->frame->kva, PGSIZE);
+	}
+	return true;
+		
 }
 
 /* Free the resource hold by the supplemental page table */
@@ -295,6 +328,7 @@ void supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED)
 {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
+
 	hash_clear(&spt->spt_table, hash_destory_page);
 }
 
