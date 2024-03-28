@@ -6,7 +6,8 @@ userprog/tss.o: ../../userprog/tss.c ../../include/userprog/tss.h \
  ../../include/threads/interrupt.h ../../include/threads/synch.h \
  ../../include/lib/kernel/hash.h ../../include/lib/kernel/list.h \
  ../../include/lib/kernel/hash.h ../../include/vm/vm.h \
- ../../include/threads/palloc.h ../../include/vm/uninit.h \
+ ../../include/threads/palloc.h ../../include/devices/disk.h \
+ ../../include/lib/inttypes.h ../../include/vm/uninit.h \
  ../../include/vm/anon.h ../../include/vm/file.h \
  ../../include/userprog/gdt.h ../../include/threads/loader.h \
  ../../include/threads/vaddr.h ../../include/intrinsic.h \

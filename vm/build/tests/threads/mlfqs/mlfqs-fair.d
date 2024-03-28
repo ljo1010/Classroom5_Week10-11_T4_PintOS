@@ -10,6 +10,6 @@ tests/threads/mlfqs/mlfqs-fair.o: ../../tests/threads/mlfqs/mlfqs-fair.c \
  ../../include/threads/thread.h ../../include/threads/interrupt.h \
  ../../include/lib/kernel/hash.h ../../include/lib/kernel/list.h \
  ../../include/lib/kernel/hash.h ../../include/vm/vm.h \
- ../../include/vm/uninit.h ../../include/vm/anon.h \
- ../../include/vm/file.h ../../include/devices/timer.h \
- ../../include/lib/round.h
+ ../../include/devices/disk.h ../../include/vm/uninit.h \
+ ../../include/vm/anon.h ../../include/vm/file.h \
+ ../../include/devices/timer.h ../../include/lib/round.h

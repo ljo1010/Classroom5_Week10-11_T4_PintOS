@@ -6,5 +6,6 @@ devices/intq.o: ../../devices/intq.c ../../include/devices/intq.h \
  ../../include/lib/debug.h ../../include/threads/thread.h \
  ../../include/lib/kernel/hash.h ../../include/lib/kernel/list.h \
  ../../include/lib/kernel/hash.h ../../include/vm/vm.h \
- ../../include/threads/palloc.h ../../include/vm/uninit.h \
+ ../../include/threads/palloc.h ../../include/devices/disk.h \
+ ../../include/lib/inttypes.h ../../include/vm/uninit.h \
  ../../include/vm/anon.h ../../include/vm/file.h

@@ -9,5 +9,6 @@ devices/timer.o: ../../devices/timer.c ../../include/devices/timer.h \
  ../../include/filesys/off_t.h ../../include/threads/thread.h \
  ../../include/lib/kernel/hash.h ../../include/lib/kernel/list.h \
  ../../include/lib/kernel/hash.h ../../include/vm/vm.h \
- ../../include/threads/palloc.h ../../include/vm/uninit.h \
- ../../include/vm/anon.h ../../include/vm/file.h
+ ../../include/threads/palloc.h ../../include/devices/disk.h \
+ ../../include/vm/uninit.h ../../include/vm/anon.h \
+ ../../include/vm/file.h

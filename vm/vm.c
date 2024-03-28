@@ -8,6 +8,8 @@
 #include "threads/mmu.h"
 #include "vm/uninit.h"
 #include "string.h"
+#include "kernel/bitmap.h"
+#include "devices/disk.h"
 
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
@@ -178,6 +180,14 @@ vm_get_victim (void) {
 	struct frame *victim = NULL;
 	 /* TODO: The policy for eviction is up to you. */
 
+	struct page *p;
+	struct hash_iterator i;
+	hash_first(&i, &thread_current()->spt);
+	while(hash_next(&i)){
+		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
+		break;
+	}
+	victim = p->frame;
 	return victim;
 }
 
@@ -186,9 +196,11 @@ vm_get_victim (void) {
 static struct frame *
 vm_evict_frame (void) {
 	struct frame *victim UNUSED = vm_get_victim ();
-	/* TODO: swap out the victim and return the evicted frame. */
 
-	return NULL;
+	/* TODO: swap out the victim and return the evicted frame. */
+	palloc_free_page(victim->kva);
+
+	return victim;
 }
 
 /* palloc() and get frame. If there is no available page, evict the page
@@ -202,7 +214,8 @@ vm_get_frame (void) {
 
 	void *kva = palloc_get_page(PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
 	if(kva == NULL){
-		PANIC("todo");
+
+		PANIC("todo!");
 	}
 
 	frame = malloc(sizeof(struct frame));

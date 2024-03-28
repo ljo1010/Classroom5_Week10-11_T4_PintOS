@@ -2,6 +2,10 @@
 
 #include "vm/vm.h"
 #include "devices/disk.h"
+#include "kernel/bitmap.h"
+
+static struct list swap;
+static struct bitmap *swap_bit;
 
 /* DO NOT MODIFY BELOW LINE */
 static struct disk *swap_disk;
@@ -22,6 +26,10 @@ void
 vm_anon_init (void) {
 	/* TODO: Set up the swap_disk. */
 	swap_disk = NULL;
+	swap_disk = disk_get(1,1);
+	swap_bit = bitmap_create(4096);
+	bitmap_set_all(swap_bit,true);
+	list_init(&swap);
 }
 
 /* Initialize the file mapping */
@@ -39,12 +47,31 @@ anon_swap_in (struct page *page, void *kva) {
 	printf("anon swap in \n");
 	struct anon_page *anon_page = &page->anon;
 
+
+
 }
 
 /* Swap out the page by writing contents to the swap disk. */
 static bool
 anon_swap_out (struct page *page) {
 	struct anon_page *anon_page = &page->anon;
+
+	struct swap_table_entry *swe = malloc(sizeof(struct swap_table_entry));
+
+	if(swe == NULL){
+		return false;
+	}
+
+	size_t index = bitmap_scan_and_flip(swap_bit,0, 8,true);
+	page->frame->swt->sec_idx_start = index;
+
+	for(int i = 0 ; i <8 ; i++){
+		disk_write(swap_disk, index+i, page->frame->kva);
+	}
+	palloc_free_page(page->frame->kva);
+
+	return true;
+
 }
 
 /* Destroy the anonymous page. PAGE will be freed by the caller. */

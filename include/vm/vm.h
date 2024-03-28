@@ -4,6 +4,7 @@
 #include "threads/palloc.h"
 #include <hash.h>
 #include "lib/kernel/hash.h"
+#include "devices/disk.h"
 
 enum vm_type {
 	/* page not initialized */
@@ -25,6 +26,14 @@ enum vm_type {
 	/* DO NOT EXCEED THIS VALUE. */
 	VM_MARKER_END = (1 << 31),
 };
+
+struct swap_table_entry {
+
+	struct list_elem elem;
+	uint32_t sec_idx_start;
+
+};
+
 
 
 #include "vm/uninit.h"
@@ -76,6 +85,7 @@ struct page {
 struct frame {
 	void *kva;
 	struct page *page;
+	struct swap_table_entry *swt;
 };
 
 /* The function table for page operations.
