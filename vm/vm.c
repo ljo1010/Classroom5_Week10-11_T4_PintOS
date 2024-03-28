@@ -5,6 +5,7 @@
 #include "threads/mmu.h"
 #include "vm/vm.h"
 #include "vm/inspect.h"
+#include "userprog/process.h"
 
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
@@ -56,6 +57,7 @@ bool
 vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		vm_initializer *init, void *aux) {
 
+
 	ASSERT (VM_TYPE(type) != VM_UNINIT)
 
 	struct supplemental_page_table *spt = &thread_current ()->spt;
@@ -102,9 +104,10 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	page->va = pg_round_down(va); // page의 시작 주소 할당
 	e = hash_find(&spt->spt_table, &page->hash_elem);
 	free(page);
-
+	// printf("잘 드러가는 지 확인그%d\n", &e);
 	// 있으면 e에 해당하는 페이지 반환
 	return e != NULL ? hash_entry(e, struct page, hash_elem) : NULL;
+	// printf("잘 드러가는 지 확인그%d\n", &e);
 	
 	}
 
@@ -175,7 +178,7 @@ vm_get_frame (void) {
 static void
 vm_stack_growth (void *addr UNUSED)
 {
-	
+	vm_alloc_page(VM_ANON | VM_MARKER_0, pg_round_down(addr), 1);
 }
 
 /* Handle the fault on write_protected page */
@@ -201,6 +204,8 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	/* TODO: Validate the fault */
 	/* TODO: Your code goes here */
 	/*페이지가 NULL일때 인터럽트를 하고 false를 반환*/
+	/*USER_STACK - (1<<20) <= rsp <= addr <= USER_STACK
+	  */
 	if(addr == NULL)
 	{
 		return false;
@@ -208,7 +213,16 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	//페이지를 얻고 처리한다. supplmental page table
 	if(not_present)
 	{
-	
+		void *rsp = f->rsp;
+		if(!user)
+		{
+			rsp = thread_current()->rsp;
+		}
+	if(USER_STACK - (1<<20) <= rsp - 8 && rsp - 8 == addr && addr <= USER_STACK)
+		vm_stack_growth(addr);
+	if(USER_STACK - (1<<20) <= rsp <= addr && addr <= USER_STACK)
+		vm_stack_growth(addr);
+
 	page = spt_find_page(spt, addr);
 	if(page == NULL)
 	{
@@ -224,6 +238,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	}
 	return false;
 }
+
 
 /* Free the page.
  * DO NOT MODIFY THIS FUNCTION. */
@@ -299,6 +314,8 @@ bool supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED, s
 		void *upage = src_p->va;
 		bool writable = src_p->writable;
 
+		
+
 		if(type == VM_UNINIT)
 		{
 			//소스 타입이 VM_UNINIT일때
@@ -309,6 +326,21 @@ bool supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED, s
 			continue;
 		}
 
+		if (type == VM_FILE)
+        {
+            struct lazy_load_arg *file_aux = malloc(sizeof(struct lazy_load_arg));
+            file_aux->file = src_p->file.file;
+            file_aux->ofs = src_p->file.ofs;
+            file_aux->read_bytes = src_p->file.read_bytes;
+            if (!vm_alloc_page_with_initializer(type, upage, writable, NULL, file_aux))
+                return false;
+            struct page *file_page = spt_find_page(dst, upage);
+            file_backed_initializer(file_page, type, NULL);
+            file_page->frame = src_p->frame;
+            pml4_set_page(thread_current()->pml4, file_page->va, src_p->frame->kva, src_p->writable);
+            continue;
+        }
+		
 		if(!vm_alloc_page_with_initializer(type, upage, writable, NULL, NULL))
 		{
 			return false;
@@ -322,9 +354,7 @@ bool supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED, s
 		memcpy(dst_p->frame->kva, src_p->frame->kva, PGSIZE);
 	}
 	return true;
-		
 }
-
 /* Free the resource hold by the supplemental page table */
 void supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED) 
 {
