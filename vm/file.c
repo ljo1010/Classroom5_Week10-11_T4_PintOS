@@ -93,6 +93,7 @@ do_mmap (void *addr, size_t length, int writable,
 			//printf("do mmap vm alloc page with initializer fail!\n");
 			return NULL;
 		}
+
 		read_bytes -= page_read_bytes;
 		zero_bytes -= page_zero_bytes;
 		new_addr += PGSIZE;
@@ -131,7 +132,8 @@ do_munmap (void *addr) {
 	}
 	int count = p->mapping_count;
 	//printf("do munmap count : %d\n", count);
-	for(count; count < p->mapping_count;count--){
+
+	for(int i =0; i < count;i++){
 		//printf("do munmap while count 도는 중...\n");
 		if(p){
 			destroy(p);
@@ -139,8 +141,9 @@ do_munmap (void *addr) {
 			p = spt_find_page(&thread_current()->spt, addr);
 			//printf("do munmap find p!\n");
 		}
+		//printf("do munmap if문 박!\n");
 	}
-
+	//printf("do munmap!\n");
 	// if(VM_TYPE(p->operations->type) == VM_FILE){
 	// 	if(p->modified){
 	// 		file_seek(p->origin, p->ofs);

@@ -283,7 +283,7 @@ filesize (int fd) {
 
 int
 read (int fd, void *buffer, unsigned size) {
-	// printf("syscall read 진입.\n");
+	//printf("syscall read 진입.\n");
 	check_address(buffer);
 	// printf("syscall check address 성공.\n");
 	lock_acquire(&filesys_lock);

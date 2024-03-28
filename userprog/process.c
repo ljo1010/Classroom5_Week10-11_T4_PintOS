@@ -409,10 +409,11 @@ process_exit (void) {
 			process_wait(t->tid);
 		}
 	}
-
+	
 	sema_up(&cur->wait);
 	process_cleanup ();
 	sema_down(&cur->free_wait);
+	
 
 }
 
