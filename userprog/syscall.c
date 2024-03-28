@@ -38,6 +38,9 @@ void seek(int fd, unsigned position);
 unsigned tell(int fd);
 void close (int fd);
 
+void *mmap (void *addr, size_t length, int writable, int fd, off_t offset);
+void munmap (void *addr);
+
 
 /* System call.
  *
@@ -85,6 +88,10 @@ syscall_handler (struct intr_frame *f UNUSED) {
 	5번인자 r8
 	6번인자 r9
 	*/
+   
+	#ifdef VM
+    	thread_current()->rsp = f->rsp;
+	#endif
 
 	switch (f->R.rax)
 	{
@@ -129,10 +136,19 @@ syscall_handler (struct intr_frame *f UNUSED) {
 		break;
 	case SYS_CLOSE:
 		close(f->R.rdi);
-		
+		break;
+	case SYS_MMAP:
+        f->R.rax = mmap(f->R.rdi, f->R.rsi, f->R.rdx, f->R.r10, f->R.r8);
+        break;	
+	case SYS_MUNMAP:
+		munmap(f->R.rdi);
+		break;
 	}
 
 }
+
+
+
 
 /*user 프로그램이 잘못된 포인터를 전달할시 exit 역할을 하는 함수
   포인터가 전달된 시스템 콜이 사용됐을때 검중된 경우에 사용*/
@@ -195,8 +211,8 @@ int wait(int pid)
 
 bool create(const char *file, unsigned inital_size)
 {
-	lock_acquire(&filesys_lock);
 	check_address(file);
+	lock_acquire(&filesys_lock);
 	bool success = filesys_create(file, inital_size);
 	lock_release(&filesys_lock);
 	return success;
@@ -322,4 +338,33 @@ int read(int fd, void *buffer, unsigned size)
 		lock_release(&filesys_lock);
 	}
 	return bytes_read;
+}
+
+void *mmap(void *addr, size_t length, int writable, int fd, off_t offset)
+{
+    if (!addr || addr != pg_round_down(addr))
+        return NULL;
+
+    if (offset != pg_round_down(offset))
+        return NULL;
+
+    if (!is_user_vaddr(addr) || !is_user_vaddr(addr + length))
+        return NULL;
+
+    if (spt_find_page(&thread_current()->spt, addr))
+        return NULL;
+
+    struct file *f = process_get_file(fd);
+    if (f == NULL)
+        return NULL;
+
+    if (file_length(f) == 0 || (int)length <= 0)
+        return NULL;
+
+    return do_mmap(addr, length, writable, f, offset); // 파일이 매핑된 가상 주소 반환
+}
+
+void munmap(void *addr)
+{
+	do_munmap(addr);
 }

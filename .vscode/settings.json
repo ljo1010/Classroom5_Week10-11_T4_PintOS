@@ -17,6 +17,7 @@
         "hash.h": "c",
         "thread.h": "c",
         "inspect.h": "c",
-        "input.h": "c"
+        "input.h": "c",
+        "bitmap.h": "c"
     }
 }

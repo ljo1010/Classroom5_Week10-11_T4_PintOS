@@ -151,6 +151,7 @@ struct thread {
 	struct list_elem child_elem;
 
 
+
 	struct semaphore load_sema; // 현재 스레드가 load되는 동안 부모가 기다리게 하기 위한 semaphore
 	struct semaphore exit_sema;
 	struct semaphore wait_sema;
@@ -165,6 +166,8 @@ struct thread {
 #ifdef VM
 	/* Table for whole virtual memory owned by thread. */
 	struct supplemental_page_table spt;
+	void *rsp;
+
 #endif
 
 	/* Owned by thread.c. */
