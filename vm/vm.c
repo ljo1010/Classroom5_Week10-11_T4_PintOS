@@ -218,6 +218,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		{
 			rsp = thread_current()->rsp;
 		}
+		//1 mb = 1024(kb) * 1024(byte)
 	if(USER_STACK - (1<<20) <= rsp - 8 && rsp - 8 == addr && addr <= USER_STACK)
 		vm_stack_growth(addr);
 	if(USER_STACK - (1<<20) <= rsp <= addr && addr <= USER_STACK)
@@ -313,8 +314,6 @@ bool supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED, s
 		enum vm_type type = src_p->operations->type;
 		void *upage = src_p->va;
 		bool writable = src_p->writable;
-
-		
 
 		if(type == VM_UNINIT)
 		{

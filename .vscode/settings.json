@@ -18,6 +18,7 @@
         "thread.h": "c",
         "inspect.h": "c",
         "input.h": "c",
-        "bitmap.h": "c"
+        "bitmap.h": "c",
+        "list.h": "c"
     }
 }

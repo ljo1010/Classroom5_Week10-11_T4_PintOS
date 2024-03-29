@@ -14,6 +14,7 @@
 #include "devices/input.h"
 #include "lib/kernel/stdio.h"
 #include "threads/palloc.h"
+#include "vm/vm.h"
 
 
 void syscall_entry (void);
@@ -179,35 +180,7 @@ void exit(int status)
 	thread_exit();
 }
 
-tid_t fork(const char*thread_name, struct intr_frame*f)
-{
-	return process_fork(thread_name, f);
-}
 
-/*exec 함수에서는 전달받은 인자를 그냥 받지 않는데 
-그 이유는 인자를 파싱하는 과정이 있기 때문에 복사본을 
-만들어서 전달한다.*/
-int exec(const char *command_line)
-{
-	check_address(command_line);
-
-	/*새로운 스레드를 만드는 것은 fork가 하는 일이고
-	  process_exec 함수안에서 filename을 변경해야하기 때문에 
-	  커널 메모리 공간에 커멘드 카피를 만든다.  */
-	char *command_line_copy;
-	command_line_copy = palloc_get_page(0);
-	if(command_line_copy ==  NULL)
-		exit(-1);
-	strlcpy(command_line_copy, command_line, PGSIZE); //위에 값을 복사값에 복사.
-
-	if(process_exec(command_line_copy) == -1)
-		exit(-1);
-}
-
-int wait(int pid)
-{
-	return process_wait(pid);
-}
 
 bool create(const char *file, unsigned inital_size)
 {
@@ -249,31 +222,7 @@ int filesize(int fd)
 
 
 
-int write(int fd, const void *buffer, unsigned size)
-{
-	check_address(buffer);
 
-	int bytes_write = 0;
-
-	if (fd == STDOUT_FILENO)
-	{
-		putbuf(buffer, size);
-		bytes_write = size;
-	}
-	else
-	{
-		if (fd < 2)
-			return -1;
-		struct file *file = process_get_file(fd);
-		if (file == NULL)
-			return -1;
-		lock_acquire(&filesys_lock);
-		bytes_write = file_write(file, buffer, size);
-		lock_release(&filesys_lock);
-	}
-	return bytes_write;
-
-}
 
 void seek(int fd, unsigned position)
 {
@@ -297,8 +246,7 @@ unsigned tell(int fd)
 
 void close(int fd)
 {
-	if(fd<2)
-		return;
+	
 	struct file *file = process_get_file(fd);
 	if (file == NULL)
 		return;
@@ -339,6 +287,64 @@ int read(int fd, void *buffer, unsigned size)
 	}
 	return bytes_read;
 }
+
+int write(int fd, const void *buffer, unsigned size)
+{
+	check_address(buffer);
+
+	int bytes_write = 0;
+
+	if (fd == STDOUT_FILENO)
+	{
+		putbuf(buffer, size);
+		bytes_write = size;
+	}
+	else
+	{
+		if (fd < 2)
+			return -1;
+		struct file *file = process_get_file(fd);
+		if (file == NULL)
+			return -1;
+		lock_acquire(&filesys_lock);
+		bytes_write = file_write(file, buffer, size);
+		lock_release(&filesys_lock);
+	}
+	return bytes_write;
+
+}
+
+
+tid_t fork(const char*thread_name, struct intr_frame*f)
+{
+	return process_fork(thread_name, f);
+}
+
+/*exec 함수에서는 전달받은 인자를 그냥 받지 않는데 
+그 이유는 인자를 파싱하는 과정이 있기 때문에 복사본을 
+만들어서 전달한다.*/
+int exec(const char *command_line)
+{
+	check_address(command_line);
+
+	/*새로운 스레드를 만드는 것은 fork가 하는 일이고
+	  process_exec 함수안에서 filename을 변경해야하기 때문에 
+	  커널 메모리 공간에 커멘드 카피를 만든다.  */
+	char *command_line_copy;
+	command_line_copy = palloc_get_page(0);
+	if(command_line_copy ==  NULL)
+		exit(-1);
+	strlcpy(command_line_copy, command_line, PGSIZE); //위에 값을 복사값에 복사.
+
+	if(process_exec(command_line_copy) == -1)
+		exit(-1);
+}
+
+int wait(int pid)
+{
+	return process_wait(pid);
+}
+
 
 void *mmap(void *addr, size_t length, int writable, int fd, off_t offset)
 {
