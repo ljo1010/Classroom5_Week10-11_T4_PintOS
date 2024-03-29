@@ -181,16 +181,22 @@ spt_remove_page (struct hash *spt, struct page *page) {
 static struct frame *
 vm_get_victim (void) {
 	struct frame *victim = NULL;
+	printf("vm get evict 진입!\n");
 	 /* TODO: The policy for eviction is up to you. */
 	struct page *p;
 	struct list_elem *e;
+	if(list_empty(&swap)){
+		printf("vm get victim , swap list empty!\n");
+	}
 	for(e = list_begin(&swap);e != list_end(&swap) ;e = list_next(e)){
 		struct swap_table_entry *swe = list_entry(e, struct swap_table_entry, swap_elem);
+		printf("vm get evict swe : %p\n", swe);
 		p = swe->owner;
+		printf("vm get evict p : %p\n", p);
 		if(swe->is_empty == true){
+			printf("vm get victim swe is empty == true!\n");
 			continue;
 		}
-		list_remove(e);
 		break;
 	}
 	victim = p->frame;
@@ -203,6 +209,7 @@ static struct frame *
 vm_evict_frame (void) {
 	struct frame *victim UNUSED = vm_get_victim ();
 	/* TODO: swap out the victim and return the evicted frame. */
+	printf("vm evict frame 진입!\n");
 	struct page *p = victim->page; 
 	bool ret = false;
 
@@ -225,15 +232,24 @@ vm_get_frame (void) {
 
 	void *kva = palloc_get_page(PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
 	if(kva == NULL){
-		PANIC("todo!");
+		// PANIC("todo!");
 		struct frame *victim = vm_evict_frame();
+		printf("vm get frame victitm 성공!\n");
 		victim->swt->is_empty = true;
 		kva = palloc_get_page(PAL_USER);
+		if(kva == NULL){
+			printf("vm get frame kva == NULL 연속!\n");
+		}
 
 	}
 	frame = malloc(sizeof(struct frame));
 	frame->kva = kva;
 	frame->page = NULL;
+	struct swap_table_entry *swe = malloc(sizeof(struct swap_table_entry));
+	swe->is_empty = false;
+	frame->swt = swe;
+
+	//printf("vm get frame swt : %p\n", frame->swt);
 	//////printf("vm get frame frame page : %p\n",frame->page);
 	// palloc() 및 프레임 가져오기.
 	// 사용 가능 페이지가 없으면 희생자 페이지를 제거하고 반환. <- 이 아래는 Evict 함수로 구현하면 됨.(아마도.)
@@ -242,7 +258,7 @@ vm_get_frame (void) {
 
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
-
+	// printf("vm get frame 성공!\n");
 	return frame;
 }
 
@@ -295,16 +311,19 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
 	struct hash *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
+
 	//printf("vm try handle fault 진입\n");
+
 	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE); // 0x4747F000 USER_STACK 0x47480000
 	void *stack_max = (void *) (((uint8_t *) USER_STACK) - (1<<20)); //0x4757F000
 	uintptr_t rsp;
-	//printf(" vm try handle fault addr : %p\n", addr);
+	printf(" vm try handle fault addr : %p\n", addr);
 	if(addr == NULL){
+		printf("vm try handle fault addr == NULL!\n");
 		return false;
 	}
 	if(is_kernel_vaddr(addr)){
-		// ////printf("vm try handl fault kernel vaddr!\n");
+		printf("vm try handl fault kernel vaddr!\n");
 		return false;
 	}
 	////printf("vm try handl fault thread current cur rsp : %p\n",thread_current()->cur_rsp);
@@ -326,11 +345,11 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		// printf("vm try handle fault rsp :%p\n", rsp);
 		// printf("vm try handle fault addr : %p\n", addr);
 		if(addr <= USER_STACK &&rsp <= addr && stack_max<= rsp){
-			//printf("vm try handl fault stack growth 필요 L rsp 보다 클때\n");
+			printf("vm try handl fault stack growth 필요 L rsp 보다 클때\n");
 			vm_stack_growth(addr);
 		}
 		else if((rsp-8) == addr && stack_max<= rsp-8 && rsp-8 <= USER_STACK){
-			//printf("vm try handl fault stack growth 필요 rsp-8일떄\n");
+			printf("vm try handl fault stack growth 필요 rsp-8일떄\n");
 			vm_stack_growth(addr);
 		}
 
@@ -338,33 +357,38 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		page = spt_find_page(spt, addr);		
 		if(page == NULL){
 			
-			//printf("vm try handl fault not present and page == NULL!\n");
+			printf("vm try handl fault not present and page == NULL!\n");
 			return false;
 		}
 		if(write == true && page->writable == false){
-			// ////printf("vm try handl fault not present and write none!\n");
+			printf("vm try handl fault not present and write none!\n");
 			return false;
 		}
-		//printf("vm try handl fault vm do claim page직전!\n");
-		return vm_do_claim_page (page);
-	}
-	else{
 
+		if(page->frame != NULL){
 		printf("vm try handle fault page frame swt :%p\n", page->frame);
-	if(page->frame->swt != NULL){
+		if(page->frame->swt != NULL){
 		printf("vm try handle fault page frame swt != NULL!\n");
 		if(page->frame->swt->is_empty == true){
 			void *kva = palloc_get_page(PAL_USER);
 			if(kva == NULL){
+				printf("vm try handle fault kva == NULL!\n");
 				struct frame *f = vm_evict_frame();
 				kva = palloc_get_page(PAL_USER);
 			}
+			printf("vm try handle fault vm evict frame is succ!\n");
 			if(!(page->operations->swap_in)(page, kva)){
+				printf("vm try handle fault swap in is false!\n");
 				return false;
 			}
+			printf("vm try handl fault swap in succ!\n");
 			return true;
 		}
 	}
+	}
+		//printf("vm try handl fault vm do claim page직전!\n");
+		return vm_do_claim_page (page);
+
 	}
 	// page자체가 말이 되는지 안되는지 확인하는법...
 	// 그냥 null일때가 아니라 아예 kernel등이 아닌지 확인.
@@ -405,28 +429,31 @@ vm_claim_page (void *va UNUSED) {
 static bool
 vm_do_claim_page (struct page *page) {
 	struct frame *frame = vm_get_frame ();
-	//printf("vm do claim page\n");
+	//printf("vm do claim page 진입\n");
 	/* Set links */
 	frame->page = page;
 	page->frame = frame;
+	frame->swt->owner = page;
 	//printf("#############1111##############\n");
 	/* TODO: Insert page table entry to map page's VA to frame's PA. */
 		// claim page = 물리적 프레임, 페이지 할당.
 	// vm_get_frame으로 프레임을 얻고
 	// 페이지 테이블의 가상 주소 - 실제 주소 매핑 추가.
 	// 반환값은 작업 성공 여부.
-	
 	struct thread *cur = thread_current();
 	if(!pml4_set_page(cur->pml4, page->va, frame->kva, page->writable)){
-		//printf("vm do claim page pml4 set page fail!\n");
+		printf("vm do claim page pml4 set page fail!\n");
 		return false;
 	}
+
 	//printf("##############2222#############\n");
 	//printf("vm do claim page  page:%p\n", page);
 	//printf("vm do claim page frame kva : %p\n", frame->kva);
 	if(page->frame->swt != NULL){
 		list_push_back(&swap, &page->frame->swt->swap_elem);
+		//printf("vm do claim page list push back!\n");
 	}
+
 	return swap_in (page, frame->kva);
 }
 

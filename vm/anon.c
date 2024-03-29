@@ -30,6 +30,7 @@ vm_anon_init (void) {
 	swap_disk = disk_get(1,1);
 	swap_bit = bitmap_create(4096);
 	bitmap_set_all(swap_bit,true);
+
 }
 
 /* Initialize the file mapping */
@@ -44,7 +45,7 @@ anon_initializer (struct page *page, enum vm_type type, void *kva) {
 /* Swap in the page by read contents from the swap disk. */
 static bool
 anon_swap_in (struct page *page, void *kva) {
-	printf("anon swap in \n");
+	printf("anon swap in 진입!\n");
 	struct anon_page *anon_page = &page->anon;
 
 	struct swap_table_entry *swe = page->frame->swt;
@@ -67,22 +68,18 @@ anon_swap_in (struct page *page, void *kva) {
 static bool
 anon_swap_out (struct page *page) {
 	struct anon_page *anon_page = &page->anon;
-
-	struct swap_table_entry *swe = malloc(sizeof(struct swap_table_entry));
-	swe->is_empty = false;
-
-	if(swe == NULL){
-		return false;
-	}
-
+	printf("anon swap out 진입!\n");
 	size_t index = bitmap_scan_and_flip(swap_bit,0, 8,true);
+	struct swap_table_entry *swe = page->frame->swt;
 	swe->sec_idx_start = index;
+	printf("anon swap out sec_idx_start : %d\n", index);
 	swe->owner = page;
-	page->frame->swt = swe;
-
+	printf("anon swap out page : %p\n", page);
+	printf("anon swap out swap disk : %p\n", swap_disk);
 
 	for(int i = 0 ; i <8 ; i++){
 		disk_write(swap_disk, index+i, page->frame->kva +(i * 512));
+		printf("anon swap out page frame kva+(i*512) : %p\n",  page->frame->kva +(i * 512));
 	}
 	palloc_free_page(page->frame->kva);
 
