@@ -346,9 +346,15 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 			return false;
 		}
 		if(page->frame->swt->is_empty == true){
-			if(!(page->operations->swap_in)(page, page->frame->kva)){
+			void *kva = palloc_get_page(PAL_USER);
+			if(kva == NULL){
+				struct frame *f = vm_evict_frame();
+				kva = palloc_get_page(PAL_USER);
+			}
+			if(!(page->operations->swap_in)(page, kva)){
 				return false;
 			}
+			return true;
 		}
 		//printf("vm try handl fault vm do claim page직전!\n");
 		return vm_do_claim_page (page);

@@ -49,15 +49,11 @@ anon_swap_in (struct page *page, void *kva) {
 
 	struct swap_table_entry *swe = page->frame->swt;
 	uint32_t sector_start = swe->sec_idx_start;
-	void *page_kva = page->frame->kva;
 
-	page_kva = palloc_get_page(PAL_USER); 
-	if(page_kva == NULL){
-		return false;
-	}
+	page->frame->kva = kva;
 
 	for(int i = 0 ; i <8 ; i++){
-		disk_read(swap_disk, sector_start+i, page_kva+(i*512));
+		disk_read(swap_disk, sector_start+i, page->frame->kva+(i*512));
 	}
 
 	bitmap_set_multiple(swap_bit, swe->sec_idx_start, 8, true);
