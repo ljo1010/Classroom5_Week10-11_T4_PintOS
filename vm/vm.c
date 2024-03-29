@@ -323,14 +323,14 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		else{
 			rsp = thread_current()->cur_rsp;
 		}
-		printf("vm try handle fault rsp :%p\n", rsp);
-		printf("vm try handle fault addr : %p\n", addr);
+		// printf("vm try handle fault rsp :%p\n", rsp);
+		// printf("vm try handle fault addr : %p\n", addr);
 		if(addr <= USER_STACK &&rsp <= addr && stack_max<= rsp){
-			printf("vm try handl fault stack growth 필요 L rsp 보다 클때\n");
+			//printf("vm try handl fault stack growth 필요 L rsp 보다 클때\n");
 			vm_stack_growth(addr);
 		}
 		else if((rsp-8) == addr && stack_max<= rsp-8 && rsp-8 <= USER_STACK){
-			printf("vm try handl fault stack growth 필요 rsp-8일떄\n");
+			//printf("vm try handl fault stack growth 필요 rsp-8일떄\n");
 			vm_stack_growth(addr);
 		}
 
@@ -345,21 +345,26 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 			// ////printf("vm try handl fault not present and write none!\n");
 			return false;
 		}
-		if(page->frame->swt != NULL){
-			if(page->frame->swt->is_empty == true){
-				void *kva = palloc_get_page(PAL_USER);
-				if(kva == NULL){
-					struct frame *f = vm_evict_frame();
-					kva = palloc_get_page(PAL_USER);
-				}
-				if(!(page->operations->swap_in)(page, kva)){
-					return false;
-				}
-				return true;
-			}
-		}
 		//printf("vm try handl fault vm do claim page직전!\n");
 		return vm_do_claim_page (page);
+	}
+	else{
+
+		printf("vm try handle fault page frame swt :%p\n", page->frame);
+	if(page->frame->swt != NULL){
+		printf("vm try handle fault page frame swt != NULL!\n");
+		if(page->frame->swt->is_empty == true){
+			void *kva = palloc_get_page(PAL_USER);
+			if(kva == NULL){
+				struct frame *f = vm_evict_frame();
+				kva = palloc_get_page(PAL_USER);
+			}
+			if(!(page->operations->swap_in)(page, kva)){
+				return false;
+			}
+			return true;
+		}
+	}
 	}
 	// page자체가 말이 되는지 안되는지 확인하는법...
 	// 그냥 null일때가 아니라 아예 kernel등이 아닌지 확인.
@@ -419,8 +424,9 @@ vm_do_claim_page (struct page *page) {
 	//printf("##############2222#############\n");
 	//printf("vm do claim page  page:%p\n", page);
 	//printf("vm do claim page frame kva : %p\n", frame->kva);
-
-	list_push_back(&swap, &page->frame->swt->swap_elem);
+	if(page->frame->swt != NULL){
+		list_push_back(&swap, &page->frame->swt->swap_elem);
+	}
 	return swap_in (page, frame->kva);
 }
 
