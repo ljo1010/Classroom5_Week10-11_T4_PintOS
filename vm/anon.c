@@ -28,7 +28,9 @@ vm_anon_init (void) {
 	/* TODO: Set up the swap_disk. */
 	swap_disk = NULL;
 	swap_disk = disk_get(1,1);
-	swap_bit = bitmap_create(4096);
+	uint32_t size = disk_size(swap_disk);
+	printf("vm anon init size : %u\n", size);
+	swap_bit = bitmap_create(size);
 	bitmap_set_all(swap_bit,true);
 
 }
@@ -74,7 +76,6 @@ anon_swap_out (struct page *page) {
 	struct swap_table_entry *swe = page->swe;
 	printf("anon swap out sec_idx_start : %d\n", index);
 	swe->sec_idx_start = index;
-	swe->owner = page;
 	printf("anon swap out page : %p\n", page);
 	printf("anon swap out swap disk : %p\n", swap_disk);
 

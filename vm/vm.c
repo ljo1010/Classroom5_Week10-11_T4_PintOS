@@ -28,7 +28,7 @@ vm_init (void) {
 	/* TODO: Your code goes here. */
 	list_init(&swap);
 
-	for(int i = 0; i <512;i++){
+	for(int i = 0; i <4096 ;i++){
 		struct swap_table_entry *swe = malloc(sizeof(struct swap_table_entry));
 		swe->is_empty = false;
 		swe->owner = NULL;
@@ -198,16 +198,21 @@ vm_get_victim (void) {
 	}
 	for(e = list_begin(&swap);e != list_end(&swap) ;e = list_next(e)){
 		struct swap_table_entry *swe = list_entry(e, struct swap_table_entry, swap_elem);
-		printf("vm get evict swe : %p\n", swe);
-		p = swe->owner;
-		printf("vm get evict p : %p\n", p);
-		if(swe->is_empty == true){
-			printf("vm get victim swe is empty == true!\n");
+		if(swe->frame == NULL){
 			continue;
 		}
+		
+		// printf("vm get evict swe : %p\n", swe);
+		// p = swe->owner;
+		// printf("vm get evict p : %p\n", p);
+		// if(swe->is_empty == true){
+		// 	printf("vm get victim swe is empty == true!\n");
+		// 	continue;
+		// }
+		victim = swe->frame;
 		break;
 	}
-	victim = p->frame;
+
 	return victim;
 }
 
@@ -241,6 +246,7 @@ vm_get_frame (void) {
 	void *kva = palloc_get_page(PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
 	if(kva == NULL){
 		// PANIC("todo!");
+		printf("vm get frame evict victitm 진입!\n");
 		struct frame *victim = vm_evict_frame();
 		printf("vm get frame victitm 성공!\n");
 		free(victim);
@@ -255,6 +261,19 @@ vm_get_frame (void) {
 	frame->kva = kva;
 	frame->page = NULL;
 
+	struct list_elem *e;
+	for(e = list_begin(&swap);e != list_end(&swap); e = list_next(e)){
+		struct swap_table_entry *swe = list_entry(e, struct swap_table_entry, swap_elem);
+		if(swe->frame != NULL){
+			
+			continue;
+		}
+		//printf("vm get frame swap table entry :%p\n", swe);
+		frame->swe = swe;
+		swe->frame = frame;
+		break;
+	}
+
 	// frame->swt = swe;
 
 	//printf("vm get frame swt : %p\n", frame->swt);
@@ -266,7 +285,7 @@ vm_get_frame (void) {
 
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
-	// printf("vm get frame 성공!\n");
+	//printf("vm get frame 성공!\n");
 	return frame;
 }
 
@@ -450,9 +469,16 @@ vm_do_claim_page (struct page *page) {
 	struct frame *frame = vm_get_frame ();
 	//printf("vm do claim page 진입\n");
 	/* Set links */
+	//printf("vm do claim page  page:%p\n", page);
+	//printf("vm do claim page  frame:%p\n", frame);
 	frame->page = page;
 	page->frame = frame;
-	
+	//printf("vm do claim page : frame swe : %p\n",frame->swe);
+	//printf("vm do claim page : page : %p\n",page);
+	page->swe = frame->swe;
+	page->swe->owner = page;
+	// printf("vm do claim page : frame swe : %p\n",frame->swe);
+	// printf("vm do claim page : page : %p\n",page);
 	//printf("#############1111##############\n");
 	/* TODO: Insert page table entry to map page's VA to frame's PA. */
 		// claim page = 물리적 프레임, 페이지 할당.
@@ -468,7 +494,6 @@ vm_do_claim_page (struct page *page) {
 	//printf("##############2222#############\n");
 	//printf("vm do claim page  page:%p\n", page);
 	//printf("vm do claim page frame kva : %p\n", frame->kva);
-
 	return swap_in (page, frame->kva);
 }
 

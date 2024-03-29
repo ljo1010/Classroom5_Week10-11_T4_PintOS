@@ -1,56 +1,13 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (swap-anon) begin
-  (swap-anon) write sparsely over page 0
-  (swap-anon) write sparsely over page 512
-  (swap-anon) write sparsely over page 1024
-  (swap-anon) write sparsely over page 1536
-  (swap-anon) write sparsely over page 2048
-  (swap-anon) write sparsely over page 2560
-  (swap-anon) write sparsely over page 3072
-  (swap-anon) write sparsely over page 3584
-  (swap-anon) write sparsely over page 4096
-  (swap-anon) write sparsely over page 4608
-  (swap-anon) check consistency in page 0
-  (swap-anon) check consistency in page 512
-  (swap-anon) check consistency in page 1024
-  (swap-anon) check consistency in page 1536
-  (swap-anon) check consistency in page 2048
-  (swap-anon) check consistency in page 2560
-  (swap-anon) check consistency in page 3072
-  (swap-anon) check consistency in page 3584
-  (swap-anon) check consistency in page 4096
-  (swap-anon) check consistency in page 4608
-  (swap-anon) end
-Differences in `diff -u' format:
-  (swap-anon) begin
-+ swap anon page count : 5120
-  (swap-anon) write sparsely over page 0
-  (swap-anon) write sparsely over page 512
-  (swap-anon) write sparsely over page 1024
-- (swap-anon) write sparsely over page 1536
-- (swap-anon) write sparsely over page 2048
-- (swap-anon) write sparsely over page 2560
-- (swap-anon) write sparsely over page 3072
-- (swap-anon) write sparsely over page 3584
-- (swap-anon) write sparsely over page 4096
-- (swap-anon) write sparsely over page 4608
-- (swap-anon) check consistency in page 0
-- (swap-anon) check consistency in page 512
-- (swap-anon) check consistency in page 1024
-- (swap-anon) check consistency in page 1536
-- (swap-anon) check consistency in page 2048
-- (swap-anon) check consistency in page 2560
-- (swap-anon) check consistency in page 3072
-- (swap-anon) check consistency in page 3584
-- (swap-anon) check consistency in page 4096
-- (swap-anon) check consistency in page 4608
-- (swap-anon) end
-+ vm get evict 진입!
-+ vm get evict swe : 0x800423d018
-+ vm get evict p : 0
-+ vm try handl fault not present and page == NULL!
-
-(Process exit codes are excluded for matching purposes.)
+Kernel panic in run: PANIC at ../../threads/mmu.c:242 in pml4_set_page(): assertion `is_kernel_vaddr(kpage)' failed.
+Call stack: 0x800421889a 0x800420da47 0x8004222213 0x80042220be 0x800421d6d7 0x8004209751 0x8004209b6f 0x400ccc 0x400d15
+Translation of call stack:
+0x000000800421889a: debug_panic (lib/kernel/debug.c:32)
+0x000000800420da47: pml4_set_page (threads/mmu.c:242)
+0x0000008004222213: vm_do_claim_page (vm/vm.c:489)
+0x00000080042220be: vm_try_handle_fault (vm/vm.c:428)
+0x000000800421d6d7: page_fault (userprog/exception.c:152)
+0x0000008004209751: intr_handler (threads/interrupt.c:352)
+0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)
+0x0000000000400ccc: (unknown)
+0x0000000000400d15: (unknown)

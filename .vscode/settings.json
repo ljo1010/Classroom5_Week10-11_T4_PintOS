@@ -21,6 +21,7 @@
         "vm.h": "c",
         "disk.h": "c",
         "inspect.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "bitmap.h": "c"
     }
 }
