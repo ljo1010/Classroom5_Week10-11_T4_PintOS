@@ -3,8 +3,9 @@
 #include "vm/vm.h"
 #include "devices/disk.h"
 #include "kernel/bitmap.h"
+#include "string.h"
+#include "vm/vm.h"
 
-static struct list swap;
 static struct bitmap *swap_bit;
 
 /* DO NOT MODIFY BELOW LINE */
@@ -29,7 +30,6 @@ vm_anon_init (void) {
 	swap_disk = disk_get(1,1);
 	swap_bit = bitmap_create(4096);
 	bitmap_set_all(swap_bit,true);
-	list_init(&swap);
 }
 
 /* Initialize the file mapping */
@@ -47,7 +47,23 @@ anon_swap_in (struct page *page, void *kva) {
 	printf("anon swap in \n");
 	struct anon_page *anon_page = &page->anon;
 
+	struct swap_table_entry *swe = page->frame->swt;
+	uint32_t sector_start = swe->sec_idx_start;
+	void *page_kva = page->frame->kva;
 
+	page_kva = palloc_get_page(PAL_USER); 
+	if(page_kva == NULL){
+		return false;
+	}
+
+	for(int i = 0 ; i <8 ; i++){
+		disk_read(swap_disk, sector_start+i, page_kva+(i*512));
+	}
+
+	bitmap_set_multiple(swap_bit, swe->sec_idx_start, 8, true);
+
+	free(swe);
+	return true;
 
 }
 
@@ -57,16 +73,20 @@ anon_swap_out (struct page *page) {
 	struct anon_page *anon_page = &page->anon;
 
 	struct swap_table_entry *swe = malloc(sizeof(struct swap_table_entry));
+	swe->is_empty = false;
 
 	if(swe == NULL){
 		return false;
 	}
 
 	size_t index = bitmap_scan_and_flip(swap_bit,0, 8,true);
-	page->frame->swt->sec_idx_start = index;
+	swe->sec_idx_start = index;
+	swe->owner = page;
+	page->frame->swt = swe;
+
 
 	for(int i = 0 ; i <8 ; i++){
-		disk_write(swap_disk, index+i, page->frame->kva);
+		disk_write(swap_disk, index+i, page->frame->kva +(i * 512));
 	}
 	palloc_free_page(page->frame->kva);
 

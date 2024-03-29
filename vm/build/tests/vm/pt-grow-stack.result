@@ -1,1 +1,30 @@
-PASS
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (pt-grow-stack) begin
+  (pt-grow-stack) cksum: 3424492700
+  (pt-grow-stack) end
+Differences in `diff -u' format:
++ vm try handle fault rsp :0x4747ffd8
++ vm try handle fault addr : 0x400f68
++ vm try handle fault rsp :0x4747ffa0
++ vm try handle fault addr : 0x605ce8
++ vm try handle fault rsp :0x4747fee8
++ vm try handle fault addr : 0x40135f
++ vm try handle fault rsp :0x4747fdc0
++ vm try handle fault addr : 0x4046a8
++ vm try handle fault rsp :0x4747fd98
++ vm try handle fault addr : 0x402000
++ vm try handle fault rsp :0x4747fdb8
++ vm try handle fault addr : 0x403157
+  (pt-grow-stack) begin
++ vm try handle fault rsp :0x4747ee80
++ vm try handle fault addr : 0x4747ee78
++ vm try handl fault stack growth 필요 rsp-8일떄
++ vm try handle fault rsp :0x4747ee40
++ vm try handle fault addr : 0x604fc0
+  (pt-grow-stack) cksum: 3424492700
+  (pt-grow-stack) end
+
+(Process exit codes are excluded for matching purposes.)

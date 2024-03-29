@@ -4,7 +4,7 @@ Kernel command line: -q -f put pt-grow-stk-sc run pt-grow-stk-sc
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  157,081,600 loops/s.
+Calibrating timer...  130,867,200 loops/s.
 hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 107 sector (53 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -13,23 +13,46 @@ Formatting file system...done.
 Boot complete.
 Putting 'pt-grow-stk-sc' into the file system...
 Executing 'pt-grow-stk-sc':
+vm try handle fault rsp :0x4747ffd8
+vm try handle fault addr : 0x400e26
+vm try handle fault rsp :0x4747ffa0
+vm try handle fault addr : 0x605748
+vm try handle fault rsp :0x4747fee8
+vm try handle fault addr : 0x40121d
+vm try handle fault rsp :0x4747fdc0
+vm try handle fault addr : 0x4045e8
+vm try handle fault rsp :0x4747fdb8
+vm try handle fault addr : 0x403015
+vm try handle fault rsp :0x4747fdb8
+vm try handle fault addr : 0x402241
 (pt-grow-stk-sc) begin
+vm try handle fault rsp :0x4746ff80
+vm try handle fault addr : 0x4746ff78
+vm try handl fault stack growth 필요 rsp-8일떄
+vm try handle fault rsp :0x4746ff50
+vm try handle fault addr : 0x604f00
 (pt-grow-stk-sc) create "sample.txt"
 (pt-grow-stk-sc) open "sample.txt"
 (pt-grow-stk-sc) write "sample.txt"
 (pt-grow-stk-sc) 2nd open "sample.txt"
 (pt-grow-stk-sc) read "sample.txt"
+vm try handle fault rsp :0x4746ff20
+vm try handle fault addr : 0x47477f88
+vm try handl fault stack growth 필요 L rsp 보다 클때
+vm try handle fault rsp :0x4746ff20
+vm try handle fault addr : 0x47478000
+vm try handl fault stack growth 필요 L rsp 보다 클때
 (pt-grow-stk-sc) compare written data against read data
 (pt-grow-stk-sc) end
 pt-grow-stk-sc: exit(0)
 Execution of 'pt-grow-stk-sc' complete.
-Timer: 68 ticks
-Thread: 30 idle ticks, 30 kernel ticks, 8 user ticks
+Timer: 101 ticks
+Thread: 30 idle ticks, 43 kernel ticks, 29 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 124 reads, 258 writes
 hd1:0: 107 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1226 characters output
+Console: 2123 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

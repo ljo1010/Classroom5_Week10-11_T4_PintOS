@@ -1,1 +1,75 @@
-PASS
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (pt-big-stk-obj) begin
+  (pt-big-stk-obj) cksum: 3256410166
+  (pt-big-stk-obj) end
+Differences in `diff -u' format:
++ vm try handle fault rsp :0x4747ffd8
++ vm try handle fault addr : 0x400f68
++ vm try handle fault rsp :0x4747ffa0
++ vm try handle fault addr : 0x605ce8
++ vm try handle fault rsp :0x4747fee8
++ vm try handle fault addr : 0x40135f
++ vm try handle fault rsp :0x4747fdc0
++ vm try handle fault addr : 0x4046a8
++ vm try handle fault rsp :0x4747fd98
++ vm try handle fault addr : 0x402000
++ vm try handle fault rsp :0x4747fdb8
++ vm try handle fault addr : 0x403157
+  (pt-big-stk-obj) begin
++ vm try handle fault rsp :0x4746fe80
++ vm try handle fault addr : 0x4746fe78
++ vm try handl fault stack growth 필요 rsp-8일떄
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47470000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47471000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47472000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47473000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47474000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47475000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47476000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47477000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47478000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x47479000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x4747a000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x4747b000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x4747c000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x4747d000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x4747e000
++ vm try handl fault stack growth 필요 L rsp 보다 클때
++ vm try handle fault rsp :0x4746fe40
++ vm try handle fault addr : 0x604fc0
+  (pt-big-stk-obj) cksum: 3256410166
+  (pt-big-stk-obj) end
+
+(Process exit codes are excluded for matching purposes.)

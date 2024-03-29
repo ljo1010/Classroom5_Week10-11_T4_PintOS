@@ -29,9 +29,10 @@ enum vm_type {
 
 struct swap_table_entry {
 
-	struct list_elem elem;
+	struct list_elem swap_elem;
 	uint32_t sec_idx_start;
-
+	struct page *owner;
+	bool is_empty;
 };
 
 
@@ -62,8 +63,6 @@ struct page {
 	struct frame *frame;   /* Back reference for frame */
 	bool writable;
 	/* Your implementation */
-	bool modified;
-	struct file *origin;
 	uint32_t read_bytes;
 	off_t ofs;
 

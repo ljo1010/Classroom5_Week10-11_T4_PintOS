@@ -186,7 +186,6 @@ lazy_load (struct page *page, void *aux){
 		page_zero_bytes = PGSIZE - length;
 	}
 	memset((page->frame->kva) +(length), 0, page_zero_bytes);
-	page->origin = file;
 	page->read_bytes = length;
 	page->ofs = aux_d->ofs;
 	return true;

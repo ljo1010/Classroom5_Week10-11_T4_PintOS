@@ -13,18 +13,35 @@ Formatting file system...done.
 Boot complete.
 Putting 'pt-grow-stack' into the file system...
 Executing 'pt-grow-stack':
+vm try handle fault rsp :0x4747ffd8
+vm try handle fault addr : 0x400f68
+vm try handle fault rsp :0x4747ffa0
+vm try handle fault addr : 0x605ce8
+vm try handle fault rsp :0x4747fee8
+vm try handle fault addr : 0x40135f
+vm try handle fault rsp :0x4747fdc0
+vm try handle fault addr : 0x4046a8
+vm try handle fault rsp :0x4747fd98
+vm try handle fault addr : 0x402000
+vm try handle fault rsp :0x4747fdb8
+vm try handle fault addr : 0x403157
 (pt-grow-stack) begin
+vm try handle fault rsp :0x4747ee80
+vm try handle fault addr : 0x4747ee78
+vm try handl fault stack growth 필요 rsp-8일떄
+vm try handle fault rsp :0x4747ee40
+vm try handle fault addr : 0x604fc0
 (pt-grow-stack) cksum: 3424492700
 (pt-grow-stack) end
 pt-grow-stack: exit(0)
 Execution of 'pt-grow-stack' complete.
-Timer: 64 ticks
-Thread: 30 idle ticks, 31 kernel ticks, 3 user ticks
+Timer: 87 ticks
+Thread: 30 idle ticks, 37 kernel ticks, 20 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 93 reads, 254 writes
 hd1:0: 113 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1013 characters output
+Console: 1643 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

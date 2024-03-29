@@ -16,6 +16,9 @@ test_main (void)
   int handle;
   int slen = strlen (sample);
   char buf2[65536];
+  // buf2[2] = 'e';
+  // printf("pt grow stk sc buf2 : %p\n",  (void*)&buf2[2]);
+  // printf("%c", buf2[2]);
 
   /* Write file via write(). */
   CHECK (create ("sample.txt", slen), "create \"sample.txt\"");

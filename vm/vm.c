@@ -12,6 +12,8 @@
 #include "devices/disk.h"
 
 
+static struct list swap;
+
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
 void
@@ -24,6 +26,7 @@ vm_init (void) {
 	register_inspect_intr ();
 	/* DO NOT MODIFY UPPER LINES. */
 	/* TODO: Your code goes here. */
+	list_init(&swap);
 }
 
 /* Get the type of the page. This function is useful if you want to know the
@@ -179,12 +182,15 @@ static struct frame *
 vm_get_victim (void) {
 	struct frame *victim = NULL;
 	 /* TODO: The policy for eviction is up to you. */
-
 	struct page *p;
-	struct hash_iterator i;
-	hash_first(&i, &thread_current()->spt);
-	while(hash_next(&i)){
-		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
+	struct list_elem *e;
+	for(e = list_begin(&swap);e != list_end(&swap) ;e = list_next(e)){
+		struct swap_table_entry *swe = list_entry(e, struct swap_table_entry, swap_elem);
+		p = swe->owner;
+		if(swe->is_empty == true){
+			continue;
+		}
+		list_remove(e);
 		break;
 	}
 	victim = p->frame;
@@ -196,9 +202,14 @@ vm_get_victim (void) {
 static struct frame *
 vm_evict_frame (void) {
 	struct frame *victim UNUSED = vm_get_victim ();
-
 	/* TODO: swap out the victim and return the evicted frame. */
-	palloc_free_page(victim->kva);
+	struct page *p = victim->page; 
+	bool ret = false;
+
+	ret = (p->operations->swap_out)(p);
+	if(ret == false){
+		return NULL;
+	}
 
 	return victim;
 }
@@ -214,14 +225,15 @@ vm_get_frame (void) {
 
 	void *kva = palloc_get_page(PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
 	if(kva == NULL){
-
 		PANIC("todo!");
-	}
+		struct frame *victim = vm_evict_frame();
+		victim->swt->is_empty = true;
+		kva = palloc_get_page(PAL_USER);
 
+	}
 	frame = malloc(sizeof(struct frame));
 	frame->kva = kva;
 	frame->page = NULL;
-
 	//////printf("vm get frame frame page : %p\n",frame->page);
 	// palloc() 및 프레임 가져오기.
 	// 사용 가능 페이지가 없으면 희생자 페이지를 제거하고 반환. <- 이 아래는 Evict 함수로 구현하면 됨.(아마도.)
@@ -311,15 +323,19 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		else{
 			rsp = thread_current()->cur_rsp;
 		}
+		printf("vm try handle fault rsp :%p\n", rsp);
+		printf("vm try handle fault addr : %p\n", addr);
 		if(addr <= USER_STACK &&rsp <= addr && stack_max<= rsp){
-			//printf("vm try handl fault stack growth 필요\n");
+			printf("vm try handl fault stack growth 필요 L rsp 보다 클때\n");
 			vm_stack_growth(addr);
 		}
 		else if((rsp-8) == addr && stack_max<= rsp-8 && rsp-8 <= USER_STACK){
+			printf("vm try handl fault stack growth 필요 rsp-8일떄\n");
 			vm_stack_growth(addr);
 		}
+
 		// ////printf("vm try handl fault not present!\n");
-		page = spt_find_page(spt, addr);
+		page = spt_find_page(spt, addr);		
 		if(page == NULL){
 			
 			//printf("vm try handl fault not present and page == NULL!\n");
@@ -328,6 +344,11 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		if(write == true && page->writable == false){
 			// ////printf("vm try handl fault not present and write none!\n");
 			return false;
+		}
+		if(page->frame->swt->is_empty == true){
+			if(!(page->operations->swap_in)(page, page->frame->kva)){
+				return false;
+			}
 		}
 		//printf("vm try handl fault vm do claim page직전!\n");
 		return vm_do_claim_page (page);
