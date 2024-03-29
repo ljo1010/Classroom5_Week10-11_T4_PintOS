@@ -345,16 +345,18 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 			// ////printf("vm try handl fault not present and write none!\n");
 			return false;
 		}
-		if(page->frame->swt->is_empty == true){
-			void *kva = palloc_get_page(PAL_USER);
-			if(kva == NULL){
-				struct frame *f = vm_evict_frame();
-				kva = palloc_get_page(PAL_USER);
+		if(page->frame->swt != NULL){
+			if(page->frame->swt->is_empty == true){
+				void *kva = palloc_get_page(PAL_USER);
+				if(kva == NULL){
+					struct frame *f = vm_evict_frame();
+					kva = palloc_get_page(PAL_USER);
+				}
+				if(!(page->operations->swap_in)(page, kva)){
+					return false;
+				}
+				return true;
 			}
-			if(!(page->operations->swap_in)(page, kva)){
-				return false;
-			}
-			return true;
 		}
 		//printf("vm try handl fault vm do claim page직전!\n");
 		return vm_do_claim_page (page);
@@ -417,6 +419,8 @@ vm_do_claim_page (struct page *page) {
 	//printf("##############2222#############\n");
 	//printf("vm do claim page  page:%p\n", page);
 	//printf("vm do claim page frame kva : %p\n", frame->kva);
+
+	list_push_back(&swap, &page->frame->swt->swap_elem);
 	return swap_in (page, frame->kva);
 }
 

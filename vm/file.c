@@ -42,12 +42,69 @@ static bool
 file_backed_swap_in (struct page *page, void *kva) {
 	struct file_page *file_page UNUSED = &page->file;
 	//printf("file backed swap in!\n");
+
+	// void *va  = do_mmap(kva, file_length(page->file.file), page->writable, page->file.file, page->file.ofs);
+	// if(va == kva){
+	// 	return true;
+	// }
+
+	// return false;
+	page->frame->kva = kva;
+	struct page_load_data *aux_d = (struct page_load_data *)(page->uninit.aux);
+
+	file_seek(aux_d->file, aux_d->ofs);
+
+	if(file_read(aux_d->file, page->frame->kva, aux_d->read_bytes) != (int)aux_d->read_bytes){
+		palloc_free_page(page->frame->kva);
+	return false;
+	}
+	memset((page->frame->kva)+(aux_d->read_bytes), 0, aux_d->zero_bytes);
+
+	free(page->frame->swt);
+
+	return true;
+
 }
 
 /* Swap out the page by writeback contents to the file. */
 static bool
 file_backed_swap_out (struct page *page) {
 	struct file_page *file_page UNUSED = &page->file;
+	
+	// do_munmap(pg_round_down(page->va));
+
+	// return true;
+
+	// struct list_elem *e;
+	// if(!list_empty(&mmap_list)){
+	// 	for(e = list_begin(&mmap_list);e != list_end(&mmap_list);e = list_next(e)){
+	// 		struct page *p = list_entry(e, struct page, f_elem);
+			
+	// 	}
+	// }
+	int count = page->mapping_count;
+	void * addr = pg_round_down(page->va);
+
+	for(int i = 0; i <count; i++){
+		if(page){
+			file_backed_destroy(page);
+			addr+= PGSIZE;
+			page = spt_find_page(&thread_current()->spt, addr);
+
+		}
+	}
+
+	struct swap_table_entry *swe = malloc(sizeof (struct swap_table_entry));
+
+	swe->is_empty = true;
+	swe->owner = page;
+
+	page->frame->swt = swe;
+
+	return true;
+
+
+
 }
 
 /* Destory the file backed page. PAGE will be freed by the caller. */
