@@ -59,8 +59,10 @@ file_backed_swap_in (struct page *page, void *kva) {
 	return false;
 	}
 	memset((page->frame->kva)+(aux_d->read_bytes), 0, aux_d->zero_bytes);
+	struct swap_table_entry *swe = page->swe;
 
-	free(page->frame->swt);
+	swe->is_empty = false;
+	swe->owner = NULL;
 
 	return true;
 
@@ -94,12 +96,11 @@ file_backed_swap_out (struct page *page) {
 		}
 	}
 
-	struct swap_table_entry *swe = malloc(sizeof (struct swap_table_entry));
+	struct swap_table_entry *swe = page->swe;
 
 	swe->is_empty = true;
 	swe->owner = page;
-
-	page->frame->swt = swe;
+	
 
 	return true;
 

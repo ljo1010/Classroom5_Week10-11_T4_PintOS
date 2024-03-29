@@ -68,6 +68,8 @@ struct page {
 
 	int mapping_count;
 
+	struct swap_table_entry *swe;
+
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */
 	union {
@@ -84,7 +86,6 @@ struct page {
 struct frame {
 	void *kva;
 	struct page *page;
-	struct swap_table_entry *swt;
 };
 
 /* The function table for page operations.

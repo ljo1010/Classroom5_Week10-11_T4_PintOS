@@ -47,8 +47,7 @@ static bool
 anon_swap_in (struct page *page, void *kva) {
 	printf("anon swap in 진입!\n");
 	struct anon_page *anon_page = &page->anon;
-
-	struct swap_table_entry *swe = page->frame->swt;
+	struct swap_table_entry *swe = page->swe;
 	uint32_t sector_start = swe->sec_idx_start;
 
 	page->frame->kva = kva;
@@ -59,7 +58,9 @@ anon_swap_in (struct page *page, void *kva) {
 
 	bitmap_set_multiple(swap_bit, swe->sec_idx_start, 8, true);
 
-	free(swe);
+	swe->is_empty = false;
+	swe->owner = NULL;
+	swe->sec_idx_start = -1;
 	return true;
 
 }
@@ -70,9 +71,9 @@ anon_swap_out (struct page *page) {
 	struct anon_page *anon_page = &page->anon;
 	printf("anon swap out 진입!\n");
 	size_t index = bitmap_scan_and_flip(swap_bit,0, 8,true);
-	struct swap_table_entry *swe = page->frame->swt;
-	swe->sec_idx_start = index;
+	struct swap_table_entry *swe = page->swe;
 	printf("anon swap out sec_idx_start : %d\n", index);
+	swe->sec_idx_start = index;
 	swe->owner = page;
 	printf("anon swap out page : %p\n", page);
 	printf("anon swap out swap disk : %p\n", swap_disk);
@@ -81,7 +82,7 @@ anon_swap_out (struct page *page) {
 		disk_write(swap_disk, index+i, page->frame->kva +(i * 512));
 		printf("anon swap out page frame kva+(i*512) : %p\n",  page->frame->kva +(i * 512));
 	}
-	palloc_free_page(page->frame->kva);
+	swe->is_empty = true;
 
 	return true;
 
