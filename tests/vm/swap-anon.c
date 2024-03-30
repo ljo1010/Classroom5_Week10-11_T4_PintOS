@@ -27,7 +27,7 @@ test_main (void)
 	size_t i;
     void* pa;
     char *mem;
-    printf("swap anon page count : %d\n", PAGE_COUNT);
+
     for (i = 0 ; i < PAGE_COUNT ; i++) {
         if(!(i % 512))
             msg ("write sparsely over page %zu", i);

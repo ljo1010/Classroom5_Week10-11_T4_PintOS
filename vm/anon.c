@@ -72,20 +72,20 @@ anon_swap_in (struct page *page, void *kva) {
 static bool
 anon_swap_out (struct page *page) {
 	struct anon_page *anon_page = &page->anon;
-	printf("anon swap out 진입!\n");
+	//printf("anon swap out 진입!\n");
 	size_t index = bitmap_scan_and_flip(swap_bit,0, 1,false);
 	if(index == BITMAP_ERROR){
 		return false;
 	}
 	struct swap_table_entry *swe = page->swe;
-	printf("anon swap out sec_idx_start : %d\n", index);
+	//printf("anon swap out sec_idx_start : %d\n", index);
 	swe->sec_idx_start = index;
-	printf("anon swap out page : %p\n", page);
-	printf("anon swap out swap disk : %p\n", swap_disk);
+	//printf("anon swap out page : %p\n", page);
+	//printf("anon swap out swap disk : %p\n", swap_disk);
 
 	for(int i = 0 ; i <8 ; i++){
 		disk_write(swap_disk, (index*8)+i, page->frame->kva +(i * 512));
-		printf("anon swap out page frame kva+(i*512) : %p\n",  page->frame->kva +(i * 512));
+		//printf("anon swap out page frame kva+(i*512) : %p\n",  page->frame->kva +(i * 512));
 		
 	}
 	pml4_clear_page(thread_current()->pml4, page->va);

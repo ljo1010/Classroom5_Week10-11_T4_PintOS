@@ -141,4 +141,6 @@ struct page *page_lookup (const void *address);
 
 void page_entry_destroy(struct hash_elem *e, void *aux);
 
+struct swap_table_entry* find_swe_in_swap(void);
+
 #endif  /* VM_VM_H */

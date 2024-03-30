@@ -191,7 +191,7 @@ spt_remove_page (struct hash *spt, struct page *page) {
 static struct frame *
 vm_get_victim (void) {
 	struct frame *victim = NULL;
-	printf("vm get evict 진입!\n");
+	//printf("vm get evict 진입!\n");
 	 /* TODO: The policy for eviction is up to you. */
 	struct page *p;
 	struct list_elem *e;
@@ -204,8 +204,8 @@ vm_get_victim (void) {
 			continue;
 		}
 		
-		printf("vm get evict swe : %p\n", swe);
-		printf("vm get evict swe frame : %p\n", swe->frame);
+		//printf("vm get evict swe : %p\n", swe);
+		//printf("vm get evict swe frame : %p\n", swe->frame);
 		// p = swe->owner;
 		// printf("vm get evict p : %p\n", p);
 		// if(swe->is_empty == true){
@@ -225,11 +225,11 @@ static struct frame *
 vm_evict_frame (void) {
 	struct frame *victim UNUSED = vm_get_victim ();
 	/* TODO: swap out the victim and return the evicted frame. */
-	printf("vm evict frame 진입!\n");
-	printf("vm evict frame : %p\n", victim);
-	printf("vm evict frame victim page : %p\n", victim->page);
+	//printf("vm evict frame 진입!\n");
+	//printf("vm evict frame : %p\n", victim);
+	//printf("vm evict frame victim page : %p\n", victim->page);
 	struct page *p = victim->page; 
-	printf("vm evict frame page : %p\n", p);
+	//printf("vm evict frame page : %p\n", p);
 	bool ret = false;
 
 	ret = (p->operations->swap_out)(p);
@@ -252,34 +252,30 @@ vm_get_frame (void) {
 	void *kva = palloc_get_page(PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
 	if(kva == NULL){
 		// PANIC("todo!");
-		printf("vm get frame evict victitm 진입!\n");
+		//printf("vm get frame evict victitm 진입!\n");
 		struct frame *victim = vm_evict_frame();
-		printf("vm get frame victitm 성공!\n");
-		palloc_free_page(victim->kva);
-		free(victim);
+		//printf("vm get frame victim : %p\n", victim);
+		//printf("vm get frame victitm 성공!\n");
+		victim->page = NULL;
+		struct swap_table_entry *swet = find_swe_in_swap();
+		victim->swe = swet;
 		// victim->swt->is_empty = true;
-		kva = palloc_get_page(PAL_USER);
-		if(kva == NULL){
-			printf("vm get frame kva == NULL 연속!\n");
-		}
+		//printf("vm get frame kva : %p\n", kva);
+		// if(kva == NULL){
+		// 	printf("vm get frame kva == NULL 연속!\n");
+		// }
+		return victim;
 
 	}
 	frame = malloc(sizeof(struct frame));
 	frame->kva = kva;
 	frame->page = NULL;
 
-	struct list_elem *e;
-	for(e = list_begin(&swap);e != list_end(&swap); e = list_next(e)){
-		struct swap_table_entry *swe = list_entry(e, struct swap_table_entry, swap_elem);
-		if(swe->frame != NULL){
-			
-			continue;
-		}
+	struct swap_table_entry *swe = find_swe_in_swap();
 		//printf("vm get frame swap table entry :%p\n", swe);
-		frame->swe = swe;
-		swe->frame = frame;
-		break;
-	}
+	frame->swe = swe;
+	swe->frame = frame;
+
 
 	// frame->swt = swe;
 
@@ -294,6 +290,21 @@ vm_get_frame (void) {
 	ASSERT (frame->page == NULL);
 	//printf("vm get frame 성공!\n");
 	return frame;
+}
+
+struct swap_table_entry*
+find_swe_in_swap(void){
+	struct list_elem *e;
+	for(e = list_begin(&swap);e != list_end(&swap); e = list_next(e)){
+		struct swap_table_entry *swe = list_entry(e, struct swap_table_entry, swap_elem);
+		if(swe->frame != NULL){
+			
+			continue;
+		}
+		return swe;
+}
+	return NULL;
+
 }
 
 /* Growing the stack. */
@@ -379,11 +390,11 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		// printf("vm try handle fault rsp :%p\n", rsp);
 		// printf("vm try handle fault addr : %p\n", addr);
 		if(addr <= USER_STACK &&rsp <= addr && stack_max<= rsp){
-			printf("vm try handl fault stack growth 필요 L rsp 보다 클때\n");
+			//printf("vm try handl fault stack growth 필요 L rsp 보다 클때\n");
 			vm_stack_growth(addr);
 		}
 		else if((rsp-8) == addr && stack_max<= rsp-8 && rsp-8 <= USER_STACK){
-			printf("vm try handl fault stack growth 필요 rsp-8일떄\n");
+			//printf("vm try handl fault stack growth 필요 rsp-8일떄\n");
 			vm_stack_growth(addr);
 		}
 
