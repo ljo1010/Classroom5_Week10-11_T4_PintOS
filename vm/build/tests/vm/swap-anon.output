@@ -21,32 +21,61 @@ swap anon page count : 5120
 vm get frame evict victitm 진입!
 vm get evict 진입!
 vm get evict swe : 0x800423c018
-vm get evict swe frame : 0xcccccccccccccccc
+vm get evict swe frame : 0x800442f018
 vm evict frame 진입!
-vm evict frame : 0xcccccccccccccccc
-Interrupt 0x0d (#GP General Protection Exception) at rip=8004221ccd
- cr2=0000000000abbda0 error=               0
-rax cccccccccccccccc rbx 00008004280f1800 rcx 00000080040b8000 rdx 0000000000000001
-rsp 000000800427fdd0 rbp 000000800427fdf0 rsi 000000000000800f rdi 0000000000000001
-rip 0000008004221ccd r8 000000800427fce8  r9 000000800421bd13 r10 0000000000000000
+vm evict frame : 0x800442f018
+vm evict frame victim page : 0x800442ec98
+vm evict frame page : 0x800442ec98
+anon swap out 진입!
+anon swap out sec_idx_start : 0
+anon swap out page : 0x800442ec98
+anon swap out swap disk : 0x800422c430
+anon swap out page frame kva+(i*512) : 0x8004521000
+anon swap out page frame kva+(i*512) : 0x8004521200
+anon swap out page frame kva+(i*512) : 0x8004521400
+anon swap out page frame kva+(i*512) : 0x8004521600
+anon swap out page frame kva+(i*512) : 0x8004521800
+anon swap out page frame kva+(i*512) : 0x8004521a00
+anon swap out page frame kva+(i*512) : 0x8004521c00
+anon swap out page frame kva+(i*512) : 0x8004521e00
+vm get frame victitm 성공!
+vm try handl fault stack growth 필요 L rsp 보다 클때
+vm get frame evict victitm 진입!
+vm get evict 진입!
+vm get evict swe : 0x800423c018
+vm get evict swe frame : 0x800442f018
+vm evict frame 진입!
+vm evict frame : 0x800442f018
+vm evict frame victim page : 0x80042e8398
+vm evict frame page : 0x80042e8398
+anon swap out 진입!
+anon swap out sec_idx_start : 1
+anon swap out page : 0x80042e8398
+anon swap out swap disk : 0x800422c430
+anon swap out page frame kva+(i*512) : 0x8004521000
+anon swap out page frame kva+(i*512) : 0x8004521200
+anon swap out page frame kva+(i*512) : 0x8004521400
+anon swap out page frame kva+(i*512) : 0x8004521600
+anon swap out page frame kva+(i*512) : 0x8004521800
+anon swap out page frame kva+(i*512) : 0x8004521a00
+anon swap out page frame kva+(i*512) : 0x8004521c00
+anon swap out page frame kva+(i*512) : 0x8004521e00
+vm get frame victitm 성공!
+Kernel PANIC at ../../devices/disk.c:411 in select_sector(): assertion `sec_no < d->capacity' failed.
+Call stack: 0x800421889a 0x8004214973 0x8004213f27 0x800422296a 0x8004222350 0x80042221b9 0x800421d6f7 0x8004209751 0x8004209b6f 0xccccccccccccccccInterrupt 0x0d (#GP General Protection Exception) at rip=80042158d4
+ cr2=000000004747ff88 error=               0
+rax cccccccccccccccc rbx 00008004280f1800 rcx 00000080040b8000 rdx 00000000000003d4
+rsp 000000800427fcf0 rbp 000000800427fd00 rsi 000000000000c30f rdi 0000000000000000
+rip 00000080042158d4 r8 000000800427fc08  r9 000000800421bd13 r10 0000000000000000
 r11 0000000000000202 r12 0000800427ff1000 r13 0000800420afce00 r14 0000800427ff1000
-r15 00000000000000ff rflags 00000206
-es: 0010 ds: 0010 cs: 0008 ss: 0010
-Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421889a 0x800421d5e1 0x8004209751 0x8004209b6f 0x8004221d9b 0x800422226c 0x8004222197 0x800421d6f7 0x8004209751 0x8004209b6f 0x400ccc 0x400d15 0Interrupt 0x0d (#GP General Protection Exception) at rip=80042158d4
- cr2=0000000000abbda0 error=               0
-rax 0000800421ae9500 rbx 00008004280f1800 rcx 00000080040b8000 rdx 00000000000003d4
-rsp 000000800427fc10 rbp 000000800427fc20 rsi 000000000000810f rdi 0000000000000000
-rip 00000080042158d4 r8 000000800427fb28  r9 000000800421bd13 r10 0000000000000000
-r11 0000000000000202 r12 0000800427ff1000 r13 0000800420afce00 r14 0000800427ff1000
-r15 00000000000000ff rflags 00000006
+r15 00000000000000ff rflags 00000086
 es: 0010 ds: 0010 cs: 0008 ss: 0010
 Kernel PANIC recursion at ../../userprog/exception.c:97 in kill().
-Timer: 141 ticks
-Thread: 30 idle ticks, 35 kernel ticks, 76 user ticks
+Timer: 155 ticks
+Thread: 30 idle ticks, 35 kernel ticks, 90 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 236 writes
 hd1:0: 104 reads, 0 writes
-hd1:1: 0 reads, 0 writes
-Console: 2590 characters output
+hd1:1: 0 reads, 16 writes
+Console: 3581 characters output
 Key

@@ -33,6 +33,8 @@ vm_init (void) {
 		swe->is_empty = false;
 		swe->owner = NULL;
 		swe->sec_idx_start = -1;
+		swe->frame = NULL;
+
 		list_push_back(&swap, &swe->swap_elem);
 	}
 }
@@ -225,7 +227,7 @@ vm_evict_frame (void) {
 	/* TODO: swap out the victim and return the evicted frame. */
 	printf("vm evict frame 진입!\n");
 	printf("vm evict frame : %p\n", victim);
-	printf("vm evict frame page : %p\n", victim->page);
+	printf("vm evict frame victim page : %p\n", victim->page);
 	struct page *p = victim->page; 
 	printf("vm evict frame page : %p\n", p);
 	bool ret = false;
@@ -253,6 +255,7 @@ vm_get_frame (void) {
 		printf("vm get frame evict victitm 진입!\n");
 		struct frame *victim = vm_evict_frame();
 		printf("vm get frame victitm 성공!\n");
+		palloc_free_page(victim->kva);
 		free(victim);
 		// victim->swt->is_empty = true;
 		kva = palloc_get_page(PAL_USER);

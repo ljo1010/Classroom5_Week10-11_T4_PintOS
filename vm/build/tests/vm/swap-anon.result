@@ -1,16 +1,19 @@
 FAIL
-Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x800421889a 0x800421d5e1 0x8004209751 0x8004209b6f 0x8004221d9b 0x800422226c 0x8004222197 0x800421d6f7 0x8004209751 0x8004209b6f 0x400ccc 0x400d15
+Kernel panic in run: PANIC at ../../devices/disk.c:411 in select_sector(): assertion `sec_no < d->capacity' failed.
+Call stack: 0x800421889a 0x8004214973 0x8004213f27 0x800422296a 0x8004222350 0x80042221b9 0x800421d6f7 0x8004209751 0x8004209b6f 0xcccccccccccccccc
 Translation of call stack:
 0x000000800421889a: debug_panic (lib/kernel/debug.c:32)
-0x000000800421d5e1: kill (userprog/exception.c:103)
-0x0000008004209751: intr_handler (threads/interrupt.c:352)
-0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)
-0x0000008004221d9b: vm_get_frame (vm/vm.c:254)
-0x000000800422226c: vm_do_claim_page (vm/vm.c:473)
-0x0000008004222197: vm_try_handle_fault (vm/vm.c:432)
+0x0000008004214973: select_sector (devices/disk.c:412)
+0x0000008004213f27: disk_read (devices/disk.c:220)
+0x000000800422296a: anon_swap_in (vm/anon.c:58 (discriminator 3))
+0x0000008004222350: vm_do_claim_page (vm/vm.c:505)
+0x00000080042221b9: vm_try_handle_fault (vm/vm.c:435)
 0x000000800421d6f7: page_fault (userprog/exception.c:152)
 0x0000008004209751: intr_handler (threads/interrupt.c:352)
 0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)
-0x0000000000400ccc: (unknown)
-0x0000000000400d15: (unknown)
+0xcccccccccccccccc: (unknown)
+
+This assertion commonly fails when accessing a file via an inode that
+has been closed and freed.  Freeing an inode clears all its sector
+indexes to 0xcccccccc, which is not a valid sector number for disks
+smaller than about 1.6 TB.
