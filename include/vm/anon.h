@@ -5,6 +5,8 @@ struct page;
 enum vm_type;
 
 struct anon_page {
+    uint32_t swap_index;
+    struct thread *thread;
 };
 
 void vm_anon_init (void);

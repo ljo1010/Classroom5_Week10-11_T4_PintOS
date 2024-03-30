@@ -13,6 +13,7 @@
 
 
 static struct list swap;
+static struct list_elem *start;
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
@@ -27,16 +28,17 @@ vm_init (void) {
 	/* DO NOT MODIFY UPPER LINES. */
 	/* TODO: Your code goes here. */
 	list_init(&swap);
+	start = list_begin(&swap);
 
-	for(int i = 0; i <4096 ;i++){
-		struct swap_table_entry *swe = malloc(sizeof(struct swap_table_entry));
-		swe->is_empty = false;
-		swe->owner = NULL;
-		swe->sec_idx_start = -1;
-		swe->frame = NULL;
+	// for(int i = 0; i <4096 ;i++){
+	// 	struct swap_table_entry *swe = malloc(sizeof(struct swap_table_entry));
+	// 	swe->is_empty = false;
+	// 	swe->owner = NULL;
+	// 	swe->sec_idx_start = -1;
+	// 	swe->frame = NULL;
 
-		list_push_back(&swap, &swe->swap_elem);
-	}
+	// 	list_push_back(&swap, &swe->swap_elem);
+	// }
 }
 
 /* Get the type of the page. This function is useful if you want to know the
@@ -193,17 +195,18 @@ vm_get_victim (void) {
 	struct frame *victim = NULL;
 	//printf("vm get evict 진입!\n");
 	 /* TODO: The policy for eviction is up to you. */
-	struct page *p;
+	struct thread *cur = thread_current();
 	struct list_elem *e;
 	if(list_empty(&swap)){
 		printf("vm get victim , swap list empty!\n");
 	}
-	for(e = list_begin(&swap);e != list_end(&swap) ;e = list_next(e)){
-		struct swap_table_entry *swe = list_entry(e, struct swap_table_entry, swap_elem);
-		if(swe->frame == NULL){
-			continue;
+	for(e = start;e != list_end(&swap) ;e = list_next(e)){
+		victim = list_entry(e, struct frame, frame_elem);
+		if(pml4_is_accessed(cur->pml4, victim->page->va)){
+			pml4_set_accessed(cur->pml4, victim->page->va, false);
 		}
-		
+		else
+			return victim;
 		//printf("vm get evict swe : %p\n", swe);
 		//printf("vm get evict swe frame : %p\n", swe->frame);
 		// p = swe->owner;
@@ -212,8 +215,8 @@ vm_get_victim (void) {
 		// 	printf("vm get victim swe is empty == true!\n");
 		// 	continue;
 		// }
-		victim = swe->frame;
-		break;
+		// victim = swe->frame;
+		// break;
 	}
 
 	return victim;
@@ -228,14 +231,20 @@ vm_evict_frame (void) {
 	//printf("vm evict frame 진입!\n");
 	//printf("vm evict frame : %p\n", victim);
 	//printf("vm evict frame victim page : %p\n", victim->page);
-	struct page *p = victim->page; 
-	//printf("vm evict frame page : %p\n", p);
-	bool ret = false;
-
-	ret = (p->operations->swap_out)(p);
-	if(ret == false){
+	
+	if(!swap_out(victim->page)){
 		return NULL;
 	}
+	victim->page = NULL;
+	memset(victim->kva, 0, PGSIZE);
+	// struct page *p = victim->page; 
+	// //printf("vm evict frame page : %p\n", p);
+	// bool ret = false;
+
+	// ret = (p->operations->swap_out)(p);
+	// if(ret == false){
+	// 	return NULL;
+	// }
 
 	return victim;
 }
@@ -246,35 +255,33 @@ vm_evict_frame (void) {
  * space.*/
 static struct frame *
 vm_get_frame (void) {
-	struct frame *frame;
+	struct frame *frame = NULL;
 	/* TODO: Fill this function. */
 
 	void *kva = palloc_get_page(PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
 	if(kva == NULL){
 		// PANIC("todo!");
 		//printf("vm get frame evict victitm 진입!\n");
-		struct frame *victim = vm_evict_frame();
+		// frame = vm_evict_frame();
 		//printf("vm get frame victim : %p\n", victim);
 		//printf("vm get frame victitm 성공!\n");
-		victim->page = NULL;
-		struct swap_table_entry *swet = find_swe_in_swap();
-		victim->swe = swet;
+		// frame->page = NULL;
 		// victim->swt->is_empty = true;
 		//printf("vm get frame kva : %p\n", kva);
 		// if(kva == NULL){
 		// 	printf("vm get frame kva == NULL 연속!\n");
 		// }
-		return victim;
+		return vm_evict_frame();
 
 	}
-	frame = malloc(sizeof(struct frame));
+	frame = (struct frame *)malloc(sizeof(struct frame));
 	frame->kva = kva;
+	// list_push_back(&swap, &frame->frame_elem);
 	frame->page = NULL;
 
-	struct swap_table_entry *swe = find_swe_in_swap();
+
 		//printf("vm get frame swap table entry :%p\n", swe);
-	frame->swe = swe;
-	swe->frame = frame;
+
 
 
 	// frame->swt = swe;
@@ -292,20 +299,20 @@ vm_get_frame (void) {
 	return frame;
 }
 
-struct swap_table_entry*
-find_swe_in_swap(void){
-	struct list_elem *e;
-	for(e = list_begin(&swap);e != list_end(&swap); e = list_next(e)){
-		struct swap_table_entry *swe = list_entry(e, struct swap_table_entry, swap_elem);
-		if(swe->frame != NULL){
+// struct swap_table_entry*
+// find_swe_in_swap(void){
+// 	struct list_elem *e;
+// 	for(e = list_begin(&swap);e != list_end(&swap); e = list_next(e)){
+// 		struct swap_table_entry *swe = list_entry(e, struct swap_table_entry, swap_elem);
+// 		if(swe->frame != NULL){
 			
-			continue;
-		}
-		return swe;
-}
-	return NULL;
+// 			continue;
+// 		}
+// 		return swe;
+// }
+// 	return NULL;
 
-}
+// }
 
 /* Growing the stack. */
 static void
@@ -493,8 +500,6 @@ vm_do_claim_page (struct page *page) {
 	page->frame = frame;
 	//printf("vm do claim page : frame swe : %p\n",frame->swe);
 	//printf("vm do claim page : page : %p\n",page);
-	page->swe = frame->swe;
-	page->swe->owner = page;
 	// printf("vm do claim page : frame swe : %p\n",frame->swe);
 	// printf("vm do claim page : page : %p\n",page);
 	//printf("#############1111##############\n");
@@ -504,6 +509,7 @@ vm_do_claim_page (struct page *page) {
 	// 페이지 테이블의 가상 주소 - 실제 주소 매핑 추가.
 	// 반환값은 작업 성공 여부.
 	struct thread *cur = thread_current();
+	list_push_back(&swap, &(frame->frame_elem));
 	if(!pml4_set_page(cur->pml4, page->va, frame->kva, page->writable)){
 		printf("vm do claim page pml4 set page fail!\n");
 		return false;

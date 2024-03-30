@@ -49,20 +49,20 @@ file_backed_swap_in (struct page *page, void *kva) {
 	// }
 
 	// return false;
-	page->frame->kva = kva;
+	//page->frame->kva = kva;
 	struct page_load_data *aux_d = (struct page_load_data *)(page->uninit.aux);
 
 	file_seek(aux_d->file, aux_d->ofs);
 
-	if(file_read(aux_d->file, page->frame->kva, aux_d->read_bytes) != (int)aux_d->read_bytes){
+	if(file_read(aux_d->file, kva, aux_d->read_bytes) != (int)aux_d->read_bytes){
 		palloc_free_page(page->frame->kva);
 	return false;
 	}
 	memset((page->frame->kva)+(aux_d->read_bytes), 0, aux_d->zero_bytes);
-	struct swap_table_entry *swe = page->swe;
+	// struct swap_table_entry *swe = page->swe;
 
-	swe->is_empty = false;
-	swe->owner = NULL;
+	// swe->is_empty = false;
+	// swe->owner = NULL;
 
 	return true;
 
@@ -88,30 +88,36 @@ file_backed_swap_out (struct page *page) {
 	if(page == NULL){
 		return false;
 	}
-	
-	int count = page->mapping_count;
-	void * addr = pg_round_down(page->va);
+
+	// int count = page->mapping_count;
+	// void * addr = pg_round_down(page->va);
 
 	
 
-	for(int i = 0; i <count; i++){
-		if(page){
-			file_backed_destroy(page);
-			addr+= PGSIZE;
-			page = spt_find_page(&thread_current()->spt, addr);
+	// for(int i = 0; i <count; i++){
+	// 	if(page){
+	// 		file_backed_destroy(page);
+	// 		addr+= PGSIZE;
+	// 		page = spt_find_page(&thread_current()->spt, addr);
 
-		}
+	// 	}
+	// }
+
+	// struct swap_table_entry *swe = page->swe;
+
+	// swe->is_empty = true;
+	// swe->owner = page;
+	
+
+	// return true;
+	struct page_load_data *aux_d = (struct page_load_data *)page->uninit.aux;
+
+	if(pml4_is_dirty(thread_current()->pml4, page->va)){
+		file_write_at(aux_d->file, page->va, aux_d->read_bytes, aux_d->ofs);
+		pml4_set_dirty(thread_current()->pml4, page->va, 0);
 	}
 
-	struct swap_table_entry *swe = page->swe;
-
-	swe->is_empty = true;
-	swe->owner = page;
-	
-
-	return true;
-
-
+	pml4_clear_page(thread_current()->pml4, page->va);
 
 }
 

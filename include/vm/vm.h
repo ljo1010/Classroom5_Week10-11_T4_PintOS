@@ -27,16 +27,6 @@ enum vm_type {
 	VM_MARKER_END = (1 << 31),
 };
 
-struct swap_table_entry {
-
-	struct list_elem swap_elem;
-	uint32_t sec_idx_start;
-	struct page *owner;
-	struct frame *frame;
-	bool is_empty;
-};
-
-
 
 #include "vm/uninit.h"
 #include "vm/anon.h"
@@ -87,7 +77,7 @@ struct page {
 struct frame {
 	void *kva;
 	struct page *page;
-	struct swe *swe;
+	struct list_elem frame_elem;
 };
 
 /* The function table for page operations.
