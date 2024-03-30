@@ -81,7 +81,7 @@ anon_swap_in (struct page *page, void *kva) {
 static bool
 anon_swap_out (struct page *page) {
 	struct anon_page *anon_page = &page->anon;
-	//printf("anon swap out 진입!\n");
+	printf("anon swap out 진입!\n");
 	disk_sector_t index = (disk_sector_t)bitmap_scan_and_flip(swap_bit,0, 8,false);
 	if(index == BITMAP_ERROR){
 		return false;
@@ -100,6 +100,7 @@ anon_swap_out (struct page *page) {
 	pml4_clear_page(anon_page->thread->pml4, page->va);
 	pml4_set_dirty(anon_page->thread->pml4, page->va, false);
 	page->frame = NULL;
+	printf("anon swap out 끝!!\n");
 	return true;
 
 }

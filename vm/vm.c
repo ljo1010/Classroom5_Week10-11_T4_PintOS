@@ -196,17 +196,43 @@ vm_get_victim (void) {
 	//printf("vm get evict 진입!\n");
 	 /* TODO: The policy for eviction is up to you. */
 	struct thread *cur = thread_current();
-	struct list_elem *e;
+	size_t swap_len = list_size(&swap);
+	struct list_elem *tmp = list_begin(&swap);
+	struct frame *tmp_frame;
+  	struct list_elem *next_tmp;
 	if(list_empty(&swap)){
 		printf("vm get victim , swap list empty!\n");
 	}
-	for(e = start;e != list_end(&swap) ;e = list_next(e)){
-		victim = list_entry(e, struct frame, frame_elem);
-		if(pml4_is_accessed(cur->pml4, victim->page->va)){
-			pml4_set_accessed(cur->pml4, victim->page->va, false);
+	for(size_t i = 0; i<swap_len ;i++){
+		tmp_frame = list_entry(tmp, struct frame, frame_elem);
+		if (pml4_is_accessed(thread_current()->pml4, tmp_frame->page->va))
+		{
+			pml4_set_accessed(thread_current()->pml4, tmp_frame->page->va, false);
+			next_tmp = list_next(tmp);
+			list_remove(tmp);
+			list_push_back(&swap, tmp);
+			tmp = next_tmp;
+			continue;
 		}
-		else
-			return victim;
+		if (victim == NULL)
+		{
+			victim = tmp_frame;
+			next_tmp = list_next(tmp);
+			list_remove(tmp);
+			tmp = next_tmp;
+			continue;
+		}
+		tmp = list_next(tmp);
+
+		// victim = list_entry(e, struct frame, frame_elem);
+		// if(pml4_is_accessed(cur->pml4, victim->page->va)){
+		// 	pml4_set_accessed(cur->pml4, victim->page->va, false);
+		// 	//printf("vm get evict pml4 is accessd!\n");
+		// }
+		// else{
+		// 	//printf("vm get victim victim : %p\n", victim);
+		// 	return victim;}
+
 		//printf("vm get evict swe : %p\n", swe);
 		//printf("vm get evict swe frame : %p\n", swe->frame);
 		// p = swe->owner;
@@ -218,7 +244,9 @@ vm_get_victim (void) {
 		// victim = swe->frame;
 		// break;
 	}
-
+	  if (victim == NULL){
+    	victim = list_entry(list_pop_front(&swap), struct frame, frame_elem);
+	  }
 	return victim;
 }
 
@@ -226,13 +254,14 @@ vm_get_victim (void) {
  * Return NULL on error.*/
 static struct frame *
 vm_evict_frame (void) {
-	struct frame *victim UNUSED = vm_get_victim ();
+	struct frame *victim = vm_get_victim ();
 	/* TODO: swap out the victim and return the evicted frame. */
 	//printf("vm evict frame 진입!\n");
 	//printf("vm evict frame : %p\n", victim);
 	//printf("vm evict frame victim page : %p\n", victim->page);
 	
 	if(!swap_out(victim->page)){
+		printf("vm evict frame swap out is fail!\n");
 		return NULL;
 	}
 	victim->page = NULL;
@@ -364,7 +393,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	struct hash *spt UNUSED = &thread_current ()->spt;
 	struct page *page = NULL;
 
-	//printf("vm try handle fault 진입\n");
+	// printf("vm try handle fault 진입\n");
 
 	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE); // 0x4747F000 USER_STACK 0x47480000
 	void *stack_max = (void *) (((uint8_t *) USER_STACK) - (1<<20)); //0x4757F000

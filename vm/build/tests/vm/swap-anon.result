@@ -47,6 +47,9 @@ Differences in `diff -u' format:
 - (swap-anon) check consistency in page 4096
 - (swap-anon) check consistency in page 4608
 - (swap-anon) end
-+ vm try handl fault not present and page == NULL!
++ anon swap out 진입!
++ anon swap out 끝!!
++ anon swap out 진입!
++ anon swap out 끝!!
 
 (Process exit codes are excluded for matching purposes.)
