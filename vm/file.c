@@ -84,8 +84,15 @@ file_backed_swap_out (struct page *page) {
 			
 	// 	}
 	// }
+
+	if(page == NULL){
+		return false;
+	}
+	
 	int count = page->mapping_count;
 	void * addr = pg_round_down(page->va);
+
+	
 
 	for(int i = 0; i <count; i++){
 		if(page){

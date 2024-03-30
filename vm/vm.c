@@ -202,7 +202,8 @@ vm_get_victim (void) {
 			continue;
 		}
 		
-		// printf("vm get evict swe : %p\n", swe);
+		printf("vm get evict swe : %p\n", swe);
+		printf("vm get evict swe frame : %p\n", swe->frame);
 		// p = swe->owner;
 		// printf("vm get evict p : %p\n", p);
 		// if(swe->is_empty == true){
@@ -223,7 +224,10 @@ vm_evict_frame (void) {
 	struct frame *victim UNUSED = vm_get_victim ();
 	/* TODO: swap out the victim and return the evicted frame. */
 	printf("vm evict frame 진입!\n");
+	printf("vm evict frame : %p\n", victim);
+	printf("vm evict frame page : %p\n", victim->page);
 	struct page *p = victim->page; 
+	printf("vm evict frame page : %p\n", p);
 	bool ret = false;
 
 	ret = (p->operations->swap_out)(p);

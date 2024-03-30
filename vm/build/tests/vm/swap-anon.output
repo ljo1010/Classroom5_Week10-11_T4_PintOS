@@ -10,7 +10,6 @@ hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM0000
 hd1:0: detected 104 sector (52 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 60,480 sector (29 MB) disk, model "QEMU HARDDISK", serial "QM00004"
 Formatting file system...done.
-vm anon init size : 60480
 Boot complete.
 Putting 'swap-anon' into the file system...
 Executing 'swap-anon':
@@ -21,36 +20,33 @@ swap anon page count : 5120
 (swap-anon) write sparsely over page 1024
 vm get frame evict victitm 진입!
 vm get evict 진입!
+vm get evict swe : 0x800423c018
+vm get evict swe frame : 0xcccccccccccccccc
 vm evict frame 진입!
-anon swap out 진입!
-anon swap out sec_idx_start : 0
-anon swap out page : 0x800442fc98
-anon swap out swap disk : 0x800422c430
-anon swap out page frame kva+(i*512) : 0x8004521000
-anon swap out page frame kva+(i*512) : 0x8004521200
-anon swap out page frame kva+(i*512) : 0x8004521400
-anon swap out page frame kva+(i*512) : 0x8004521600
-anon swap out page frame kva+(i*512) : 0x8004521800
-anon swap out page frame kva+(i*512) : 0x8004521a00
-anon swap out page frame kva+(i*512) : 0x8004521c00
-anon swap out page frame kva+(i*512) : 0x8004521e00
-vm get frame victitm 성공!
-vm get frame kva == NULL 연속!
-Kernel PANIC at ../../threads/mmu.c:242 in pml4_set_page(): assertion `is_kernel_vaddr(kpage)' failed.
-Call stack: 0x800421889a 0x800420da47 0x8004222213 0x80042220be 0x800421d6d7 0x8004209751 0x8004209b6f 0x400ccc 0x400d15 0Interrupt 0x0d (#GP General Protection Exception) at rip=80042158d4
+vm evict frame : 0xcccccccccccccccc
+Interrupt 0x0d (#GP General Protection Exception) at rip=8004221ccd
  cr2=0000000000abbda0 error=               0
-rax 0000800421ae9500 rbx 00008004282f1800 rcx 00000080040b8000 rdx 00000000000003d4
-rsp 0000008004281d60 rbp 0000008004281d70 rsi 000000000000aa0f rdi 0000000000000000
-rip 00000080042158d4 r8 0000008004281c78  r9 000000800421bd13 r10 0000000000000000
-r11 0000000000000202 r12 00008004281f1000 r13 0000800420afce00 r14 00008004281f1000
+rax cccccccccccccccc rbx 00008004280f1800 rcx 00000080040b8000 rdx 0000000000000001
+rsp 000000800427fdd0 rbp 000000800427fdf0 rsi 000000000000800f rdi 0000000000000001
+rip 0000008004221ccd r8 000000800427fce8  r9 000000800421bd13 r10 0000000000000000
+r11 0000000000000202 r12 0000800427ff1000 r13 0000800420afce00 r14 0000800427ff1000
+r15 00000000000000ff rflags 00000206
+es: 0010 ds: 0010 cs: 0008 ss: 0010
+Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x800421889a 0x800421d5e1 0x8004209751 0x8004209b6f 0x8004221d9b 0x800422226c 0x8004222197 0x800421d6f7 0x8004209751 0x8004209b6f 0x400ccc 0x400d15 0Interrupt 0x0d (#GP General Protection Exception) at rip=80042158d4
+ cr2=0000000000abbda0 error=               0
+rax 0000800421ae9500 rbx 00008004280f1800 rcx 00000080040b8000 rdx 00000000000003d4
+rsp 000000800427fc10 rbp 000000800427fc20 rsi 000000000000810f rdi 0000000000000000
+rip 00000080042158d4 r8 000000800427fb28  r9 000000800421bd13 r10 0000000000000000
+r11 0000000000000202 r12 0000800427ff1000 r13 0000800420afce00 r14 0000800427ff1000
 r15 00000000000000ff rflags 00000006
 es: 0010 ds: 0010 cs: 0008 ss: 0010
 Kernel PANIC recursion at ../../userprog/exception.c:97 in kill().
-Timer: 135 ticks
-Thread: 30 idle ticks, 38 kernel ticks, 67 user ticks
+Timer: 141 ticks
+Thread: 30 idle ticks, 35 kernel ticks, 76 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 236 writes
 hd1:0: 104 reads, 0 writes
-hd1:1: 0 reads, 8 writes
-Console: 2551 characters output
+hd1:1: 0 reads, 0 writes
+Console: 2590 characters output
 Key

@@ -9,4 +9,4 @@ vm/anon.o: ../../vm/anon.c ../../include/vm/vm.h \
  ../../include/threads/thread.h ../../include/lib/debug.h \
  ../../include/lib/kernel/list.h ../../include/threads/interrupt.h \
  ../../include/threads/synch.h ../../include/lib/kernel/bitmap.h \
- ../../include/lib/string.h
+ ../../include/lib/string.h ../../include/userprog/process.h
