@@ -6,6 +6,8 @@
 #include "lib/kernel/hash.h"
 #include "devices/disk.h"
 
+struct list swap;
+
 enum vm_type {
 	/* page not initialized */
 	VM_UNINIT = 0,

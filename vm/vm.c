@@ -11,10 +11,6 @@
 #include "kernel/bitmap.h"
 #include "devices/disk.h"
 
-
-static struct list swap;
-static struct list_elem *start;
-
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
 void
@@ -28,7 +24,6 @@ vm_init (void) {
 	/* DO NOT MODIFY UPPER LINES. */
 	/* TODO: Your code goes here. */
 	list_init(&swap);
-	start = list_begin(&swap);
 
 	// for(int i = 0; i <4096 ;i++){
 	// 	struct swap_table_entry *swe = malloc(sizeof(struct swap_table_entry));
@@ -192,37 +187,9 @@ spt_remove_page (struct hash *spt, struct page *page) {
 /* Get the struct frame, that will be evicted. */
 static struct frame *
 vm_get_victim (void) {
-	struct frame *victim = NULL;
 	//printf("vm get evict 진입!\n");
 	 /* TODO: The policy for eviction is up to you. */
-	struct thread *cur = thread_current();
-	size_t swap_len = list_size(&swap);
-	struct list_elem *tmp = list_begin(&swap);
-	struct frame *tmp_frame;
-  	struct list_elem *next_tmp;
-	if(list_empty(&swap)){
-		printf("vm get victim , swap list empty!\n");
-	}
-	for(size_t i = 0; i<swap_len ;i++){
-		tmp_frame = list_entry(tmp, struct frame, frame_elem);
-		if (pml4_is_accessed(thread_current()->pml4, tmp_frame->page->va))
-		{
-			pml4_set_accessed(thread_current()->pml4, tmp_frame->page->va, false);
-			next_tmp = list_next(tmp);
-			list_remove(tmp);
-			list_push_back(&swap, tmp);
-			tmp = next_tmp;
-			continue;
-		}
-		if (victim == NULL)
-		{
-			victim = tmp_frame;
-			next_tmp = list_next(tmp);
-			list_remove(tmp);
-			tmp = next_tmp;
-			continue;
-		}
-		tmp = list_next(tmp);
+
 
 		// victim = list_entry(e, struct frame, frame_elem);
 		// if(pml4_is_accessed(cur->pml4, victim->page->va)){
@@ -243,29 +210,51 @@ vm_get_victim (void) {
 		// }
 		// victim = swe->frame;
 		// break;
-	}
-	  if (victim == NULL){
-    	victim = list_entry(list_pop_front(&swap), struct frame, frame_elem);
-	  }
-	return victim;
+
+
+ struct frame *victim = NULL;
+  /* TODO: The policy for eviction is up to you. */
+  size_t swap_len = list_size(&swap);
+  struct list_elem *tmp = list_begin(&swap);
+  struct frame *tmp_frame;
+  struct list_elem *next_tmp;
+  for (size_t i = 0; i < swap_len; i++)
+  {
+    tmp_frame = list_entry(tmp, struct frame, frame_elem);
+    if (pml4_is_accessed(thread_current()->pml4, tmp_frame->page->va))
+    {
+      pml4_set_accessed(thread_current()->pml4, tmp_frame->page->va, false);
+      next_tmp = list_next(tmp);
+      list_remove(tmp);
+      list_push_back(&swap, tmp);
+      tmp = next_tmp;
+      continue;
+    }
+    if (victim == NULL)
+    {
+      victim = tmp_frame;
+      next_tmp = list_next(tmp);
+      list_remove(tmp);
+      tmp = next_tmp;
+      continue;
+    }
+    tmp = list_next(tmp);
+  }
+  if (victim == NULL)
+    victim = list_entry(list_pop_front(&swap), struct frame, frame_elem);
+
+  return victim;
 }
 
 /* Evict one page and return the corresponding frame.
  * Return NULL on error.*/
 static struct frame *
 vm_evict_frame (void) {
-	struct frame *victim = vm_get_victim ();
+
 	/* TODO: swap out the victim and return the evicted frame. */
 	//printf("vm evict frame 진입!\n");
 	//printf("vm evict frame : %p\n", victim);
 	//printf("vm evict frame victim page : %p\n", victim->page);
-	
-	if(!swap_out(victim->page)){
-		printf("vm evict frame swap out is fail!\n");
-		return NULL;
-	}
-	victim->page = NULL;
-	memset(victim->kva, 0, PGSIZE);
 	// struct page *p = victim->page; 
 	// //printf("vm evict frame page : %p\n", p);
 	// bool ret = false;
@@ -274,6 +263,14 @@ vm_evict_frame (void) {
 	// if(ret == false){
 	// 	return NULL;
 	// }
+
+	struct frame *victim = vm_get_victim();
+  /* TODO: swap out the victim and return the evicted frame. */
+  if (!swap_out(victim->page))
+    return NULL;
+
+  	victim->page = NULL;
+  	memset(victim->kva, 0, PGSIZE);
 
 	return victim;
 }
@@ -287,8 +284,7 @@ vm_get_frame (void) {
 	struct frame *frame = NULL;
 	/* TODO: Fill this function. */
 
-	void *kva = palloc_get_page(PAL_USER); // USER 선언 안 하면 커널에서 가져오는것.
-	if(kva == NULL){
+
 		// PANIC("todo!");
 		//printf("vm get frame evict victitm 진입!\n");
 		// frame = vm_evict_frame();
@@ -300,18 +296,11 @@ vm_get_frame (void) {
 		// if(kva == NULL){
 		// 	printf("vm get frame kva == NULL 연속!\n");
 		// }
-		return vm_evict_frame();
 
-	}
-	frame = (struct frame *)malloc(sizeof(struct frame));
-	frame->kva = kva;
 	// list_push_back(&swap, &frame->frame_elem);
-	frame->page = NULL;
 
 
 		//printf("vm get frame swap table entry :%p\n", swe);
-
-
 
 	// frame->swt = swe;
 
@@ -322,9 +311,20 @@ vm_get_frame (void) {
 	// 항상 유효한 주소를 반환할 것.
 	// 즉, 사용자 메모리가 가득 차면 프레임을 제거하여 사용 가능한 메모리 공간 확보.
 
-	ASSERT (frame != NULL);
-	ASSERT (frame->page == NULL);
 	//printf("vm get frame 성공!\n");
+	/* TODO: Fill this function. */
+	void *pg_ptr = palloc_get_page(PAL_USER);
+	if (pg_ptr == NULL)
+	{
+		return vm_evict_frame();
+	}
+
+	frame = (struct frame *)malloc(sizeof(struct frame));
+	frame->kva = pg_ptr;
+	frame->page = NULL;
+
+	ASSERT(frame != NULL);
+	ASSERT(frame->page == NULL);
 	return frame;
 }
 

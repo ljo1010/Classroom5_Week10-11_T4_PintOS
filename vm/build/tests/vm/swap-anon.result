@@ -1,55 +1,35 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (swap-anon) begin
-  (swap-anon) write sparsely over page 0
-  (swap-anon) write sparsely over page 512
-  (swap-anon) write sparsely over page 1024
-  (swap-anon) write sparsely over page 1536
-  (swap-anon) write sparsely over page 2048
-  (swap-anon) write sparsely over page 2560
-  (swap-anon) write sparsely over page 3072
-  (swap-anon) write sparsely over page 3584
-  (swap-anon) write sparsely over page 4096
-  (swap-anon) write sparsely over page 4608
-  (swap-anon) check consistency in page 0
-  (swap-anon) check consistency in page 512
-  (swap-anon) check consistency in page 1024
-  (swap-anon) check consistency in page 1536
-  (swap-anon) check consistency in page 2048
-  (swap-anon) check consistency in page 2560
-  (swap-anon) check consistency in page 3072
-  (swap-anon) check consistency in page 3584
-  (swap-anon) check consistency in page 4096
-  (swap-anon) check consistency in page 4608
-  (swap-anon) end
-Differences in `diff -u' format:
-  (swap-anon) begin
-  (swap-anon) write sparsely over page 0
-  (swap-anon) write sparsely over page 512
-  (swap-anon) write sparsely over page 1024
-- (swap-anon) write sparsely over page 1536
-- (swap-anon) write sparsely over page 2048
-- (swap-anon) write sparsely over page 2560
-- (swap-anon) write sparsely over page 3072
-- (swap-anon) write sparsely over page 3584
-- (swap-anon) write sparsely over page 4096
-- (swap-anon) write sparsely over page 4608
-- (swap-anon) check consistency in page 0
-- (swap-anon) check consistency in page 512
-- (swap-anon) check consistency in page 1024
-- (swap-anon) check consistency in page 1536
-- (swap-anon) check consistency in page 2048
-- (swap-anon) check consistency in page 2560
-- (swap-anon) check consistency in page 3072
-- (swap-anon) check consistency in page 3584
-- (swap-anon) check consistency in page 4096
-- (swap-anon) check consistency in page 4608
-- (swap-anon) end
-+ anon swap out 진입!
-+ anon swap out 끝!!
-+ anon swap out 진입!
-+ anon swap out 끝!!
-
-(Process exit codes are excluded for matching purposes.)
+Kernel panic in run: PANIC at ../../threads/thread.c:342 in thread_current(): assertion `is_thread (t)' failed.
+Call stack: 0x800421889a 0x800420714b 0x800420afa8 0x800420c597 0x8004221a1b 0x8004221fd8 0x800421d6f7 0x8004209751 0x8004209b6f 0x8004221fd8 0x800421d6f7 0x8004209751 0x8004209b6f 0x8004221fd8 0x800421d6f7 0x8004209751 0x8004209b6f 0x8004221fd8 0x800421d6f7 0x8004209751 0x8004209b6f 0x8004221fd8 0x800421d6f7 0x8004209751 0x8004209b6f 0x8004221fd8 0x800421d6f7 0x8004209751 0x8004209b6f 0x400cac 0x400cf5
+Translation of call stack:
+0x000000800421889a: debug_panic (lib/kernel/debug.c:32)
+0x000000800420714b: thread_current (threads/thread.c:343)
+0x000000800420afa8: lock_release (threads/synch.c:269)
+0x000000800420c597: malloc (threads/malloc.c:125)
+0x0000008004221a1b: spt_find_page (vm/vm.c:118)
+0x0000008004221fd8: vm_try_handle_fault (vm/vm.c:438)
+0x000000800421d6f7: page_fault (userprog/exception.c:152)
+0x0000008004209751: intr_handler (threads/interrupt.c:352)
+0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)
+0x0000008004221fd8: vm_try_handle_fault (vm/vm.c:438)
+0x000000800421d6f7: page_fault (userprog/exception.c:152)
+0x0000008004209751: intr_handler (threads/interrupt.c:352)
+0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)
+0x0000008004221fd8: vm_try_handle_fault (vm/vm.c:438)
+0x000000800421d6f7: page_fault (userprog/exception.c:152)
+0x0000008004209751: intr_handler (threads/interrupt.c:352)
+0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)
+0x0000008004221fd8: vm_try_handle_fault (vm/vm.c:438)
+0x000000800421d6f7: page_fault (userprog/exception.c:152)
+0x0000008004209751: intr_handler (threads/interrupt.c:352)
+0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)
+0x0000008004221fd8: vm_try_handle_fault (vm/vm.c:438)
+0x000000800421d6f7: page_fault (userprog/exception.c:152)
+0x0000008004209751: intr_handler (threads/interrupt.c:352)
+0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)
+0x0000008004221fd8: vm_try_handle_fault (vm/vm.c:438)
+0x000000800421d6f7: page_fault (userprog/exception.c:152)
+0x0000008004209751: intr_handler (threads/interrupt.c:352)
+0x0000008004209b6f: intr_entry (threads/intr-stubs.o:?)
+0x0000000000400cac: (unknown)
+0x0000000000400cf5: (unknown)

@@ -5,7 +5,7 @@ struct page;
 enum vm_type;
 
 struct anon_page {
-    uint32_t swap_index;
+    disk_sector_t swap_index;
     struct thread *thread;
 };
 

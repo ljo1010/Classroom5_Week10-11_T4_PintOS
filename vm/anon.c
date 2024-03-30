@@ -27,9 +27,8 @@ static const struct page_operations anon_ops = {
 void
 vm_anon_init (void) {
 	/* TODO: Set up the swap_disk. */
-	swap_disk = disk_get(1,1);
-	//printf("vm anon init size : %u\n", size);
-	swap_bit = bitmap_create((size_t)disk_size(swap_disk));
+    swap_disk = disk_get(1, 1);
+    swap_bit = bitmap_create((size_t)disk_size(swap_disk));
 	// bitmap_set_all(swap_bit,true);
 
 }
@@ -54,54 +53,53 @@ anon_initializer (struct page *page, enum vm_type type, void *kva) {
 static bool
 anon_swap_in (struct page *page, void *kva) {
 	//printf("anon swap in 진입!\n");
-	struct anon_page *anon_page = &page->anon;
+	  struct anon_page *anon_page = &page->anon;
+
+    if (anon_page->swap_index == SIZE_MAX)
+        return false;
+
+ 
+    bool check = bitmap_contains(swap_bit, anon_page->swap_index, 8, false);
+    if (check)
+    {
+        return false;
+    }
+
+    for (int i = 0; i < 8; i++)
+    {
+        disk_read(swap_disk, anon_page->swap_index + i, kva + i * DISK_SECTOR_SIZE);
+    }
+
+    bitmap_set_multiple(swap_bit, anon_page->swap_index, 8, false);
 
 
-	if(anon_page->swap_index == UINT32_MAX){
-		return false;
-	}
-
-	uint32_t sector_start = anon_page->swap_index;
-
-	if(!bitmap_contains(swap_bit, anon_page->swap_index, 8, false)){
-		return false;
-	}
-
-	for(int i = 0 ; i <8 ; ++i){
-		disk_read(swap_disk,anon_page->swap_index+i, kva+(i*512));
-	}
-
-	bitmap_set_multiple(swap_bit, sector_start,8,false);
-
-	return true;
+    return true;
 
 }
 
 /* Swap out the page by writing contents to the swap disk. */
 static bool
 anon_swap_out (struct page *page) {
-	struct anon_page *anon_page = &page->anon;
-	printf("anon swap out 진입!\n");
-	disk_sector_t index = (disk_sector_t)bitmap_scan_and_flip(swap_bit,0, 8,false);
-	if(index == BITMAP_ERROR){
-		return false;
-	}
-	// struct swap_table_entry *swe = page->swe;
-	// //printf("anon swap out sec_idx_start : %d\n", index);
-	// swe->sec_idx_start = index;
-	//printf("anon swap out page : %p\n", page);
-	//printf("anon swap out swap disk : %p\n", swap_disk);
-	anon_page->swap_index = index;
-	for(int i = 0 ; i <8 ; ++i){
-		disk_write(swap_disk, index+i, page->frame->kva +(i * 512));
-		//printf("anon swap out page frame kva+(i*512) : %p\n",  page->frame->kva +(i * 512));
-		
-	}
-	pml4_clear_page(anon_page->thread->pml4, page->va);
-	pml4_set_dirty(anon_page->thread->pml4, page->va, false);
-	page->frame = NULL;
-	printf("anon swap out 끝!!\n");
-	return true;
+	//printf("anon swap out 진입!\n");
+	 struct anon_page *anon_page = &page->anon;
+ 
+    disk_sector_t sec_no = (disk_sector_t)bitmap_scan_and_flip(swap_bit, 0, 8, false);
+
+    if (sec_no == BITMAP_ERROR)
+        return false;
+
+    anon_page->swap_index = sec_no;
+
+    for (int i = 0; i < 8; i++)
+    {
+        disk_write(swap_disk, sec_no + i, page->frame->kva + i * DISK_SECTOR_SIZE);
+    }
+
+    pml4_clear_page(anon_page->thread->pml4, page->va);
+    pml4_set_dirty(anon_page->thread->pml4, page->va, false);
+    page->frame = NULL;
+	//printf("anon swap out 끝!!\n");
+    return true;
 
 }
 
@@ -115,13 +113,21 @@ anon_destroy (struct page *page) {
 	// printf("anon destroy page uninit :%p\n", page->uninit);
 	
 	// free((struct page_load_data*)page->uninit.aux);
+    if (page->frame != NULL)
+    {
+        // printf("anon_destroy: %s\n", thread_current()->name);
+        // printf("remove: %p, kva:%p\n", page->va, page->frame->kva);
+        // printf("list_size: %d, list: %p\n", list_size(&lru), &lru);
 
-	if(page->frame != NULL){
-		list_remove(&page->frame->frame_elem);
-		free(page->frame);
-	}
 
-	if(anon_page->swap_index != UINT32_MAX){
-		bitmap_set_multiple(swap_bit, anon_page->swap_index, 8, false);
-	}
+        list_remove(&page->frame->frame_elem);
+ 
+
+        // printf("anon_destroy: list: %p\n", &lru);
+
+        // pte write bit 1 -> free
+        free(page->frame);
+    }
+    if (anon_page->swap_index != SIZE_MAX)
+        bitmap_set_multiple(swap_bit, anon_page->swap_index, 8, false);
 }
