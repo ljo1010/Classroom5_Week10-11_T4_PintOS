@@ -24,7 +24,7 @@ vm_init (void) {
 	/* DO NOT MODIFY UPPER LINES. */
 	/* TODO: Your code goes here. */
 	list_init(&swap);
-
+	lock_init(&swap_lock);
 	// for(int i = 0; i <4096 ;i++){
 	// 	struct swap_table_entry *swe = malloc(sizeof(struct swap_table_entry));
 	// 	swe->is_empty = false;
@@ -214,6 +214,7 @@ vm_get_victim (void) {
 
  struct frame *victim = NULL;
   /* TODO: The policy for eviction is up to you. */
+  lock_acquire(&swap_lock);
   size_t swap_len = list_size(&swap);
   struct list_elem *tmp = list_begin(&swap);
   struct frame *tmp_frame;
@@ -242,7 +243,7 @@ vm_get_victim (void) {
   }
   if (victim == NULL)
     victim = list_entry(list_pop_front(&swap), struct frame, frame_elem);
-
+  lock_release(&swap_lock);
   return victim;
 }
 
@@ -400,11 +401,11 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	uintptr_t rsp;
 	//printf(" vm try handle fault addr : %p\n", addr);
 	if(addr == NULL){
-		printf("vm try handle fault addr == NULL!\n");
+		//printf("vm try handle fault addr == NULL!\n");
 		return false;
 	}
 	if(is_kernel_vaddr(addr)){
-		printf("vm try handl fault kernel vaddr!\n");
+		//printf("vm try handl fault kernel vaddr!\n");
 		return false;
 	}
 	////printf("vm try handl fault thread current cur rsp : %p\n",thread_current()->cur_rsp);
@@ -449,11 +450,11 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		// }	
 		if(page == NULL){
 			
-			printf("vm try handl fault not present and page == NULL!\n");
+			//printf("vm try handl fault not present and page == NULL!\n");
 			return false;
 		}
 		if(write == true && page->writable == false){
-			printf("vm try handl fault not present and write none!\n");
+			//printf("vm try handl fault not present and write none!\n");
 			return false;
 		}
 
@@ -538,7 +539,9 @@ vm_do_claim_page (struct page *page) {
 	// 페이지 테이블의 가상 주소 - 실제 주소 매핑 추가.
 	// 반환값은 작업 성공 여부.
 	struct thread *cur = thread_current();
+	lock_acquire(&swap_lock);
 	list_push_back(&swap, &(frame->frame_elem));
+	lock_release(&swap_lock);
 	if(!pml4_set_page(cur->pml4, page->va, frame->kva, page->writable)){
 		printf("vm do claim page pml4 set page fail!\n");
 		return false;

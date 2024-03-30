@@ -7,6 +7,7 @@
 #include "devices/disk.h"
 
 struct list swap;
+struct lock swap_lock;
 
 enum vm_type {
 	/* page not initialized */

@@ -8,6 +8,10 @@
 #include "userprog/process.h"
 
 static struct bitmap *swap_bit;
+static struct lock bitmap_lock;
+
+extern struct list swap;
+extern struct lock swap_lock;
 
 /* DO NOT MODIFY BELOW LINE */
 static struct disk *swap_disk;
@@ -29,7 +33,7 @@ vm_anon_init (void) {
 	/* TODO: Set up the swap_disk. */
     swap_disk = disk_get(1, 1);
     swap_bit = bitmap_create((size_t)disk_size(swap_disk));
-	// bitmap_set_all(swap_bit,true);
+	lock_init(&bitmap_lock);
 
 }
 
@@ -58,8 +62,9 @@ anon_swap_in (struct page *page, void *kva) {
     if (anon_page->swap_index == SIZE_MAX)
         return false;
 
- 
+	lock_acquire(&bitmap_lock);
     bool check = bitmap_contains(swap_bit, anon_page->swap_index, 8, false);
+	lock_release(&bitmap_lock);
     if (check)
     {
         return false;
@@ -69,9 +74,10 @@ anon_swap_in (struct page *page, void *kva) {
     {
         disk_read(swap_disk, anon_page->swap_index + i, kva + i * DISK_SECTOR_SIZE);
     }
-
+	lock_acquire(&bitmap_lock);
     bitmap_set_multiple(swap_bit, anon_page->swap_index, 8, false);
-
+	lock_release(&bitmap_lock);
+	printf("anon swap in!\n");
 
     return true;
 
@@ -82,9 +88,9 @@ static bool
 anon_swap_out (struct page *page) {
 	//printf("anon swap out 진입!\n");
 	 struct anon_page *anon_page = &page->anon;
- 
+	lock_acquire(&bitmap_lock);
     disk_sector_t sec_no = (disk_sector_t)bitmap_scan_and_flip(swap_bit, 0, 8, false);
-
+	lock_release(&bitmap_lock);
     if (sec_no == BITMAP_ERROR)
         return false;
 
@@ -119,9 +125,9 @@ anon_destroy (struct page *page) {
         // printf("remove: %p, kva:%p\n", page->va, page->frame->kva);
         // printf("list_size: %d, list: %p\n", list_size(&lru), &lru);
 
-
+		lock_acquire(&swap_lock);
         list_remove(&page->frame->frame_elem);
- 
+		lock_release(&swap_lock);
 
         // printf("anon_destroy: list: %p\n", &lru);
 
