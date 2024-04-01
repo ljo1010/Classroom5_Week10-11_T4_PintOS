@@ -434,7 +434,10 @@ thread_preemption_priority(void) {
 	struct thread *first_ready_thread = list_entry(list_begin(&ready_list), struct thread, elem);
 	
 	if(first_ready_thread->priority > curr_thread->priority)
-		thread_yield();
+		{
+		if(!intr_context())
+			thread_yield();
+		}
 	
 	intr_set_level(old_level);
 }

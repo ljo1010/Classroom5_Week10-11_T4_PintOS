@@ -184,8 +184,8 @@ void exit(int status)
 
 bool create(const char *file, unsigned inital_size)
 {
-	check_address(file);
 	lock_acquire(&filesys_lock);
+	check_address(file);
 	bool success = filesys_create(file, inital_size);
 	lock_release(&filesys_lock);
 	return success;
@@ -200,15 +200,19 @@ bool remove(const char *file)
 int open(const char *file_name)
 {
 	check_address(file_name);
+	lock_acquire(&filesys_lock);
 	struct file *file = filesys_open(file_name);
 
 	if (file == NULL)
+	{
+		lock_release(&filesys_lock);
 		return -1;
+	}
 
 	int fd = process_add_file(file);
 	if (fd == -1)
 		file_close(file);
-
+	lock_release(&filesys_lock);
 	return fd;
 }
 
@@ -226,8 +230,7 @@ int filesize(int fd)
 
 void seek(int fd, unsigned position)
 {
-	if(fd<2)
-		return;
+	
 	struct file *file = process_get_file(fd);
 	if (file == NULL)
 		return;
@@ -236,8 +239,7 @@ void seek(int fd, unsigned position)
 
 unsigned tell(int fd)
 {
-	if(fd<2)
-		return;
+	
 	struct file *file = process_get_file(fd);
 	if(file == NULL)
 		return;
@@ -261,27 +263,37 @@ int read(int fd, void *buffer, unsigned size)
 	char *ptr = (char *)buffer;
 	int bytes_read = 0;
 
-	// lock_acquire(&filesys_lock);
+	lock_acquire(&filesys_lock);
 	if (fd == STDIN_FILENO)
 	{
 		for (int i = 0; i < size; i++)
 		{
-			char ch = input_getc();
-			if (ch == '\n')
-				break;
-			*ptr = ch;
-			ptr++;
+			*ptr++ = input_getc();
 			bytes_read++;
 		}
+		lock_release(&filesys_lock);
 	}
 	else
 	{
 		if (fd < 2)
+		{
+
+			lock_release(&filesys_lock);
 			return -1;
+		}
 		struct file *file = process_get_file(fd);
 		if (file == NULL)
+		{
+
+			lock_release(&filesys_lock);
 			return -1;
-		lock_acquire(&filesys_lock);
+		}
+		struct page *page = spt_find_page(&thread_current()->spt, buffer);
+		if (page && !page->writable)
+		{
+			lock_release(&filesys_lock);
+			exit(-1);
+		}
 		bytes_read = file_read(file, buffer, size);
 		lock_release(&filesys_lock);
 	}
