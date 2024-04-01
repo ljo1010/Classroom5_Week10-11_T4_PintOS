@@ -20,13 +20,16 @@ vm_init (void) {
 	register_inspect_intr ();
 	/* DO NOT MODIFY UPPER LINES. */
 	/* TODO: Your code goes here. */
+	list_init(&frame_table);
+	lock_init(&frame_table_lock);
 }
 
 /* Get the type of the page. This function is useful if you want to know the
  * type of the page after it will be initialized.
  * This function is fully implemented now. */
 enum vm_type
-page_get_type (struct page *page) {
+page_get_type (struct page *page) 
+{
 	int ty = VM_TYPE (page->operations->type);
 	switch (ty) 
 	{
@@ -44,8 +47,8 @@ static struct frame *vm_evict_frame (void);
 
 
 
-unsigned hash_page(const struct hash_elem *p_, void *aux);
-bool hash_less(const struct hash_elem *a_, const struct hash_elem *b_, void *aux UNUSED);
+// unsigned hash_page(const struct hash_elem *p_, void *aux);
+// bool hash_less(const struct hash_elem *a_, const struct hash_elem *b_, void *aux UNUSED);
 
 
 /* Create the pending page object with initializer. If you want to create a
@@ -115,20 +118,14 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 bool
 spt_insert_page (struct supplemental_page_table *spt UNUSED,
 		struct page *page UNUSED) {
-	int succ = false;
 	/* TODO: Fill this function. */
-	if(hash_insert(&spt->spt_table, &page->hash_elem) == NULL)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return hash_insert(&spt->spt_table, &page->hash_elem) == NULL ? true : false;
 }
 
 void
 spt_remove_page (struct supplemental_page_table *spt, struct page *page) {
+	
+	hash_delete(&spt->spt_table, &page->hash_elem);
 	vm_dealloc_page (page);
 	return true;
 }
@@ -138,7 +135,27 @@ static struct frame *
 vm_get_victim (void) {
 	struct frame *victim = NULL;
 	 /* TODO: The policy for eviction is up to you. */
+	struct thread *curr = thread_current();
 
+	lock_acquire(&frame_table_lock);
+	struct list_elem *start = list_begin(&frame_table);
+	for (start; start != list_end(&frame_table); start = list_next(start))
+	{
+		victim = list_entry(start, struct frame, frame_elem);
+		if (victim->page == NULL) // frame에 할당된 페이지가 없는 경우 (page가 destroy된 경우 )
+		{
+			lock_release(&frame_table_lock);
+			return victim;
+		}
+		if (pml4_is_accessed(curr->pml4, victim->page->va))
+			pml4_set_accessed(curr->pml4, victim->page->va, 0);
+		else
+		{
+			lock_release(&frame_table_lock);
+			return victim;
+		}
+	}
+	lock_release(&frame_table_lock);
 	return victim;
 }
 
@@ -148,8 +165,9 @@ static struct frame *
 vm_evict_frame (void) {
 	struct frame *victim UNUSED = vm_get_victim ();
 	/* TODO: swap out the victim and return the evicted frame. */
-
-	return NULL;
+	if(victim->page)
+		swap_out(victim->page);
+	return victim;
 }
 
 /* palloc() and get frame. If there is no available page, evict the page
@@ -163,12 +181,19 @@ vm_get_frame (void) {
 	void *kva = palloc_get_page(PAL_USER);
 
 	if(kva == NULL)
-		PANIC("todo");
+	{
+		struct frame *victim = vm_evict_frame();
+		victim->page = NULL;
+		return victim;
+	}
 
 	frame = (struct frame *)malloc(sizeof(struct frame));
 	frame->kva = kva;
 	frame->page = NULL;
 
+	lock_acquire(&frame_table_lock);
+	list_push_back(&frame_table, &frame->frame_elem);
+	lock_release(&frame_table_lock);
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
 	return frame;
@@ -207,6 +232,10 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	/*USER_STACK - (1<<20) <= rsp <= addr <= USER_STACK
 	  */
 	if(addr == NULL)
+	{
+		return false;
+	}
+	if(is_kernel_vaddr(addr))
 	{
 		return false;
 	}
@@ -340,7 +369,7 @@ bool supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED, s
             continue;
         }
 		
-		if(!vm_alloc_page_with_initializer(type, upage, writable, NULL, NULL))
+		if(!vm_alloc_page(type, upage, writable))
 		{
 			return false;
 		}
@@ -360,10 +389,10 @@ void supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED)
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
 
-	hash_clear(&spt->spt_table, hash_destory_page);
+	hash_clear(&spt->spt_table, hash_page_destory);
 }
 
-void hash_destory_page(struct hash_elem *e, void *aux)
+void hash_page_destory(struct hash_elem *e, void *aux)
 {
 	struct page *page = hash_entry(e, struct page, hash_elem);
 

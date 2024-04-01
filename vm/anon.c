@@ -120,7 +120,7 @@ anon_swap_out (struct page *page)
 		}
 	}
 	lock_release(&swap_table_lock);
-	PANIC("스왑공간이 없음.");
+	PANIC("there`s no swap page");
 }
 
 /* Destroy the anonymous page. PAGE will be freed by the caller. */

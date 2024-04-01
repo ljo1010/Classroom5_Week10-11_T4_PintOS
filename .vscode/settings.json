@@ -19,6 +19,7 @@
         "inspect.h": "c",
         "input.h": "c",
         "bitmap.h": "c",
-        "list.h": "c"
+        "list.h": "c",
+        "disk.h": "c"
     }
 }
