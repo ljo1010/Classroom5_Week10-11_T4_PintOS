@@ -104,7 +104,7 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 			//printf("vm alloc with initializer insert 실패\n");
 			return false;
 		}
-		printf("vm allco page with initializer 완료!\n");
+		//printf("vm allco page with initializer 완료!\n");
 		return true;
 	}
 	//////printf("vm alloc page with initializer spt find not null\n");
@@ -222,11 +222,14 @@ vm_get_victim (void) {
   struct list_elem *tmp = list_begin(&swap);
   struct frame *tmp_frame;
   struct list_elem *next_tmp;
+  //printf("vm get victim swap_len : %d\n", swap_len);
   for (size_t i = 0; i < swap_len; i++)
   {
+	printf("vm get victim i : %d\n", i);
     tmp_frame = list_entry(tmp, struct frame, frame_elem);
     if (pml4_is_accessed(thread_current()->pml4, tmp_frame->page->va))
     {
+	printf("accessed! : vm get victim tmp frame : %p\n", tmp_frame);
       pml4_set_accessed(thread_current()->pml4, tmp_frame->page->va, false);
       next_tmp = list_next(tmp);
       list_remove(tmp);
@@ -236,6 +239,7 @@ vm_get_victim (void) {
     }
     if (victim == NULL)
     {
+	//printf("not accessed! : vm get victim tmp frame : %p\n", tmp_frame);
       victim = tmp_frame;
       next_tmp = list_next(tmp);
       list_remove(tmp);
@@ -526,7 +530,7 @@ vm_claim_page (void *va UNUSED) {
 static bool
 vm_do_claim_page (struct page *page) {
 	struct frame *frame = vm_get_frame ();
-	printf("vm do claim page 진입\n");
+	//printf("vm do claim page 진입\n");
 	/* Set links */
 	//printf("vm do claim page  page:%p\n", page);
 	//printf("vm do claim page  frame:%p\n", frame);
@@ -552,11 +556,11 @@ vm_do_claim_page (struct page *page) {
 		return false;
 	}
 
-	printf("##############2222#############\n");
-	printf("vm do claim page  page:%p\n", page);
-	printf("vm do claim page frame kva : %p\n", frame->kva);
+	//printf("##############2222#############\n");
+	//printf("vm do claim page  page:%p\n", page);
+	//printf("vm do claim page frame kva : %p\n", frame->kva);
 	
-	printf("vm do claim page swap in :%p\n", page->operations->swap_in);
+	//printf("vm do claim page swap in :%p\n", page->operations->swap_in);
 	return swap_in (page, frame->kva);
 }
 
@@ -574,37 +578,37 @@ bool
 spt_hash_copy (struct hash *dst UNUSED,
 		struct hash *src UNUSED) {
 	
-	printf("spt hash copy 진입\n");
+	//printf("spt hash copy 진입\n");
 	struct hash_iterator i;
 	hash_first(&i, src);
 	while(hash_next(&i)){
-		printf("spt hash copy while hash next 도는중...\n");
+		//printf("spt hash copy while hash next 도는중...\n");
 		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
-		printf("spt hash copy type :%p\n", p->operations->type);
-		printf("spt hash copy page p :%p\n", p);
+		//printf("spt hash copy type :%p\n", p->operations->type);
+		//printf("spt hash copy page p :%p\n", p);
 		switch (VM_TYPE(p->operations->type))
 		{
 		case VM_UNINIT:
-			printf("spt hash copy VM_UNINIT\n");
+			//printf("spt hash copy VM_UNINIT\n");
 			if(!vm_alloc_page_with_initializer(p->uninit.type, p->va, p->writable, p->uninit.init,p->uninit.aux)){
-				printf("default vm claim page VM_UNINIT is error!!\n");
+				//printf("default vm claim page VM_UNINIT is error!!\n");
 				return false;
 			}
 			break;
 		default:
-			printf("spt hash copy default\n");
+			//printf("spt hash copy default\n");
 			if(vm_alloc_page(p->operations->type, p->va, p->writable)){
 				if(!vm_claim_page(p->va)){
-					printf("default vm claim page Default is error!!\n");
+					//printf("default vm claim page Default is error!!\n");
 					return false;
 				}
-				printf("spt hash copy vm claim page succ!\n");
+				//printf("spt hash copy vm claim page succ!\n");
 			}
 			break;
 		}
 		if(p->operations->type != VM_UNINIT){
 			struct page *k;
-			printf("spt hash copy dst : %p\n", dst);
+			//printf("spt hash copy dst : %p\n", dst);
 			k = spt_find_page(dst, p->va);
 			////printf("spt hash copy page k :%p\n");
 			// if(k == NULL){

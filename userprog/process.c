@@ -68,13 +68,13 @@ process_create_initd (const char *file_name) {
         return TID_ERROR; // 파일 이름이 존재하지 않는 경우
 		}
 
-	//printf("process_create_initd thread create 직전\n");
+	////printf("process_create_initd thread create 직전\n");
 	/* Create a new thread to execute FILE_NAME. */
 	tid = thread_create (f_name, PRI_DEFAULT, initd, fn_copy); // file_name ->token
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
 
-	//printf("process_create_initd return 직전\n");
+	////printf("process_create_initd return 직전\n");
 
 	return tid;
 }
@@ -83,7 +83,7 @@ process_create_initd (const char *file_name) {
 static void
 initd (void *f_name) {
 #ifdef VM
-	//printf("initd\n");
+	////printf("initd\n");
 	spt_hash_init (&thread_current ()->spt);
 #endif
 
@@ -112,15 +112,15 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	
 	struct thread *child = get_child_process(tid);
 
-	printf("process fork child : %p\n", child);
-	printf("process fork child fork_wait : %p\n", child->fork_wait);
+	//printf("process fork child : %p\n", child);
+	//printf("process fork child fork_wait : %p\n", child->fork_wait);
 	sema_down(&child->fork_wait);
 
 	if(child->exit_status == -1){
-		// printf("process fork child exit status is -1\n");
+		// //printf("process fork child exit status is -1\n");
 		return TID_ERROR;
 	}
-	printf("process fork 거의 완료!\n");
+	//printf("process fork 거의 완료!\n");
 	return tid;
 }
 
@@ -177,11 +177,11 @@ __do_fork (void *aux) {
 	bool succ = true;
 	parent_if = &parent->parent_if;
 
-	printf("do fork 진입\n");
+	//printf("do fork 진입\n");
 	/* 1. Read the cpu context to local stack. */
 	memcpy (&if_, parent_if, sizeof (struct intr_frame));
 	if_.R.rax = 0;
-	printf("do fork memcpy 이후\n");
+	//printf("do fork memcpy 이후\n");
 	/* 2. Duplicate PT */
 	current->pml4 = pml4_create();
 	if (current->pml4 == NULL){
@@ -189,28 +189,28 @@ __do_fork (void *aux) {
 
 	}
 	
-	printf("do fork pml4 create 이후\n");
+	//printf("do fork pml4 create 이후\n");
 	process_activate (current);
-	printf("do fork process activate 이후\n");
+	//printf("do fork process activate 이후\n");
 #ifdef VM
 	spt_hash_init (&current->spt);
-	printf("do fork hash init 이후\n");
+	//printf("do fork hash init 이후\n");
 	if (!spt_hash_copy (&current->spt, &parent->spt))
 		goto error;
-	printf("do fork hash copy 이후\n");
+	//printf("do fork hash copy 이후\n");
 #else
 	if (!pml4_for_each (parent->pml4, duplicate_pte, parent)){
 
 		goto error;}
 
 #endif
-	// printf("do fork file duplicate\n");
+	// //printf("do fork file duplicate\n");
 	for (int i = 0; i < 64; i++)
     {
         struct file *file = parent->fdt[i];
-		// printf("do fork file duplicate file exist\n");
-		// //printf("do_fork file : %p\n", file);
-		// //printf("do_fork i : %d\n", i);
+		// //printf("do fork file duplicate file exist\n");
+		// ////printf("do_fork file : %p\n", file);
+		// ////printf("do_fork i : %d\n", i);
         if (file == NULL)
             continue;
         struct file *new_file;
@@ -226,17 +226,17 @@ __do_fork (void *aux) {
         current->fdt[i] = new_file;
     }
 	current->next_fd = parent->next_fd;
-	//printf("do fork file duplicate complete\n");
+	////printf("do fork file duplicate complete\n");
 	sema_up(&current->fork_wait);
 	process_init ();
-	//printf("do fork file process init complete\n");
+	////printf("do fork file process init complete\n");
 	/* Finally, switch to the newly created process. */
 	if (succ)
 		do_iret (&if_);
 error:
 	succ = false;
 	sema_up(&current->fork_wait);
-	printf("do fork is error!\n");
+	//printf("do fork is error!\n");
 	exit(-1);
 }
 
@@ -270,7 +270,7 @@ process_exec (void *f_name) {
 
 	for(f_buf = strtok_r(full_f_name_buf," ", &save_ptr); f_buf != NULL;f_buf = strtok_r(NULL, " ", &save_ptr)){
 		strlcpy(f_name_arg, f_buf, sizeof(f_name_arg));
-		// //printf("process exec f_name_arg :%s\n", f_name_arg);
+		// ////printf("process exec f_name_arg :%s\n", f_name_arg);
 		count++;
 	}// arg 갯수 세기
 
@@ -293,7 +293,7 @@ process_exec (void *f_name) {
 	_if.R.rsi = _if.rsp+8;
 
 	thread_current()->cur_rsp = _if.rsp;
-	//printf("process exec 거의 완료, argument passing 까지.\n");
+	////printf("process exec 거의 완료, argument passing 까지.\n");
 	// hex_dump(_if.rsp, _if.rsp, USER_STACK - (uint64_t)_if.rsp, true); 
 
 	/* Start switched process. */
@@ -341,7 +341,7 @@ argument_passing(char *file_name,int count,void **rsp){
 			(*rsp)--;
 			**(uint8_t**)rsp = 0;
 		} // 패딩용, uin8_t만큼 움직이자.
-		// //printf("argument passing padding : %d\n", padding);
+		// ////printf("argument passing padding : %d\n", padding);
 
 	}
 	// align 용으로 8칸을 비워놓기 위함.
@@ -384,7 +384,7 @@ process_wait (tid_t child_tid) {
 
 	sema_down(&child->wait);
 	int exit_status = child->exit_status;
-	// //printf("process wait child exit status : %d\n", exit_status);
+	// ////printf("process wait child exit status : %d\n", exit_status);
 	list_remove(&child->child_elem);
 	sema_up(&child->free_wait);
 	return exit_status;
@@ -589,7 +589,7 @@ load (const char *file_name, struct intr_frame *if_) {
 			case PT_SHLIB:
 				goto done;
 			case PT_LOAD:
-				//printf("load PT_LOAD case\n");
+				////printf("load PT_LOAD case\n");
 				if (validate_segment (&phdr, file)) {
 					bool writable = (phdr.p_flags & PF_W) != 0;
 					uint64_t file_page = phdr.p_offset & ~PGMASK;
@@ -617,19 +617,19 @@ load (const char *file_name, struct intr_frame *if_) {
 				break;
 		}
 	}
-	//printf("load , load segment 완료\n");
+	////printf("load , load segment 완료\n");
 	t->running = file;
 	file_deny_write(t->running);
 
 	/* Set up stack. */
 	if (!setup_stack (if_)){
-		//printf("load setup stack이 문제다\n");
+		////printf("load setup stack이 문제다\n");
 		goto done;
 	}
 
 	/* Start address. */
 	if_->rip = ehdr.e_entry;
-	//printf("load , success 직전까지 도달.\n");
+	////printf("load , success 직전까지 도달.\n");
 	success = true;
 
 done:
@@ -733,7 +733,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 
 		/* Add the page to the process's address space. */
 		if (!install_page (upage, kpage, writable)) {
-			printf("fail\n");
+			//printf("fail\n");
 			palloc_free_page (kpage);
 			return false;
 		}
@@ -790,22 +790,22 @@ bool
 lazy_load_segment (struct page *page, void *aux) {
 
 	struct page_load_data *aux_d = (struct page_load_data *)aux;
-	//printf("------lazy load segment aux_d : %p\n", aux_d);
-	//printf("--------lazy load segment aux_d file: %p\n", aux_d->file);
-	//printf("-----lazy load segment aux_d ofs: %p\n", aux_d->ofs);
-	//printf("--------lazy load segment aux_d read bytes: %d\n", aux_d->read_bytes);
-	//printf("--------lazy load segment aux_d zero bytes: %d\n", aux_d->zero_bytes);
-	//printf("##########lazy load segmen###########t\n");
-	//printf("lazy load aux_d ofs : %d\n", aux_d->ofs);
+	////printf("------lazy load segment aux_d : %p\n", aux_d);
+	////printf("--------lazy load segment aux_d file: %p\n", aux_d->file);
+	////printf("-----lazy load segment aux_d ofs: %p\n", aux_d->ofs);
+	////printf("--------lazy load segment aux_d read bytes: %d\n", aux_d->read_bytes);
+	////printf("--------lazy load segment aux_d zero bytes: %d\n", aux_d->zero_bytes);
+	////printf("##########lazy load segmen###########t\n");
+	////printf("lazy load aux_d ofs : %d\n", aux_d->ofs);
 	file_seek(aux_d->file, aux_d->ofs);
-	//printf("##########lazy load segment 2222###########\n");
+	////printf("##########lazy load segment 2222###########\n");
 	if(file_read(aux_d->file, page->frame->kva, aux_d->read_bytes) != (int)aux_d->read_bytes){
 		palloc_free_page(page->frame->kva);
 		return false;
 	}
-	//printf("##########lazy load segment 3333###########\n");
+	////printf("##########lazy load segment 3333###########\n");
 	memset((page->frame->kva)+(aux_d->read_bytes), 0, aux_d->zero_bytes);
-	//printf("##########lazy load segment 4444###########\n");
+	////printf("##########lazy load segment 4444###########\n");
 	return true;
 	/* TODO: Load the segment from the file */
 	/* TODO: This called when the first page fault occurs on address VA. */
@@ -832,18 +832,18 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 	ASSERT ((read_bytes + zero_bytes) % PGSIZE == 0);
 	ASSERT (pg_ofs (upage) == 0);
 	ASSERT (ofs % PGSIZE == 0);
-	//printf("load segment 진입\n");
+	////printf("load segment 진입\n");
 	while (read_bytes > 0 || zero_bytes > 0) {
-		//printf("load segment while 진입\n");
+		////printf("load segment while 진입\n");
 		/* Do calculate how to fill this page.
 		 * We will read PAGE_READ_BYTES bytes from FILE
 		 * and zero the final PAGE_ZERO_BYTES bytes. */
-		//printf("load segment read bytes : %d\n", read_bytes);
-		//printf("load segment zero bytes : %d\n", zero_bytes);
+		////printf("load segment read bytes : %d\n", read_bytes);
+		////printf("load segment zero bytes : %d\n", zero_bytes);
 		size_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
 		size_t page_zero_bytes = PGSIZE - page_read_bytes;
-		//printf("load segment page- read bytes : %d\n", page_read_bytes);
-		//printf("load segment page zero bytes : %d\n",page_zero_bytes);
+		////printf("load segment page- read bytes : %d\n", page_read_bytes);
+		////printf("load segment page zero bytes : %d\n",page_zero_bytes);
 		/* TODO: Set up aux to pass information to the lazy_load_segment. */
 		struct page_load_data *aux = malloc(sizeof(struct page_load_data));
 		aux->file = file;
@@ -851,14 +851,14 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		aux->zero_bytes = page_zero_bytes;
 		aux->ofs = ofs;
 		
-		//printf("--------load segment aux ofs : %d-----------\n", aux->ofs);
-		//printf("--------load segment aux file : %p-----------\n", aux->file);
-		//printf("--------load segment aux read bytes : %d-----------\n", aux->read_bytes);
-		//printf("--------load segment aux zero bytes : %d-----------\n", aux->zero_bytes);
+		////printf("--------load segment aux ofs : %d-----------\n", aux->ofs);
+		////printf("--------load segment aux file : %p-----------\n", aux->file);
+		////printf("--------load segment aux read bytes : %d-----------\n", aux->read_bytes);
+		////printf("--------load segment aux zero bytes : %d-----------\n", aux->zero_bytes);
 		
 		if (!vm_alloc_page_with_initializer (VM_ANON, upage,
 					writable, lazy_load_segment, aux)){
-			//printf("load segment vm allod page with initializer fail\n");
+			////printf("load segment vm allod page with initializer fail\n");
 			return false;
 					}
 
@@ -868,7 +868,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		upage += PGSIZE;
 		ofs += page_read_bytes;
 	}
-	//printf("load segment true 끝\n");
+	////printf("load segment true 끝\n");
 	return true;
 }
 
@@ -882,7 +882,7 @@ setup_stack (struct intr_frame *if_) {
 	 * TODO: If success, set the rsp accordingly.
 	 * TODO: You should mark the page is stack. */
 	/* TODO: Your code goes here */
-	//printf("setup stack stack_bottom : %p\n", stack_bottom);
+	////printf("setup stack stack_bottom : %p\n", stack_bottom);
 	if(vm_alloc_page(VM_ANON |VM_MARKER_0, stack_bottom, true)){
 		if(vm_claim_page(stack_bottom)){
 			if_->rsp = USER_STACK;

@@ -148,14 +148,14 @@ syscall_handler (struct intr_frame *f) {
 pid_t 
 ffork (const char *thread_name, struct intr_frame *f){
 
-	printf("ffork! \n");
+	//printf("ffork! \n");
 	return process_fork(thread_name, f);
 
 }
 
 void
 check_address(const uint64_t *addr){
-	 printf("check address 진입\n");
+	 //printf("check address 진입\n");
 	if(addr == NULL){
 
 		exit(-1);
@@ -201,7 +201,7 @@ exit (int status) {
 int
 exec (const char *file) {
 	check_address(file);
-	printf("exec file :%p\n", file);
+	//printf("exec file :%p\n", file);
 	tid_t tid;
 	char * f_name_copy;
 	f_name_copy = palloc_get_page(PAL_ZERO);
@@ -418,7 +418,7 @@ void *mmap (void *addr, size_t length, int writable, int fd, off_t offset){
 		return NULL;
 	}
 	struct file *file = thread_current()->fdt[fd];
-	printf("mmap\n");
+	//printf("mmap\n");
 	if (fd >64 || fd <0){
 		return NULL;
 	}
@@ -429,7 +429,7 @@ void *mmap (void *addr, size_t length, int writable, int fd, off_t offset){
 		return NULL;
 	} 
 	if(file_length(file)== 0){
-		printf("mmap file_ length file == 0!\n");
+		//printf("mmap file_ length file == 0!\n");
 		exit(-1);
 	}
 	if(length == 0){
@@ -444,7 +444,7 @@ void *mmap (void *addr, size_t length, int writable, int fd, off_t offset){
 	}
 	//printf("mmap file :%p\n", file);
 	if(file != NULL){
-		printf("mmap file!= NULL!\n");
+		//printf("mmap file!= NULL!\n");
 	return do_mmap(addr, length, writable, file, offset);
 	}
 
