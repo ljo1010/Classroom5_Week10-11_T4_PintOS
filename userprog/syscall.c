@@ -148,7 +148,7 @@ syscall_handler (struct intr_frame *f) {
 pid_t 
 ffork (const char *thread_name, struct intr_frame *f){
 
-
+	printf("ffork! \n");
 	return process_fork(thread_name, f);
 
 }

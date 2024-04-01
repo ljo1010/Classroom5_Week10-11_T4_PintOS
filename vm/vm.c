@@ -104,6 +104,7 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 			//printf("vm alloc with initializer insert 실패\n");
 			return false;
 		}
+		printf("vm allco page with initializer 완료!\n");
 		return true;
 	}
 	//////printf("vm alloc page with initializer spt find not null\n");
@@ -513,10 +514,9 @@ vm_claim_page (void *va UNUSED) {
 	// va를 할당할 페이지를 요청.
 	// 먼저 페이지를 가져온다음, 페이지로 do_claim page 호출.
 	struct thread *cur = thread_current();
-
 	page = spt_find_page(&cur->spt, va);
 	if(page == NULL){
-		//////printf("vm claim page : page == NULL\n");
+		printf("vm claim page : page == NULL\n");
 		return false;
 	}
 	return vm_do_claim_page (page);
@@ -526,7 +526,7 @@ vm_claim_page (void *va UNUSED) {
 static bool
 vm_do_claim_page (struct page *page) {
 	struct frame *frame = vm_get_frame ();
-	//printf("vm do claim page 진입\n");
+	printf("vm do claim page 진입\n");
 	/* Set links */
 	//printf("vm do claim page  page:%p\n", page);
 	//printf("vm do claim page  frame:%p\n", frame);
@@ -546,14 +546,17 @@ vm_do_claim_page (struct page *page) {
 	lock_acquire(&swap_lock);
 	list_push_back(&swap, &(frame->frame_elem));
 	lock_release(&swap_lock);
+
 	if(!pml4_set_page(cur->pml4, page->va, frame->kva, page->writable)){
 		printf("vm do claim page pml4 set page fail!\n");
 		return false;
 	}
 
-	//printf("##############2222#############\n");
-	//printf("vm do claim page  page:%p\n", page);
-	//printf("vm do claim page frame kva : %p\n", frame->kva);
+	printf("##############2222#############\n");
+	printf("vm do claim page  page:%p\n", page);
+	printf("vm do claim page frame kva : %p\n", frame->kva);
+	
+	printf("vm do claim page swap in :%p\n", page->operations->swap_in);
 	return swap_in (page, frame->kva);
 }
 
@@ -571,34 +574,37 @@ bool
 spt_hash_copy (struct hash *dst UNUSED,
 		struct hash *src UNUSED) {
 	
-	// ////printf("spt hash copy 진입\n");
+	printf("spt hash copy 진입\n");
 	struct hash_iterator i;
 	hash_first(&i, src);
 	while(hash_next(&i)){
-		// ////printf("spt hash copy while hash next 도는중...\n");
+		printf("spt hash copy while hash next 도는중...\n");
 		struct page *p = hash_entry(hash_cur(&i), struct page, hash_elem);
-		////printf("spt hash copy type :%p\n", p->operations->type);
-		////printf("spt hash copy page p :%p\n", p);
+		printf("spt hash copy type :%p\n", p->operations->type);
+		printf("spt hash copy page p :%p\n", p);
 		switch (VM_TYPE(p->operations->type))
 		{
 		case VM_UNINIT:
-			////printf("spt hash copy VM_UNINIT\n");
+			printf("spt hash copy VM_UNINIT\n");
 			if(!vm_alloc_page_with_initializer(p->uninit.type, p->va, p->writable, p->uninit.init,p->uninit.aux)){
+				printf("default vm claim page VM_UNINIT is error!!\n");
 				return false;
 			}
 			break;
 		default:
-			////printf("spt hash copy default\n");
+			printf("spt hash copy default\n");
 			if(vm_alloc_page(p->operations->type, p->va, p->writable)){
 				if(!vm_claim_page(p->va)){
+					printf("default vm claim page Default is error!!\n");
 					return false;
 				}
+				printf("spt hash copy vm claim page succ!\n");
 			}
 			break;
 		}
 		if(p->operations->type != VM_UNINIT){
 			struct page *k;
-			////printf("spt hash copy dst : %p\n", dst);
+			printf("spt hash copy dst : %p\n", dst);
 			k = spt_find_page(dst, p->va);
 			////printf("spt hash copy page k :%p\n");
 			// if(k == NULL){

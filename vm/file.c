@@ -41,7 +41,7 @@ file_backed_initializer (struct page *page, enum vm_type type, void *kva) {
 static bool
 file_backed_swap_in (struct page *page, void *kva) {
 	struct file_page *file_page UNUSED = &page->file;
-	//printf("file backed swap in!\n");
+	printf("file backed swap in!\n");
 
 	// void *va  = do_mmap(kva, file_length(page->file.file), page->writable, page->file.file, page->file.ofs);
 	// if(va == kva){

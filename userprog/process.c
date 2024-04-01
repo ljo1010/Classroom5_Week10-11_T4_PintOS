@@ -112,15 +112,15 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	
 	struct thread *child = get_child_process(tid);
 
-	// printf("process fork child : %p\n", child);
-	// printf("process fork child fork_wait : %p\n", child->fork_wait);
+	printf("process fork child : %p\n", child);
+	printf("process fork child fork_wait : %p\n", child->fork_wait);
 	sema_down(&child->fork_wait);
 
 	if(child->exit_status == -1){
 		// printf("process fork child exit status is -1\n");
 		return TID_ERROR;
 	}
-	
+	printf("process fork 거의 완료!\n");
 	return tid;
 }
 
@@ -177,11 +177,11 @@ __do_fork (void *aux) {
 	bool succ = true;
 	parent_if = &parent->parent_if;
 
-	// printf("do fork 진입\n");
+	printf("do fork 진입\n");
 	/* 1. Read the cpu context to local stack. */
 	memcpy (&if_, parent_if, sizeof (struct intr_frame));
 	if_.R.rax = 0;
-	// printf("do fork memcpy 이후\n");
+	printf("do fork memcpy 이후\n");
 	/* 2. Duplicate PT */
 	current->pml4 = pml4_create();
 	if (current->pml4 == NULL){
@@ -189,15 +189,15 @@ __do_fork (void *aux) {
 
 	}
 	
-	// printf("do fork pml4 create 이후\n");
+	printf("do fork pml4 create 이후\n");
 	process_activate (current);
-	// printf("do fork process activate 이후\n");
+	printf("do fork process activate 이후\n");
 #ifdef VM
 	spt_hash_init (&current->spt);
-	// printf("do fork hash init 이후\n");
+	printf("do fork hash init 이후\n");
 	if (!spt_hash_copy (&current->spt, &parent->spt))
 		goto error;
-	// printf("do fork hash copy 이후\n");
+	printf("do fork hash copy 이후\n");
 #else
 	if (!pml4_for_each (parent->pml4, duplicate_pte, parent)){
 

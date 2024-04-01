@@ -20,8 +20,10 @@ test_main (void)
   if (memcmp (actual, sample, strlen (sample)))
     fail ("read of mmap'd file reported bad data");
 
+printf("mmap inherit memcpy 완료!\n");
 	/* Spawn child and wait. */
 	child = fork("child-inherit");
+  printf("mmap inherit fork 완료!\n");
 	if (child == 0) {
 		CHECK (exec ("child-inherit") != -1, "exec \"child-inherit\"");
 	}	else {
