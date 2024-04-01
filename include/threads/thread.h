@@ -40,7 +40,7 @@ typedef int tid_t;
 
 //**//
 //file disripter
-// #define FDT_PAGES 2
+#define FDT_PAGES 2
 #define FDT_COUNT_LIMIT 128
 
 //**//
