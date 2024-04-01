@@ -13,20 +13,25 @@ Formatting file system...done.
 Boot complete.
 Putting 'args-none' into the file system...
 Executing 'args-none':
+check address 진입
 (args) begin
+check address 진입
 (args) argc = 1
+check address 진입
 (args) argv[0] = 'args-none'
+check address 진입
 (args) argv[1] = null
+check address 진입
 (args) end
 args-none: exit(0)
 Execution of 'args-none' complete.
-Timer: 64 ticks
-Thread: 30 idle ticks, 31 kernel ticks, 3 user ticks
+Timer: 67 ticks
+Thread: 30 idle ticks, 30 kernel ticks, 7 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1004 characters output
+Console: 1109 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

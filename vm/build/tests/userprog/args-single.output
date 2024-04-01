@@ -13,21 +13,27 @@ Formatting file system...done.
 Boot complete.
 Putting 'args-single' into the file system...
 Executing 'args-single onearg':
+check address 진입
 (args) begin
+check address 진입
 (args) argc = 2
+check address 진입
 (args) argv[0] = 'args-single'
+check address 진입
 (args) argv[1] = 'onearg'
+check address 진입
 (args) argv[2] = null
+check address 진입
 (args) end
 args-single: exit(0)
 Execution of 'args-single onearg' complete.
-Timer: 65 ticks
-Thread: 30 idle ticks, 31 kernel ticks, 4 user ticks
+Timer: 68 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1067 characters output
+Console: 1193 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

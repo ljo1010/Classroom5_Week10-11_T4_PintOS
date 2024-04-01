@@ -143,8 +143,8 @@ do_mmap (void *addr, size_t length, int writable,
 	void * new_addr = addr;
 	int count = length <= PGSIZE ? 1 : (length%PGSIZE ? length/PGSIZE +1: length/PGSIZE);
 	// printf("do mmap \n");
-	// printf("do mmap length : %d\n", length);
-	// printf("do mmap addr : %p\n", addr);
+	printf("do mmap length : %d\n", length);
+	printf("do mmap addr : %p\n", addr);
 	
 	size_t read_bytes = file_length(f) < length ? file_length(f) : length;
 	size_t zero_bytes = PGSIZE - (read_bytes%PGSIZE) ;
@@ -178,7 +178,7 @@ do_mmap (void *addr, size_t length, int writable,
 		succ = true;
 	}
 	if(succ){
-		//printf("do mmap success!\n");
+		printf("do mmap success!\n");
 		//printf("do mmap final addr : %p\n", addr);
 		return addr;
 	}

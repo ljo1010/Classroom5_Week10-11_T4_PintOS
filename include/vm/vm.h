@@ -64,7 +64,7 @@ struct page {
 
 	int mapping_count;
 	bool copy_writable;
-
+	bool swap;
 	
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */
@@ -138,5 +138,10 @@ struct page *page_lookup (const void *address);
 void page_entry_destroy(struct hash_elem *e, void *aux);
 
 struct swap_table_entry* find_swe_in_swap(void);
+
+void hash_action_destroy(struct hash_elem* hash_elem_, void *aux);
+
+void spt_hash_free(struct hash *spt);
+void free_frame(struct frame* frame);
 
 #endif  /* VM_VM_H */

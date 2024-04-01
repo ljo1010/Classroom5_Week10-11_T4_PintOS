@@ -97,6 +97,7 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 			break;
 		}
 		page->writable = writable;
+		page->swap = false;
 		//printf("vm alloc with initializer writable 설정\n");
 		/* TODO: Insert the page into the spt. */
 		if (!spt_insert_page(spt, page)) {
@@ -642,6 +643,32 @@ spt_hash_kill (struct hash *spt UNUSED) {
 }
 
 void
+spt_hash_free(struct hash *spt){
+	hash_destroy(&spt, hash_action_destroy);
+}
+
+void hash_action_destroy(struct hash_elem* hash_elem_, void *aux){
+	struct page* page = hash_entry(hash_elem_, struct page, hash_elem);
+
+	if(page!=NULL){
+		if (VM_TYPE(page->operations->type) == VM_FILE && !page->swap) {
+        	struct file_page *file_page = &page->file;
+			struct file* file = file_page->file; // 파일 포인터 갱신
+			//!!TODO: dirty bit check
+			if(file)
+				file_write_at(file, page->frame->kva, file_page->read_bytes, file_page->ofs);
+		}
+		//!!TODO: file close
+		if(page->frame != NULL){
+			free_frame(page->frame);
+			page->frame = NULL;
+		}
+	   	vm_dealloc_page(page);
+	}
+}
+
+
+void
 page_entry_destroy(struct hash_elem *e, void *aux){
 
 	struct page *p = hash_entry(e, struct page, hash_elem);
@@ -651,6 +678,14 @@ page_entry_destroy(struct hash_elem *e, void *aux){
 	destroy(p);
 	free(p);
 
+}
+
+//frame의 존재는 함수 호출자에서 확인
+void free_frame(struct frame* frame){
+	list_remove(&frame->frame_elem);
+	pml4_clear_page(thread_current()->pml4, frame->page->va);
+	palloc_free_page(frame->kva);
+	free(frame);
 }
 
 
