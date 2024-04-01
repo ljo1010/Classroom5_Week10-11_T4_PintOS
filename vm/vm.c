@@ -224,47 +224,32 @@ bool
 vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
 
-	struct supplemental_page_table *spt UNUSED = &thread_current ()->spt;
+	struct supplemental_page_table *spt UNUSED = &thread_current()->spt;
 	struct page *page = NULL;
-	/* TODO: Validate the fault */
-	/* TODO: Your code goes here */
-	/*페이지가 NULL일때 인터럽트를 하고 false를 반환*/
-	/*USER_STACK - (1<<20) <= rsp <= addr <= USER_STACK
-	  */
-	if(addr == NULL)
-	{
+	if (addr == NULL)
 		return false;
-	}
-	if(is_kernel_vaddr(addr))
-	{
-		return false;
-	}
-	//페이지를 얻고 처리한다. supplmental page table
-	if(not_present)
-	{
-		void *rsp = f->rsp;
-		if(!user)
-		{
-			rsp = thread_current()->rsp;
-		}
-		//1 mb = 1024(kb) * 1024(byte)
-	if(USER_STACK - (1<<20) <= rsp - 8 && rsp - 8 == addr && addr <= USER_STACK)
-		vm_stack_growth(addr);
-	if(USER_STACK - (1<<20) <= rsp <= addr && addr <= USER_STACK)
-		vm_stack_growth(addr);
 
-	page = spt_find_page(spt, addr);
-	if(page == NULL)
-	{
+	if (is_kernel_vaddr(addr))
 		return false;
-	}
-	if(write == 1 && page->writable == 0)
+
+	if (not_present) // 접근한 메모리의 physical page가 존재하지 않은 경우
 	{
-		return false;
-	}
-	//페이지 클레임 페이지가 올바르게 처리되고 메모리에 올라간 뒤에 함수를 사용해 
-	//다른 스레드가 그것을 수정하지 못하게 하는 중요한 단계
-	return vm_do_claim_page (page);
+		/* TODO: Validate the fault */
+		// todo: 페이지 폴트가 스택 확장에 대한 유효한 경우인지를 확인해야 합니다.
+		void *rsp = f->rsp; // user access인 경우 rsp는 유저 stack을 가리킨다.
+		if (!user)			// kernel access인 경우 thread에서 rsp를 가져와야 한다.
+			rsp = thread_current()->rsp;
+
+		// 스택 확장으로 처리할 수 있는 폴트인 경우, vm_stack_growth를 호출
+		if ((USER_STACK - (1 << 20) <= rsp - 8 && rsp - 8 == addr && addr <= USER_STACK) || (USER_STACK - (1 << 20) <= rsp && rsp <= addr && addr <= USER_STACK))
+			vm_stack_growth(addr);
+
+		page = spt_find_page(spt, addr);
+		if (page == NULL)
+			return false;
+		if (write == 1 && page->writable == 0) // write 불가능한 페이지에 write 요청한 경우
+			return false;
+		return vm_do_claim_page(page);
 	}
 	return false;
 }
@@ -360,6 +345,7 @@ bool supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED, s
             file_aux->file = src_p->file.file;
             file_aux->ofs = src_p->file.ofs;
             file_aux->read_bytes = src_p->file.read_bytes;
+			file_aux->zero_bytes = src_p->file.zero_bytes;
             if (!vm_alloc_page_with_initializer(type, upage, writable, NULL, file_aux))
                 return false;
             struct page *file_page = spt_find_page(dst, upage);
