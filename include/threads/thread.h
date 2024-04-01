@@ -207,5 +207,5 @@ int max_priority(void);
 void increment_recent_cpu(void);
 
 struct thread* get_child_process(int pid);
-
+void thread_test_preemption (void);
 #endif /* threads/thread.h */

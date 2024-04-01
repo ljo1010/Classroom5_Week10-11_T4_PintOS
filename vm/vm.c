@@ -225,11 +225,11 @@ vm_get_victim (void) {
   //printf("vm get victim swap_len : %d\n", swap_len);
   for (size_t i = 0; i < swap_len; i++)
   {
-	printf("vm get victim i : %d\n", i);
+	//printf("vm get victim i : %d\n", i);
     tmp_frame = list_entry(tmp, struct frame, frame_elem);
     if (pml4_is_accessed(thread_current()->pml4, tmp_frame->page->va))
     {
-	printf("accessed! : vm get victim tmp frame : %p\n", tmp_frame);
+	//printf("accessed! : vm get victim tmp frame : %p\n", tmp_frame);
       pml4_set_accessed(thread_current()->pml4, tmp_frame->page->va, false);
       next_tmp = list_next(tmp);
       list_remove(tmp);
@@ -238,7 +238,7 @@ vm_get_victim (void) {
       continue;
     }
     if (victim == NULL)
-    {
+    { 
 	//printf("not accessed! : vm get victim tmp frame : %p\n", tmp_frame);
       victim = tmp_frame;
       next_tmp = list_next(tmp);

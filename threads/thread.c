@@ -278,7 +278,9 @@ thread_create (const char *name, int priority,
 	// 생성시 선점형 구현
 	struct thread *curr = thread_current();
 	if (curr->priority < t->priority){
-		thread_yield();
+		if (!intr_context()){
+			thread_yield();
+		}
 	}
 	return tid;
 }
@@ -525,7 +527,10 @@ thread_set_nice (int nice UNUSED) {
 		else if(t->status == THREAD_RUNNING && 
 		list_entry(list_begin(&ready_list), 
 		struct thread, elem)->priority > t->priority){
-			thread_yield();
+		if (!intr_context()){
+			thread_yield ();
+		}
+		
 		}
 	}
 
@@ -1019,3 +1024,15 @@ get_child_process(int pid){
 	return NULL;
 
 }
+
+void thread_test_preemption (void)
+{
+	if (!list_empty (&ready_list) && thread_current ()->priority 
+	< list_entry (list_front(&ready_list), struct thread, elem)->priority)
+	{
+		if (!intr_context()){
+			thread_yield ();
+		}
+	}
+}
+//출처: https://woonys.tistory.com/entry/PintOS-Project-3-WIL정글사관학교-84일차-TIL [WOONY's 인사이트:티스토리]

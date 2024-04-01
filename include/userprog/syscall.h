@@ -45,7 +45,9 @@ void seek (int fd, unsigned position);
 unsigned tell (int fd);
 void close (int fd);
 void check_address(const uint64_t *addr);
+void validate_buffer(void *buffer, size_t size, bool to_write);
 
+void check_invalid_write(void *addr);
 
 
 struct file* get_file_fd(int fd);

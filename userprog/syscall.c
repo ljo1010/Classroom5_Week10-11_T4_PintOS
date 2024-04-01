@@ -285,6 +285,8 @@ filesize (int fd) {
 int
 read (int fd, void *buffer, unsigned size) {
 	//printf("syscall read 진입.\n");
+	check_invalid_write(buffer);
+	//validate_buffer(buffer, size, false);
 	check_address(buffer);
 	// printf("syscall check address 성공.\n");
 	lock_acquire(&filesys_lock);
@@ -320,6 +322,8 @@ read (int fd, void *buffer, unsigned size) {
 int
 write (int fd, const void *buffer, unsigned size) {
 	check_address(buffer);
+	//printf("syscall write 진입\n");
+	//validate_buffer(buffer, size, false);
 	lock_acquire(&filesys_lock);
 
 	if(fd >64 || fd <0){
@@ -457,4 +461,46 @@ void munmap (void *addr){
 	check_address(addr);
 	//printf("-----munmap-------\n");
 	do_munmap(addr);
+}
+
+
+void validate_buffer(void *buffer, size_t size, bool to_write)
+{
+    if (buffer == NULL)
+        exit(-1);
+	//printf("validate buffer buffer :%p, size : %d, to_write: %d\n", buffer, size, to_write);
+    void *start_addr = pg_round_down(buffer);
+    void *end_addr = pg_round_down(buffer + size);
+
+    ASSERT(start_addr <= end_addr);
+    for (void *addr = end_addr; addr >= start_addr; addr -= PGSIZE)
+    {
+		if(is_kernel_vaddr(addr)){
+			exit(-1);
+		}
+		struct page *pg = spt_find_page(&thread_current()->spt, addr);
+        if (pg == NULL)
+        {
+            exit(-1);
+        }
+        if (pg->writable == false && to_write == true)
+        {
+            //printf("%s: pg->writable: %p\n", thread_current()->name, pg->writable);
+            exit(-1);
+        }
+    }
+}
+
+void
+check_invalid_write(void *addr){
+	if(addr <= USER_STACK && addr >= USER_STACK - (1<<20)){
+		return;
+	}
+	struct page *page = spt_find_page(&thread_current()->spt, addr);
+	if(page == NULL){
+		exit(-1);
+	}
+	else if(page->writable == false){
+		exit(-1);
+	}
 }
