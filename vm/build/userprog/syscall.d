@@ -11,10 +11,10 @@ userprog/syscall.o: ../../userprog/syscall.c \
  ../../include/vm/vm.h ../../include/threads/palloc.h \
  ../../include/devices/disk.h ../../include/lib/inttypes.h \
  ../../include/vm/uninit.h ../../include/vm/anon.h \
- ../../include/vm/file.h ../../include/threads/loader.h \
- ../../include/userprog/gdt.h ../../include/threads/flags.h \
- ../../include/intrinsic.h ../../include/threads/mmu.h \
- ../../include/threads/pte.h ../../include/threads/vaddr.h \
+ ../../include/threads/vaddr.h ../../include/threads/loader.h \
+ ../../include/vm/file.h ../../include/userprog/gdt.h \
+ ../../include/threads/flags.h ../../include/intrinsic.h \
+ ../../include/threads/mmu.h ../../include/threads/pte.h \
  ../../include/threads/init.h ../../include/filesys/filesys.h \
  ../../include/devices/input.h ../../include/userprog/process.h \
  ../../include/lib/kernel/console.h ../../include/lib/kernel/stdio.h \

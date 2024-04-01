@@ -11,6 +11,6 @@ userprog/exception.o: ../../userprog/exception.c \
  ../../include/lib/kernel/list.h ../../include/lib/kernel/hash.h \
  ../../include/vm/vm.h ../../include/threads/palloc.h \
  ../../include/devices/disk.h ../../include/vm/uninit.h \
- ../../include/vm/anon.h ../../include/vm/file.h \
- ../../include/intrinsic.h ../../include/threads/mmu.h \
- ../../include/threads/pte.h ../../include/threads/vaddr.h
+ ../../include/vm/anon.h ../../include/threads/vaddr.h \
+ ../../include/vm/file.h ../../include/intrinsic.h \
+ ../../include/threads/mmu.h ../../include/threads/pte.h

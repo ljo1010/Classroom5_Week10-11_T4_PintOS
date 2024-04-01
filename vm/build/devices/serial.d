@@ -11,4 +11,5 @@ devices/serial.o: ../../devices/serial.c ../../include/devices/serial.h \
  ../../include/vm/vm.h ../../include/threads/palloc.h \
  ../../include/devices/disk.h ../../include/lib/inttypes.h \
  ../../include/vm/uninit.h ../../include/vm/anon.h \
+ ../../include/threads/vaddr.h ../../include/threads/loader.h \
  ../../include/vm/file.h

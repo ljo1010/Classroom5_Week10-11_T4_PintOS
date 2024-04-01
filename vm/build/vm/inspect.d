@@ -8,6 +8,6 @@ vm/inspect.o: ../../vm/inspect.c ../../include/threads/interrupt.h \
  ../../include/vm/vm.h ../../include/threads/palloc.h \
  ../../include/devices/disk.h ../../include/lib/inttypes.h \
  ../../include/vm/uninit.h ../../include/vm/anon.h \
+ ../../include/threads/vaddr.h ../../include/threads/loader.h \
  ../../include/vm/file.h ../../include/threads/mmu.h \
- ../../include/threads/pte.h ../../include/threads/vaddr.h \
- ../../include/threads/loader.h ../../include/vm/inspect.h
+ ../../include/threads/pte.h ../../include/vm/inspect.h

@@ -11,6 +11,7 @@
 #include "kernel/bitmap.h"
 #include "devices/disk.h"
 
+
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
 void
@@ -266,9 +267,11 @@ vm_evict_frame (void) {
 	// }
 
 	struct frame *victim = vm_get_victim();
+	//printf("vm evict frame victim  : %p\n", victim->page);
   /* TODO: swap out the victim and return the evicted frame. */
-  if (!swap_out(victim->page))
+  if (!swap_out(victim->page)){
     return NULL;
+  }
 
   	victim->page = NULL;
   	memset(victim->kva, 0, PGSIZE);
@@ -395,7 +398,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	struct page *page = NULL;
 
 	// printf("vm try handle fault 진입\n");
-
+	//printf("[DBG] vm_try_handle_fault(): addr = %p, user = %d, write = %d, not_present = %d\n",   addr, user, write, not_present); /////////////
 	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE); // 0x4747F000 USER_STACK 0x47480000
 	void *stack_max = (void *) (((uint8_t *) USER_STACK) - (1<<20)); //0x4757F000
 	uintptr_t rsp;

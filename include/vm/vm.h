@@ -9,6 +9,8 @@
 struct list swap;
 struct lock swap_lock;
 
+struct list frame_list;
+
 enum vm_type {
 	/* page not initialized */
 	VM_UNINIT = 0,
@@ -61,9 +63,9 @@ struct page {
 	off_t ofs;
 
 	int mapping_count;
+	bool copy_writable;
 
-	struct swap_table_entry *swe;
-
+	
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */
 	union {
@@ -81,6 +83,7 @@ struct frame {
 	void *kva;
 	struct page *page;
 	struct list_elem frame_elem;
+	struct list_elem elem;
 };
 
 /* The function table for page operations.

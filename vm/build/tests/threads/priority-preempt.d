@@ -11,4 +11,5 @@ tests/threads/priority-preempt.o: ../../tests/threads/priority-preempt.c \
  ../../include/vm/vm.h ../../include/threads/palloc.h \
  ../../include/devices/disk.h ../../include/lib/inttypes.h \
  ../../include/vm/uninit.h ../../include/vm/anon.h \
+ ../../include/threads/vaddr.h ../../include/threads/loader.h \
  ../../include/vm/file.h
