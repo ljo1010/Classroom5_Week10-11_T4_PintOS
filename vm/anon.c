@@ -27,19 +27,19 @@ vm_anon_init (void)
 	list_init(&swap_table);
 	lock_init(&swap_table_lock);
 
-	/*디스크 크기정도의 slot을 만들어서 table에 넣기
-	  1sector = 512 바이트, 1 page = 4096bytes(PGSIZE) -> 1 slot = 8 sector*/
+	// swap_disk 크기만큼 slot을 만들어서 swap_table에 넣어둔다.
+	// 1 slot에 1 page를 담을 수 있는 slot 개수 구하기
+	// : 1 sector = 512bytes, 1 page = 4096bytes -> 1 slot = 8 sector
 	disk_sector_t swap_size = disk_size(swap_disk) / 8;
 	for (disk_sector_t i = 0; i < swap_size; i++)
 	{
 		struct slot *slot = (struct slot *)malloc(sizeof(struct slot));
 		slot->page = NULL;
-		slot->slot_number = i;
+		slot->slot_no = i;
 		lock_acquire(&swap_table_lock);
 		list_push_back(&swap_table, &slot->swap_elem);
 		lock_release(&swap_table_lock);
 	}
-
 	 
 }
 
@@ -50,7 +50,7 @@ anon_initializer (struct page *page, enum vm_type type, void *kva) {
 	page->operations = &anon_ops;
 
 	struct anon_page *anon_page = &page->anon;
-	anon_page->slot_number = -1;
+	anon_page->slot_no = -1;
 	return true;
 }
 
@@ -59,25 +59,24 @@ static bool
 anon_swap_in (struct page *page, void *kva) 
 {
 	struct anon_page *anon_page = &page->anon;
-	disk_sector_t page_slot_no = anon_page->slot_number;
+	disk_sector_t page_slot_no = anon_page->slot_no; // page가 저장된 slot_no
 	struct list_elem *e;
 	struct slot *slot;
 	lock_acquire(&swap_table_lock);
-	
-	for(e = list_begin(&swap_disk); e != list_end(&swap_table); e = list_next(e))
-	{	
+	for (e = list_begin(&swap_table); e != list_end(&swap_table); e = list_next(e))
+	{
 		slot = list_entry(e, struct slot, swap_elem);
-		if(slot->slot_number == page_slot_no)
+		if (slot->slot_no == page_slot_no) // 현재 page가 사용중인 slot 찾기
 		{
-		for(int i = 0; i < 8; i++)
-		{
-			disk_read(swap_disk, page_slot_no*8 + i, kva + DISK_SECTOR_SIZE*i);
-		}
-		slot->page = NULL;
-		anon_page->slot_number = -1;
-		lock_release(&swap_table_lock);
-		return true;
-
+			for (int i = 0; i < 8; i++)
+			{
+				// 디스크, 읽을 섹터 번호, 담을 주소 (512bytes씩 읽는다. disk 관련은 동기화 처리가 되어 있어서 lock 불필요)
+				disk_read(swap_disk, page_slot_no * 8 + i, kva + DISK_SECTOR_SIZE * i);
+			}
+			slot->page = NULL;		 // 빈 slot으로 업데이트한다.
+			anon_page->slot_no = -1; // 이제 이 page는 swap_slot을 차지하지 않는다.
+			lock_release(&swap_table_lock);
+			return true;
 		}
 	}
 	lock_release(&swap_table_lock);
@@ -89,29 +88,24 @@ anon_swap_in (struct page *page, void *kva)
 static bool
 anon_swap_out (struct page *page) 
 {
-	if(page == NULL)
-	{
+	if (page == NULL)
 		return false;
-	}
 	struct anon_page *anon_page = &page->anon;
 	struct list_elem *e;
 	struct slot *slot;
-
 	lock_acquire(&swap_table_lock);
-	
-
-
-	for(e = list_begin(&swap_disk); e != list_end(&swap_table); e = list_next(e))
+	for (e = list_begin(&swap_table); e != list_end(&swap_table); e = list_next(e))
 	{
 		slot = list_entry(e, struct slot, swap_elem);
-		if(slot->page == NULL)
+		if (slot->page == NULL) // page가 NULL인 slot 찾기
 		{
-			for(int i = 0; i < 8; i++)
-			{
-				disk_write(swap_disk, slot->slot_number*8 + i, page->va + DISK_SECTOR_SIZE*i);
+			for (int i = 0; i < 8; i++)
+			{ // 찾은 slot에 page의 내용 저장
+				disk_write(swap_disk, slot->slot_no * 8 + i, page->va + DISK_SECTOR_SIZE * i);
 			}
-			anon_page->slot_number = slot->slot_number;
+			anon_page->slot_no = slot->slot_no;
 			slot->page = page;
+			// page와 frame의 연결을 끊는다.
 			page->frame->page = NULL;
 			page->frame = NULL;
 			pml4_clear_page(thread_current()->pml4, page->va);
@@ -128,19 +122,22 @@ static void
 anon_destroy (struct page *page) 
 {
 	struct anon_page *anon_page = &page->anon;
+	// anonymous page에 의해 유지되던 리소스를 해제합니다.
+	// page struct를 명시적으로 해제할 필요는 없으며, 호출자가 이를 수행해야 합니다.
+	struct list_elem *e;
+	struct slot *slot;
 
-	struct list_elem *elem;
-	struct slot * slot;
-
+	// 차지하던 slot 반환
 	lock_acquire(&swap_table_lock);
-	for (elem = list_begin(&swap_table); elem != list_end(&swap_table); elem = list_next(elem))
+	for (e = list_begin(&swap_table); e != list_end(&swap_table); e = list_next(e))
 	{
-		slot = list_entry(elem, struct slot, swap_elem);
-		if(slot->slot_number == anon_page->slot_number)
+		slot = list_entry(e, struct slot, swap_elem);
+		if (slot->slot_no == anon_page->slot_no)
 		{
 			slot->page = NULL;
 			break;
 		}
-	}	
+	}
 	lock_release(&swap_table_lock);
 }
+

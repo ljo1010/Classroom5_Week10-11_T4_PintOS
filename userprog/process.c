@@ -101,7 +101,7 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	//예외케이스이라서 -2로 설정했음. 일반적인 종료가 아니기 때문
 	if(child->exit_status == TID_ERROR)
 	{
-		sema_up(&child->exit_sema);
+		// sema_up(&child->exit_sema);
 
 		return TID_ERROR;
 	}
@@ -822,7 +822,7 @@ struct file*process_get_file(int fd)
 	//NULL을 리턴해야한다. 
 	struct thread*curr = thread_current();
 	struct file**fdt = curr->fdt;
-	if(fd < 0 || fd > FDT_COUNT_LIMIT)
+	if(fd < 2 || fd > FDT_COUNT_LIMIT)
 		return NULL;
 	
 	return fdt[fd];

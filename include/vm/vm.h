@@ -76,7 +76,7 @@ struct frame
 struct slot
 {
 	struct page *page;
-	uint32_t slot_number;
+	uint32_t slot_no;
 	struct list_elem swap_elem;
 };
 
