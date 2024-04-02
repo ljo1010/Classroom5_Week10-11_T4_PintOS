@@ -20,6 +20,8 @@
         "input.h": "c",
         "bitmap.h": "c",
         "list.h": "c",
-        "disk.h": "c"
+        "disk.h": "c",
+        "parallel-merge.h": "c",
+        "main.h": "c"
     }
 }

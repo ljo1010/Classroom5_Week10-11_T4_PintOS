@@ -235,19 +235,19 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	if (not_present) // 접근한 메모리의 physical page가 존재하지 않은 경우
 	{
 		/* TODO: Validate the fault */
-		// todo: 페이지 폴트가 스택 확장에 대한 유효한 경우인지를 확인해야 합니다.
-		void *rsp = f->rsp; // user access인 경우 rsp는 유저 stack을 가리킨다.
-		if (!user)			// kernel access인 경우 thread에서 rsp를 가져와야 한다.
+		void *rsp = f->rsp; 
+		if (!user)			
 			rsp = thread_current()->rsp;
 
 		// 스택 확장으로 처리할 수 있는 폴트인 경우, vm_stack_growth를 호출
-		if ((USER_STACK - (1 << 20) <= rsp - 8 && rsp - 8 == addr && addr <= USER_STACK) || (USER_STACK - (1 << 20) <= rsp && rsp <= addr && addr <= USER_STACK))
+		if ((USER_STACK - (1 << 20) <= rsp - 8 && rsp - 8 == addr && addr <= USER_STACK) ||
+		 	(USER_STACK - (1 << 20) <= rsp && rsp <= addr && addr <= USER_STACK))
 			vm_stack_growth(addr);
 
 		page = spt_find_page(spt, addr);
 		if (page == NULL)
 			return false;
-		if (write == 1 && page->writable == 0) // write 불가능한 페이지에 write 요청한 경우
+		if (write == 1 && page->writable == 0) 
 			return false;
 		return vm_do_claim_page(page);
 	}
@@ -265,7 +265,8 @@ vm_dealloc_page (struct page *page) {
 
 /* Claim the page that allocate on VA. */
 bool
-vm_claim_page (void *va UNUSED) {
+vm_claim_page (void *va UNUSED) 
+{
 	struct page *page = NULL;
 	/* TODO: Fill this function */
 	page = spt_find_page(&thread_current()->spt, va);
@@ -374,14 +375,12 @@ void supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED)
 {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
-
 	hash_clear(&spt->spt_table, hash_page_destory);
 }
 
 void hash_page_destory(struct hash_elem *e, void *aux)
 {
 	struct page *page = hash_entry(e, struct page, hash_elem);
-
 	destroy(page);
 	free(page);
 
