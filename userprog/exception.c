@@ -1,3 +1,4 @@
+
 #include "userprog/exception.h"
 #include <inttypes.h>
 #include <stdio.h>
@@ -122,7 +123,7 @@ page_fault (struct intr_frame *f) {
 	bool write;        /* True: access was write, false: access was read. */
 	bool user;         /* True: access by user, false: access by kernel. */
 	void *fault_addr;  /* Fault address. */
-
+	uint8_t byte;
 	/* Obtain faulting address, the virtual address that was
 	   accessed to cause the fault.  It may point to code or to
 	   data.  It is not necessarily the address of the instruction
@@ -134,18 +135,17 @@ page_fault (struct intr_frame *f) {
 	   be assured of reading CR2 before it changed). */
 	intr_enable ();
 
-	exit(-1);
 	/* Determine cause. */
 	not_present = (f->error_code & PF_P) == 0;
 	write = (f->error_code & PF_W) != 0;
 	user = (f->error_code & PF_U) != 0;
-
 #ifdef VM
 	/* For project 3 and later. */
 	if (vm_try_handle_fault (f, fault_addr, user, write, not_present))
 		return;
 #endif
-
+	// printf("fault......%p,%d,%d,%d\n",fault_addr,user,write,not_present);
+	exit(-1);
 	/* Count page faults. */
 	page_fault_cnt++;
 

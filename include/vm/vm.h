@@ -2,7 +2,10 @@
 #define VM_VM_H
 #include <stdbool.h>
 #include "threads/palloc.h"
-
+#include "kernel/hash.h"
+#include "threads/vaddr.h"
+#include "userprog/process.h"
+#include "lib/round.h"
 enum vm_type {
 	/* page not initialized */
 	VM_UNINIT = 0,
@@ -17,8 +20,8 @@ enum vm_type {
 
 	/* Auxillary bit flag marker for store information. You can add more
 	 * markers, until the value is fit in the int. */
-	VM_MARKER_0 = (1 << 3),
-	VM_MARKER_1 = (1 << 4),
+	IS_STACK = (1 << 3),
+	IS_WRITABLE = (1 << 4),
 
 	/* DO NOT EXCEED THIS VALUE. */
 	VM_MARKER_END = (1 << 31),
@@ -33,7 +36,10 @@ enum vm_type {
 
 struct page_operations;
 struct thread;
-
+// #define IS_WRITABLE(type) (((type) & ~8) & 9)
+// #define IS_STACK(type) (((type) & ~7) & 8)
+#define IS_WRITABLE(type) ((type) & IS_WRITABLE)
+#define IS_STACK(type) ((type) & IS_STACK)
 #define VM_TYPE(type) ((type) & 7)
 
 /* The representation of "page".
@@ -46,7 +52,7 @@ struct page {
 	struct frame *frame;   /* Back reference for frame */
 
 	/* Your implementation */
-
+	struct hash_elem hash_elem;
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */
 	union {
@@ -58,11 +64,17 @@ struct page {
 #endif
 	};
 };
-
+struct file_info{
+	struct file *file;
+	size_t bytes;
+	off_t offset;
+	int length;
+};
 /* The representation of "frame" */
 struct frame {
 	void *kva;
 	struct page *page;
+	struct list_elem elem;
 };
 
 /* The function table for page operations.
@@ -84,18 +96,16 @@ struct page_operations {
 /* Representation of current process's memory space.
  * We don't want to force you to obey any specific design for this struct.
  * All designs up to you for this. */
-struct supplemental_page_table {
-};
 
 #include "threads/thread.h"
-void supplemental_page_table_init (struct supplemental_page_table *spt);
-bool supplemental_page_table_copy (struct supplemental_page_table *dst,
-		struct supplemental_page_table *src);
-void supplemental_page_table_kill (struct supplemental_page_table *spt);
-struct page *spt_find_page (struct supplemental_page_table *spt,
+void supplemental_page_table_init (struct hash *spt);
+bool supplemental_page_table_copy (struct hash *dst,
+		struct hash *src);
+void supplemental_page_table_kill (struct hash *spt);
+struct page *spt_find_page (struct hash *spt,
 		void *va);
-bool spt_insert_page (struct supplemental_page_table *spt, struct page *page);
-void spt_remove_page (struct supplemental_page_table *spt, struct page *page);
+bool spt_insert_page (struct hash *spt, struct page *page);
+void spt_remove_page (struct hash *spt, struct page *page);
 
 void vm_init (void);
 bool vm_try_handle_fault (struct intr_frame *f, void *addr, bool user,

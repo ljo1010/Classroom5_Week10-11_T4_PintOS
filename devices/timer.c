@@ -73,8 +73,10 @@ timer_calibrate (void) {
 /* Returns the number of timer ticks since the OS booted. */
 int64_t
 timer_ticks (void) {
+	//잠깐 인터럽트 끔
 	enum intr_level old_level = intr_disable ();
 	int64_t t = ticks;
+	//원래대로 돌림
 	intr_set_level (old_level);
 	barrier ();
 	return t;
@@ -88,21 +90,14 @@ timer_elapsed (int64_t then) {
 }
 
 /* Suspends execution for approximately TICKS timer ticks. */
+// ticks 시간동안 프로그램을 멈추겠다
 void
 timer_sleep (int64_t ticks) {
 	int64_t start = timer_ticks ();
-	ASSERT (intr_get_level () == INTR_ON);	
 
-	// ********************************************** //
-	// [MOD; SLEEP-WAIT IMPL]
-	// DESCRIPTION call thread_sleep if timer_sleep is called in order to
-	// put the current thread to BLOCK state and update sleep list
+	ASSERT (intr_get_level () == INTR_ON);
+
 	thread_sleep(start + ticks);
-	// ********************************************** //
-	
-	// [LEGACY] BUSY-WAIT POLICY
-	// while (timer_elapsed (start) < ticks)
-	// 	thread_yield ();
 }
 
 /* Suspends execution for approximately MS milliseconds. */
@@ -128,40 +123,30 @@ void
 timer_print_stats (void) {
 	printf ("Timer: %"PRId64" ticks\n", timer_ticks ());
 }
-
 
+
 /* Timer interrupt handler. */
 static void
 timer_interrupt (struct intr_frame *args UNUSED) {
-	ticks++; // updates global tick
+	ticks++;
 	thread_tick ();
-
-	// ********************************************** //
-	// [MOD; MLFQS IMPL]
-	// DESCRIPTION every tick, 4 ticks, 1 seconds mlfqs must
-	// update values accordingly (see gitbook for clarification)
-	if(thread_mlfqs) {
-		if(ticks % TIMER_FREQ == 0) {
-			thread_mlfqs_calculate_load_avg();
-			thread_mlfqs_calculate_recent_cpu();
-		}
-
-		if(ticks % 4 == 0)
-			thread_mlfqs_calculate_priority();
-		
-		thread_mlfqs_increment_recent_cpu();
-	} else {
-		// [MOD; PREEMPTION PRIORITY IMPL]
-		// DESCRIPTION check the current running thread priority and ready list
-		// thread priority and swap if necessary
-		thread_preemption_priority();
-		// ********************************************** //
-	}
-	// [MOD; SLEEP-WAIT IMPL]
-	// DESCRIPTION call thread_awake every interrupt to check any thread
-	// that needs to be woken
+	/*
+		1. sleeplist 와 전역 tick 확인.
+		2. 깨울 thread 있는지 확인.
+		3. 깨울 쓰레드를 준비 리스트로 이동.
+		4. 전역 tick 업데이트 
+	*/
 	thread_awake(ticks);
-	// ********************************************** //
+	if(thread_mlfqs){
+		update_recent_cpu();
+		if(ticks % TIMER_FREQ == 0 ){
+			update_load_avg();
+			decay_recent_cpu();
+		}
+		if(ticks % 4 == 0) {
+			update_priority();
+		}
+	}
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer

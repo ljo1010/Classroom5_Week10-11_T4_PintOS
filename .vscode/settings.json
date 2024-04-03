@@ -1,15 +1,22 @@
 {
     "files.associations": {
+        "thread.h": "c",
+        "string.h": "c",
         "inttypes.h": "c",
         "stdio.h": "c",
         "interrupt.h": "c",
+        "gdt.h": "c",
         "intrinsic.h": "c",
-        "process.h": "c",
-        "vm.h": "c",
-        "loader.h": "c",
+        "syscall-nr.h": "c",
+        "malloc.h": "c",
+        "file.h": "c",
+        "inode.h": "c",
+        "syscall.h": "c",
+        "debug.h": "c",
         "*.inc": "c",
-        "synch.h": "c",
-        "intq.h": "c",
-        "string.h": "c"
-    }
+        "stdbool.h": "c",
+        "stdint.h": "c",
+        "vm.h": "c",
+        "process.h": "c"
+    },
 }
